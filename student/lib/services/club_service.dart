@@ -59,7 +59,7 @@ class Club {
 
 class ClubService {
   // Use your actual IP address with port 5000
-  static const String baseUrl = 'http://localhost:5000/api';
+  static const String baseUrl = 'https://campus-connect-p1ow.onrender.com/api';
 
   // Get auth token
   static Future<String?> getAuthToken() async {

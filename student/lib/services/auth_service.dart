@@ -6,7 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthService {
   // Use localhost for 'development'
-  static const String baseUrl = 'http://172.20.255.173:5000/api/auth';
+  static const String baseUrl = 'https://campus-connect-p1ow.onrender.com/api/auth';
 
   // Register user - FIXED THE URL TYPO
   static Future<Map<String, dynamic>> register({
