@@ -5,8 +5,9 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthService {
-  // Use localhost for 'development'
-  static const String baseUrl = 'https://campus-connect-p1ow.onrender.com/api/auth';
+  static const String baseUrl =
+    "https://campus-connect-p1ow.onrender.com/api/auth";
+   
 
   // Register user - FIXED THE URL TYPO
   static Future<Map<String, dynamic>> register({
@@ -27,13 +28,13 @@ class AuthService {
           'Content-Type': 'application/json',
         },
         body: json.encode({
-          'register_number': registerNumber,
-          'name': name,
-          'email': email,
-          'phone_number': phoneNumber,
-          'department': department,
-          'password': password,
-        }),
+  'registerNumber': registerNumber,
+  'name': name,
+  'email': email,
+  'phoneNumber': phoneNumber,
+  'department': department,
+  'password': password,
+}),
       ).timeout(const Duration(seconds: 10));
 
       print('✅ Response status: ${response.statusCode}');
@@ -53,7 +54,10 @@ class AuthService {
         throw Exception(errorData['message'] ?? 'Registration failed with status ${response.statusCode}');
       }
     } on SocketException {
-      throw Exception('🌐 Network error: Cannot connect to server. Please check:\n1. Backend is running on port 5000\n2. Correct IP address: 10.72.1.173\n3. Phone and computer are on same WiFi');
+  throw Exception(
+    'Cannot connect to server. Please check internet connection or backend server status.'
+  );
+}
     } on HttpException {
       throw Exception('🌐 HTTP error: Could not reach the server.');
     } on FormatException {
