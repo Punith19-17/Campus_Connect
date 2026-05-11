@@ -19,36 +19,11 @@ const app = express();
 // ✅ Simplified CORS (works with emulator, Postman, browser)
 app.use(
   cors({
-    origin: function (origin, callback) {
-      // Allow requests with no origin (Flutter app, Postman, curl)
-      if (!origin) return callback(null, true);
-
-      const allowedOrigins = [
-        "http://localhost:5000",
-        "http://10.0.2.2:5000", // Android emulator
-      ];
-
-      if (allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        // For dev, allow all origins
-        callback(null, true);
-      }
-    },
-    credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allowedHeaders: [
-      "Content-Type",
-      "Authorization",
-      "X-Requested-With",
-      "Accept",
-      "Origin",
-    ],
+    origin: "*",
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
-
-// Handle preflight requests
-app.options("*", cors());
 
 // Log incoming requests
 app.use((req, res, next) => {
@@ -87,7 +62,7 @@ app.get("/api/test-db", async (req, res) => {
     const [results] = await db.execute("SELECT 1 as test");
     res.json({
       message: "Database connection successful",
-      database: process.env.DB_NAME,
+database: process.env.MYSQLDATABASE,
       data: results,
     });
   } catch (error) {
