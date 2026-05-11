@@ -55,7 +55,7 @@ class _StudentProfilePageState extends State<StudentProfilePage> {
         throw Exception('Not logged in. Token not found.');
       }
 
-      final url = Uri.parse('http://10.0.2.2:5000/api/student/profile');
+      final url = Uri.parse('https://campus-connect-p1ow.onrender.com/api/student/profile');
       final response = await http.get(
         url,
         headers: {

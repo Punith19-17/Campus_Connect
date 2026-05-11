@@ -6,25 +6,25 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 class AppConfig {
   // This is the IP address of your computer on your local network.
   // You MUST change this when testing on a physical phone.
-  static const String _pcLanIp = '10.125.51.173:5000'; // <-- CHANGE THIS if needed
+  static const String _pcLanIp = "https://campus-connect-p1ow.onrender.com"; // <-- CHANGE THIS if needed
 
   static String get baseUrl {
     if (kIsWeb) {
       // For web, the browser and server are on the same machine.
-      return 'http://localhost:5000';
+      return "https://campus-connect-p1ow.onrender.com";
     }
 
     // For mobile, we check the platform.
     if (Platform.isAndroid) {
       // The Android Emulator uses this special IP to connect to the host computer.
-      return 'http://10.0.2.2:5000';
+      return "https://campus-connect-p1ow.onrender.com";
     } else if (Platform.isIOS) {
       // The iOS Simulator can also use localhost.
-      return 'http://localhost:5000';
+      return "https://campus-connect-p1ow.onrender.com";
     } else {
       // Fallback for a real device connected to the same WiFi.
       // Make sure your phone and computer are on the same network.
-      return 'http://$_pcLanIp:5000';
+      return "https://campus-connect-p1ow.onrender.com";
     }
   }
 

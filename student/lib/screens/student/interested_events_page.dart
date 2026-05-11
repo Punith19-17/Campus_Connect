@@ -30,7 +30,7 @@ class _InterestedEventsPageState extends State<InterestedEventsPage> {
 
     try {
       final String url =
-          'http://10.0.2.2:5000/api/addevents/interested/${widget.studentId}';
+          'https://campus-connect-p1ow.onrender.com/api/addevents/interested/${widget.studentId}';
       final response = await http.get(Uri.parse(url));
       if (!mounted) return;
 

@@ -69,7 +69,7 @@ class _ParticipationListPageState extends State<ParticipationListPage> {
 
   Future<void> _fetchParticipants() async {
     try {
-      final response = await http.get(Uri.parse('http://10.0.2.2:5000/api/participate'));
+      final response = await http.get(Uri.parse('https://campus-connect-p1ow.onrender.com/api/participate'));
 
       if (response.statusCode == 200) {
         List<dynamic> data = json.decode(response.body);

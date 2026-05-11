@@ -100,6 +100,6 @@ const PORT = process.env.PORT || 5000;
 app.listen(PORT, "0.0.0.0", () => {
   console.log(`🚀 Server running on port ${PORT}`);
   console.log(`📍 Local: http://localhost:${PORT}`);
-  console.log(`📍 Emulator: http://10.0.2.2:${PORT}`);
+  console.log(`📍 Emulator: https://campus-connect-p1ow.onrender.com//:${PORT}`);
   console.log("✅ CORS enabled for all origins (dev mode)");
 });

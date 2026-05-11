@@ -87,7 +87,7 @@ class _MyResponsesPageState extends State<MyResponsesPage> {
   }
 
   Future<void> _fetchEvents() async {
-    const String url = 'http://10.0.2.2:5000/api/addevents/club';
+    const String url = 'https://campus-connect-p1ow.onrender.com/api/addevents/club';
     try {
       final response = await http.get(Uri.parse(url));
       if (!mounted) return;
