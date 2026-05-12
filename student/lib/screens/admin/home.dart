@@ -13,432 +13,460 @@ class HomePage extends StatelessWidget {
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
-        title: const Text(
-          'Campus Connect',
-          style: TextStyle(
-            fontSize: 24,
-            fontWeight: FontWeight.w800,
-            color: Color(0xFF1E293B),
-            letterSpacing: 0.5,
-          ),
+        title: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(6),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(8),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.05),
+                    blurRadius: 8,
+                  ),
+                ],
+              ),
+              child: const Icon(Icons.school_rounded, color: Color(0xFF6366F1), size: 22),
+            ),
+            const SizedBox(width: 10),
+            const Text(
+              'Campus Connect',
+              style: TextStyle(
+                color: Color(0xFF1E293B),
+                fontWeight: FontWeight.w800,
+                fontSize: 22,
+                letterSpacing: -0.5,
+              ),
+            ),
+          ],
         ),
         centerTitle: true,
-        backgroundColor: Colors.white.withOpacity(0.85),
+        backgroundColor: Colors.white.withOpacity(0.4),
         elevation: 0,
-      ),
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [
-              Color(0xFFF8FAFC), // Light Slate
-              Color(0xFFEFF6FF), // Light Blue
-            ],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-        ),
-        child: SafeArea(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                // Main Header Card
-                Container(
-                  padding: const EdgeInsets.all(32.0),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(24),
-                    boxShadow: [
-                      BoxShadow(
-                        color: const Color(0xFF3B82F6).withOpacity(0.08),
-                        blurRadius: 24,
-                        offset: const Offset(0, 12),
-                      ),
-                    ],
-                    border: Border.all(color: Colors.white, width: 2),
-                  ),
-                  child: Column(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          gradient: const LinearGradient(
-                            colors: [Color(0xFF60A5FA), Color(0xFF3B82F6)],
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                          ),
-                          boxShadow: [
-                            BoxShadow(
-                              color: const Color(0xFF3B82F6).withOpacity(0.3),
-                              blurRadius: 12,
-                              offset: const Offset(0, 6),
-                            ),
-                          ],
-                        ),
-                        child: const Icon(
-                          Icons.hub_rounded,
-                          size: 48,
-                          color: Colors.white,
-                        ),
-                      ),
-                      const SizedBox(height: 20),
-                      const Text(
-                        "Campus Connect",
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: 28,
-                          fontWeight: FontWeight.w900,
-                          color: Color(0xFF1E293B),
-                          letterSpacing: 0.5,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      const Text(
-                        "Your unified campus experience",
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: 16,
-                          color: Color(0xFF64748B),
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                      const SizedBox(height: 24),
-                      Wrap(
-                        alignment: WrapAlignment.center,
-                        spacing: 10,
-                        runSpacing: 10,
-                        children: const [
-                          _FeatureChip(icon: Icons.event_available, label: "Events"),
-                          _FeatureChip(icon: Icons.campaign_outlined, label: "Notices"),
-                          _FeatureChip(icon: Icons.schedule, label: "Timings"),
-                          _FeatureChip(icon: Icons.place_outlined, label: "Venues"),
-                          _FeatureChip(icon: Icons.people, label: "Clubs"),
-                          _FeatureChip(icon: Icons.analytics, label: "Analytics"),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 32),
-
-                // Student Section
-                const _SectionHeader(
-                  title: "Student Portal",
-                  subtitle: "Access your personalized dashboard",
-                  icon: Icons.school_rounded,
-                  gradient: [Color(0xFF38BDF8), Color(0xFF0284C7)],
-                ),
-                const SizedBox(height: 16),
-                Row(
-                  children: [
-                    Expanded(
-                      child: _ActionCard(
-                        icon: Icons.login_rounded,
-                        title: "Login",
-                        subtitle: "Welcome back",
-                        gradient: const [Color(0xFF38BDF8), Color(0xFF0284C7)],
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (_) => const AuthScreen()),
-                          );
-                        },
-                      ),
-                    ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: _ActionCard(
-                        icon: Icons.person_add_rounded,
-                        title: "Sign Up",
-                        subtitle: "Join the campus",
-                        gradient: const [Color(0xFF34D399), Color(0xFF059669)],
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (_) => const Student_signup()),
-                          );
-                        },
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 32),
-
-                // Admin Section
-                const _SectionHeader(
-                  title: "Admin Portal",
-                  subtitle: "Manage events and campus life",
-                  icon: Icons.admin_panel_settings_rounded,
-                  gradient: [Color(0xFFFBBF24), Color(0xFFD97706)],
-                ),
-                const SizedBox(height: 16),
-                Row(
-                  children: [
-                    Expanded(
-                      child: _ActionCard(
-                        icon: Icons.login_rounded,
-                        title: "Admin Login",
-                        subtitle: "Manage portal",
-                        gradient: const [Color(0xFFFBBF24), Color(0xFFD97706)],
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (_) => const AdminLogin()),
-                          );
-                        },
-                      ),
-                    ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: _ActionCard(
-                        icon: Icons.person_add_alt_1_rounded,
-                        title: "Admin Sign Up",
-                        subtitle: "New admin",
-                        gradient: const [Color(0xFFA78BFA), Color(0xFF7C3AED)],
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (_) => const AdminSignup()),
-                          );
-                        },
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 32),
-
-                // About Section
-                const _SectionHeader(
-                  title: "Discover",
-                  subtitle: "Learn more about Campus Connect",
-                  icon: Icons.info_outline_rounded,
-                  gradient: [Color(0xFFF472B6), Color(0xFFDB2777)],
-                ),
-                const SizedBox(height: 16),
-                _ActionCard(
-                  icon: Icons.info_rounded,
-                  title: "About Us",
-                  subtitle: "Our mission & features",
-                  gradient: const [Color(0xFFF472B6), Color(0xFFDB2777)],
-                  isFullWidth: true,
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (_) => const AboutUsPage()),
-                    );
-                  },
-                ),
-                const SizedBox(height: 32),
+        flexibleSpace: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [
+                Colors.white.withOpacity(0.7),
+                Colors.white.withOpacity(0.0),
               ],
             ),
           ),
         ),
       ),
-    );
-  }
-}
-
-class _SectionHeader extends StatelessWidget {
-  final String title;
-  final String subtitle;
-  final IconData icon;
-  final List<Color> gradient;
-
-  const _SectionHeader({
-    required this.title,
-    required this.subtitle,
-    required this.icon,
-    required this.gradient,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 4.0),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [gradient[0].withOpacity(0.2), gradient[1].withOpacity(0.2)],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Icon(icon, color: gradient[1], size: 24),
+      body: Container(
+        height: double.infinity,
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            stops: [0.0, 0.4, 0.7, 1.0],
+            colors: [
+              Color(0xFFFFF0F5), // Lavender Blush
+              Color(0xFFE8F4F8), // Soft Light Blue
+              Color(0xFFF3E8FF), // Light Purple
+              Color(0xFFFFF5E6), // Soft Peach
+            ],
           ),
-          const SizedBox(width: 16),
-          Expanded(
+        ),
+        child: SafeArea(
+          bottom: false,
+          child: SingleChildScrollView(
+            physics: const BouncingScrollPhysics(),
+            padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  title,
-                  style: const TextStyle(
+                const SizedBox(height: 10),
+                // Hero Section
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.6),
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(color: Colors.white, width: 1.5),
+                  ),
+                  child: const Text(
+                    "👋 Welcome to your new portal",
+                    style: TextStyle(
+                      color: Color(0xFF6366F1),
+                      fontWeight: FontWeight.w700,
+                      fontSize: 14,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 20),
+                const Text(
+                  "Discover &\nManage Your\nCampus Life.",
+                  style: TextStyle(
+                    fontSize: 44,
+                    fontWeight: FontWeight.w900,
+                    color: Color(0xFF0F172A),
+                    height: 1.1,
+                    letterSpacing: -1.0,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                const Text(
+                  "Everything you need from events to notices, right at your fingertips in one unified platform.",
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: Color(0xFF475569),
+                    fontWeight: FontWeight.w500,
+                    height: 1.5,
+                  ),
+                ),
+                const SizedBox(height: 32),
+
+                // Horizontal Scrolling Feature Pills
+                SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  physics: const BouncingScrollPhysics(),
+                  clipBehavior: Clip.none,
+                  child: Row(
+                    children: const [
+                      _FeaturePill(icon: Icons.event_available_rounded, text: "Events", color: Color(0xFFF43F5E)),
+                      SizedBox(width: 12),
+                      _FeaturePill(icon: Icons.campaign_rounded, text: "Notices", color: Color(0xFF8B5CF6)),
+                      SizedBox(width: 12),
+                      _FeaturePill(icon: Icons.schedule_rounded, text: "Timings", color: Color(0xFF06B6D4)),
+                      SizedBox(width: 12),
+                      _FeaturePill(icon: Icons.groups_rounded, text: "Clubs", color: Color(0xFF10B981)),
+                      SizedBox(width: 12),
+                      _FeaturePill(icon: Icons.place_rounded, text: "Venues", color: Color(0xFFF59E0B)),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 40),
+
+                // Portals Section
+                const Text(
+                  "Get Started",
+                  style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.w800,
                     color: Color(0xFF1E293B),
                   ),
                 ),
-                Text(
-                  subtitle,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    color: Color(0xFF64748B),
-                    fontWeight: FontWeight.w500,
-                  ),
+                const SizedBox(height: 16),
+
+                _InteractivePortalCard(
+                  title: "Student Portal",
+                  subtitle: "Access your dashboard, classes, and marks.",
+                  icon: Icons.face_retouching_natural_rounded,
+                  gradientColors: const [Color(0xFF6366F1), Color(0xFF8B5CF6)],
+                  onLogin: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AuthScreen())),
+                  onSignup: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const Student_signup())),
                 ),
+                const SizedBox(height: 20),
+
+                _InteractivePortalCard(
+                  title: "Admin Portal",
+                  subtitle: "Publish notices, manage clubs and events.",
+                  icon: Icons.admin_panel_settings_rounded,
+                  gradientColors: const [Color(0xFFF59E0B), Color(0xFFEF4444)],
+                  onLogin: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AdminLogin())),
+                  onSignup: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AdminSignup())),
+                ),
+                const SizedBox(height: 24),
+
+                _InfoCard(
+                  title: "About Us",
+                  subtitle: "Learn more about Campus Connect.",
+                  icon: Icons.info_outline_rounded,
+                  color: const Color(0xFF10B981),
+                  onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AboutUsPage())),
+                ),
+                const SizedBox(height: 40),
               ],
             ),
           ),
-        ],
+        ),
       ),
     );
   }
 }
 
-class _ActionCard extends StatelessWidget {
-  final IconData icon;
+class _InteractivePortalCard extends StatelessWidget {
   final String title;
   final String subtitle;
-  final List<Color> gradient;
-  final VoidCallback onTap;
-  final bool isFullWidth;
+  final IconData icon;
+  final List<Color> gradientColors;
+  final VoidCallback onLogin;
+  final VoidCallback onSignup;
 
-  const _ActionCard({
-    required this.icon,
+  const _InteractivePortalCard({
     required this.title,
     required this.subtitle,
-    required this.gradient,
-    required this.onTap,
-    this.isFullWidth = false,
+    required this.icon,
+    required this.gradientColors,
+    required this.onLogin,
+    required this.onSignup,
   });
 
   @override
   Widget build(BuildContext context) {
     return Container(
+      padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
+        color: Colors.white.withOpacity(0.65), // Glassy feel
+        borderRadius: BorderRadius.circular(32),
+        border: Border.all(color: Colors.white, width: 2),
         boxShadow: [
           BoxShadow(
-            color: gradient[1].withOpacity(0.08),
-            blurRadius: 16,
+            color: gradientColors[0].withOpacity(0.08),
+            blurRadius: 24,
             offset: const Offset(0, 8),
           ),
         ],
       ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: onTap,
-          borderRadius: BorderRadius.circular(20),
-          highlightColor: gradient[0].withOpacity(0.1),
-          splashColor: gradient[1].withOpacity(0.1),
-          child: Padding(
-            padding: const EdgeInsets.all(20.0),
-            child: isFullWidth
-                ? Row(
-                    children: _buildContent(),
-                  )
-                : Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: _buildContent(isVertical: true),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(14),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: gradientColors,
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
                   ),
+                  borderRadius: BorderRadius.circular(20),
+                  boxShadow: [
+                    BoxShadow(
+                      color: gradientColors[0].withOpacity(0.3),
+                      blurRadius: 12,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: Icon(icon, color: Colors.white, size: 30),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: const TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.w800,
+                        color: Color(0xFF1E293B),
+                        letterSpacing: -0.5,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      subtitle,
+                      style: const TextStyle(
+                        fontSize: 14,
+                        color: Color(0xFF64748B),
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
-        ),
+          const SizedBox(height: 24),
+          Row(
+            children: [
+              Expanded(
+                child: _PortalButton(
+                  text: "Login",
+                  isPrimary: true,
+                  gradientColors: gradientColors,
+                  onTap: onLogin,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: _PortalButton(
+                  text: "Sign Up",
+                  isPrimary: false,
+                  gradientColors: gradientColors,
+                  onTap: onSignup,
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
     );
-  }
-
-  List<Widget> _buildContent({bool isVertical = false}) {
-    final iconWidget = Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [gradient[0].withOpacity(0.15), gradient[1].withOpacity(0.15)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Icon(icon, color: gradient[1], size: 28),
-    );
-
-    final textWidget = Column(
-      crossAxisAlignment: isVertical ? CrossAxisAlignment.center : CrossAxisAlignment.start,
-      children: [
-        Text(
-          title,
-          style: const TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w700,
-            color: Color(0xFF1E293B),
-          ),
-          textAlign: isVertical ? TextAlign.center : TextAlign.left,
-        ),
-        const SizedBox(height: 4),
-        Text(
-          subtitle,
-          style: const TextStyle(
-            fontSize: 12,
-            color: Color(0xFF64748B),
-            fontWeight: FontWeight.w500,
-          ),
-          textAlign: isVertical ? TextAlign.center : TextAlign.left,
-        ),
-      ],
-    );
-
-    if (isVertical) {
-      return [
-        iconWidget,
-        const SizedBox(height: 16),
-        textWidget,
-      ];
-    } else {
-      return [
-        iconWidget,
-        const SizedBox(width: 16),
-        Expanded(child: textWidget),
-        const Icon(Icons.chevron_right_rounded, color: Color(0xFFCBD5E1)),
-      ];
-    }
   }
 }
 
-class _FeatureChip extends StatelessWidget {
-  final IconData icon;
-  final String label;
+class _PortalButton extends StatelessWidget {
+  final String text;
+  final bool isPrimary;
+  final List<Color> gradientColors;
+  final VoidCallback onTap;
 
-  const _FeatureChip({
+  const _PortalButton({
+    required this.text,
+    required this.isPrimary,
+    required this.gradientColors,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(16),
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 14),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(16),
+          gradient: isPrimary
+              ? LinearGradient(
+                  colors: gradientColors,
+                  begin: Alignment.centerLeft,
+                  end: Alignment.centerRight,
+                )
+              : null,
+          color: isPrimary ? null : Colors.white.withOpacity(0.7),
+          border: isPrimary ? null : Border.all(color: Colors.white, width: 2),
+          boxShadow: isPrimary
+              ? [
+                  BoxShadow(
+                    color: gradientColors[0].withOpacity(0.3),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                  )
+                ]
+              : [],
+        ),
+        alignment: Alignment.center,
+        child: Text(
+          text,
+          style: TextStyle(
+            color: isPrimary ? Colors.white : const Color(0xFF1E293B),
+            fontSize: 16,
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _InfoCard extends StatelessWidget {
+  final String title;
+  final String subtitle;
+  final IconData icon;
+  final Color color;
+  final VoidCallback onTap;
+
+  const _InfoCard({
+    required this.title,
+    required this.subtitle,
     required this.icon,
-    required this.label,
+    required this.color,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(24),
+      child: Container(
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: Colors.white.withOpacity(0.65),
+          borderRadius: BorderRadius.circular(24),
+          border: Border.all(color: Colors.white, width: 2),
+        ),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: color.withOpacity(0.15),
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Icon(icon, color: color, size: 26),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w800,
+                      color: Color(0xFF1E293B),
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    subtitle,
+                    style: const TextStyle(
+                      fontSize: 14,
+                      color: Color(0xFF64748B),
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const Icon(Icons.arrow_forward_ios_rounded, color: Color(0xFF94A3B8), size: 18),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _FeaturePill extends StatelessWidget {
+  final IconData icon;
+  final String text;
+  final Color color;
+
+  const _FeaturePill({
+    required this.icon,
+    required this.text,
+    required this.color,
   });
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
       decoration: BoxDecoration(
-        color: const Color(0xFFF1F5F9),
-        borderRadius: BorderRadius.circular(12),
+        color: Colors.white.withOpacity(0.8),
+        borderRadius: BorderRadius.circular(100),
+        border: Border.all(color: Colors.white, width: 2),
+        boxShadow: [
+          BoxShadow(
+            color: color.withOpacity(0.08),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 16, color: const Color(0xFF475569)),
-          const SizedBox(width: 6),
+          Icon(icon, color: color, size: 20),
+          const SizedBox(width: 8),
           Text(
-            label,
+            text,
             style: const TextStyle(
-              fontSize: 13,
-              fontWeight: FontWeight.w600,
-              color: Color(0xFF475569),
+              fontWeight: FontWeight.w700,
+              color: Color(0xFF1E293B),
+              fontSize: 15,
             ),
           ),
         ],
