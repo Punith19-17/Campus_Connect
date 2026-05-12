@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'dart:convert';
 import 'package:intl/intl.dart';
+import 'dart:convert';
 
 import 'clg_events_details.dart';
 import 'Student_login.dart';
@@ -9,6 +9,7 @@ import 'club_list.dart';
 import 'myresponsespage.dart';
 import 'profile_page.dart';
 
+// ----------------- MODEL -----------------
 class Aim {
   final String id;
   final String? title;
@@ -34,35 +35,93 @@ class Aim {
     required this.time,
   });
 
-  factory Aim.fromJson(Map<String, dynamic> json) {
-    DateTime parsedDate = DateTime.now();
-    try {
-      if (json['date'] != null) {
-        String dateStr = json['date'].toString();
-        if (dateStr.contains('T')) dateStr = dateStr.split('T')[0];
-        
-        String timeStr = json['time']?.toString() ?? '00:00:00';
-        parsedDate = DateTime.parse('$dateStr $timeStr');
+  static String _getStatusFromDate(DateTime date) {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final eventDay = DateTime(date.year, date.month, date.day);
+
+    if (eventDay == today) {
+      return 'Today';
+    } else if (eventDay.isAfter(today)) {
+      final difference = eventDay.difference(today).inDays;
+      if (difference == 1) {
+        return 'Tomorrow';
+      } else if (difference < 7) {
+        return DateFormat('EEEE').format(date);
+      } else {
+        return DateFormat('MMM d, yyyy').format(date);
       }
+    } else {
+      final difference = today.difference(eventDay).inDays;
+      if (difference == 1) {
+        return 'Yesterday';
+      } else if (difference < 7) {
+        return DateFormat('EEEE').format(date);
+      } else {
+        // Events that have passed are marked as 'Completed' and will be filtered out.
+        return 'Completed';
+      }
+    }
+  }
+
+  static String _formatTime(String? timeStr) {
+    if (timeStr == null || timeStr.isEmpty) return 'N/A';
+    try {
+      final parts = timeStr.split(':');
+      final hour = int.parse(parts[0]);
+      final minute = parts.length > 1 ? parts[1] : '00';
+      final period = hour >= 12 ? 'PM' : 'AM';
+      final displayHour = hour > 12 ? hour - 12 : (hour == 0 ? 12 : hour);
+      return '$displayHour:$minute $period';
     } catch (e) {
-      print('Error parsing date: $e');
+      return timeStr;
+    }
+  }
+
+  factory Aim.fromJson(Map<String, dynamic> json) {
+    DateTime eventDate =
+    (DateTime.tryParse(json['date'] ?? '') ?? DateTime.now()).toLocal();
+
+    int progressValue;
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final eventDay = DateTime(eventDate.year, eventDate.month, eventDate.day);
+
+    if (eventDay.isBefore(today)) {
+      progressValue = 100;
+    } else if (eventDay.isAfter(today)) {
+      progressValue = 0;
+    } else {
+      final currentHour = now.hour;
+      if (currentHour < 10) {
+        progressValue = 30;
+      } else if (currentHour < 12) {
+        progressValue = 50;
+      } else if (currentHour < 15) {
+        progressValue = 70;
+      } else if (currentHour < 18) {
+        progressValue = 85;
+      } else {
+        progressValue = 95;
+      }
     }
 
     return Aim(
-      id: json['id']?.toString() ?? '',
-      title: json['event_title'],
-      description: json['description'],
-      progress: json['progress'],
-      status: json['status'],
-      eventDate: parsedDate,
-      location: json['location']?.toString() ?? 'TBD',
-      organizedClub: json['organized_club']?.toString() ?? 'Various',
+      id: (json['id'] ?? 0).toString(),
+      title: json['event_title'] ?? 'No Title',
+      description: json['description'] ?? 'No Description',
+      progress: progressValue,
+      status: _getStatusFromDate(eventDate),
+      eventDate: eventDate,
+      location: json['location'] ?? 'No Location',
+      organizedClub: json['organized_club']?.toString() ?? 'N/A',
       award: json['award'],
-      time: json['time']?.toString() ?? 'TBD',
+      time: _formatTime(json['time']),
     );
   }
 }
 
+// ----------------- DASHBOARD -----------------
 class StudentDashboard extends StatefulWidget {
   final int studentId;
   const StudentDashboard({super.key, required this.studentId});
@@ -72,244 +131,281 @@ class StudentDashboard extends StatefulWidget {
 }
 
 class _StudentDashboardState extends State<StudentDashboard> {
-  int _currentIndex = 0;
   List<Aim> _aims = [];
   bool _isLoading = true;
   String _errorMessage = '';
+  int _selectedIndex = 0;
+
+  late List<Widget> _pages;
 
   @override
   void initState() {
     super.initState();
-    _fetchAims();
-  }
-
-  Future<void> _fetchAims() async {
-    const String url = 'https://campus-connect-p1ow.onrender.com/api/addevents';
-    try {
-      final response = await http.get(Uri.parse(url));
-      if (!mounted) return;
-
-      if (response.statusCode == 200) {
-        final Map<String, dynamic> data = json.decode(response.body);
-        if (data['success'] == true && data['events'] is List) {
-          final now = DateTime.now();
-          List<Aim> loadedAims = (data['events'] as List).map((json) {
-            Aim aim = Aim.fromJson(json);
-            
-            String calculatedStatus = 'Upcoming';
-            int calculatedProgress = 0;
-            
-            if (aim.eventDate.isBefore(now)) {
-              calculatedStatus = 'Completed';
-              calculatedProgress = 100;
-            } else {
-              final difference = aim.eventDate.difference(now).inDays;
-              if (difference <= 7) {
-                calculatedStatus = 'In Progress';
-                calculatedProgress = 75;
-              } else if (difference <= 30) {
-                calculatedStatus = 'Upcoming';
-                calculatedProgress = 25;
-              }
-            }
-            
-            return Aim(
-              id: aim.id,
-              title: aim.title,
-              description: aim.description,
-              progress: aim.progress ?? calculatedProgress,
-              status: aim.status ?? calculatedStatus,
-              eventDate: aim.eventDate,
-              location: aim.location,
-              organizedClub: aim.organizedClub,
-              award: aim.award,
-              time: aim.time,
-            );
-          }).toList();
-          
-          loadedAims.sort((a, b) => a.eventDate.compareTo(b.eventDate));
-          
-          setState(() {
-            _aims = loadedAims;
-            _isLoading = false;
-          });
-        } else {
-          _errorMessage = 'Invalid data format from server.';
-        }
-      } else {
-        _errorMessage = 'Failed to load events. Status: ${response.statusCode}';
-      }
-    } catch (e) {
-      _errorMessage = 'Failed to connect to the server.\nError: $e';
-    }
-    
-    if (mounted) {
-      setState(() {
-        _isLoading = false;
-      });
-    }
-  }
-
-  Widget _buildHomeContent() {
-    if (_isLoading) {
-      return const Center(child: CircularProgressIndicator(color: Color(0xFF6C63FF)));
-    }
-    if (_errorMessage.isNotEmpty) {
-      return Center(
-        child: Padding(
-          padding: const EdgeInsets.all(24.0),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Icon(Icons.error_outline_rounded, color: Colors.redAccent, size: 48),
-              const SizedBox(height: 16),
-              Text(
-                _errorMessage,
-                textAlign: TextAlign.center,
-                style: const TextStyle(color: Colors.redAccent, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 24),
-              ElevatedButton(
-                onPressed: _fetchAims,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF6C63FF),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                ),
-                child: const Text('Retry', style: TextStyle(color: Colors.white)),
-              )
-            ],
-          ),
-        ),
-      );
-    }
-    
-    if (_aims.isEmpty) {
-      return const Center(child: Text('No events found.', style: TextStyle(color: Color(0xFF64748B), fontWeight: FontWeight.w600)));
-    }
-
-    return RefreshIndicator(
-      onRefresh: _fetchAims,
-      color: const Color(0xFF6C63FF),
-      child: CustomScrollView(
-        physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
-        slivers: [
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(24, 24, 24, 16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: const [
-                  Text(
-                    "Home",
-                    style: TextStyle(
-                      fontSize: 34,
-                      fontWeight: FontWeight.w900,
-                      color: Color(0xFF1E293B),
-                      letterSpacing: -1,
-                    ),
-                  ),
-                  SizedBox(height: 4),
-                  Text(
-                    "Upcoming Campus Events",
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.black45,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          SliverPadding(
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
-            sliver: SliverList(
-              delegate: SliverChildBuilderDelegate(
-                (context, index) {
-                  return Padding(
-                    padding: const EdgeInsets.only(bottom: 20.0),
-                    child: AimCard(aim: _aims[index], studentId: widget.studentId),
-                  );
-                },
-                childCount: _aims.length,
-              ),
-            ),
-          ),
-          const SliverToBoxAdapter(child: SizedBox(height: 100)), // Space for bottom nav
-        ],
-      ),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final List<Widget> screens = [
-      _buildHomeContent(),
+    _pages = [
+      _HomePage(
+          aims: _aims, isLoading: _isLoading, errorMessage: _errorMessage),
       const ClubDirectoryPage(),
       MyResponsesPage(studentId: widget.studentId),
       StudentProfilePage(studentId: widget.studentId),
     ];
+    _fetchAims();
+  }
 
+  Future<void> _fetchAims() async {
+    const String url = 'http://10.0.2.2:5000/api/addevents/collegefunctions';
+    try {
+      final response =
+      await http.get(Uri.parse(url)).timeout(const Duration(seconds: 10));
+
+      if (!mounted) return;
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> decoded = json.decode(response.body);
+
+        if (decoded['success'] == true && decoded['events'] is List) {
+          List<Aim> loadedAims = (decoded['events'] as List)
+              .map((data) => Aim.fromJson(data as Map<String, dynamic>))
+              .toList();
+
+          // FIX: Filter out events where progress is 100% (completed/past)
+          loadedAims = loadedAims.where((aim) => (aim.progress ?? 0) < 100).toList();
+
+          loadedAims.sort((a, b) {
+            int getPriority(Aim aim) {
+              if (aim.status == 'Today') return 1; // Highest priority
+              if (aim.status == 'Tomorrow') return 2;
+              if (aim.progress != 100) return 3; // All other upcoming
+              return 4; // Fallback (shouldn't be hit now due to filter)
+            }
+
+            int priorityA = getPriority(a);
+            int priorityB = getPriority(b);
+
+            if (priorityA != priorityB) {
+              return priorityA.compareTo(priorityB);
+            }
+
+            // Secondary sort by date (ascending)
+            return a.eventDate.compareTo(b.eventDate);
+          });
+
+          setState(() {
+            _aims = loadedAims;
+          });
+        } else {
+          setState(() {
+            _errorMessage = 'Invalid response format from server.';
+          });
+        }
+      } else {
+        setState(() {
+          _errorMessage =
+          'Failed to load events. Status: ${response.statusCode}';
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _errorMessage =
+          'Failed to connect to the server.\nPlease check your connection.';
+        });
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+          _pages[0] = _HomePage(
+              aims: _aims,
+              isLoading: _isLoading,
+              errorMessage: _errorMessage);
+        });
+      }
+    }
+  }
+
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF7F9FC), // Consistent pastel background
-      extendBody: true,
-      body: SafeArea(
-        bottom: false,
-        child: IndexedStack(
-          index: _currentIndex,
-          children: screens,
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const AuthScreen(),
+              ),
+            );
+          },
         ),
+        title: const Text('AIMS',
+            style: TextStyle(fontWeight: FontWeight.bold)),
+        centerTitle: true,
+        backgroundColor: Colors.white,
+        elevation: 0,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.settings),
+            onPressed: () {},
+          ),
+        ],
       ),
-      bottomNavigationBar: Container(
-        margin: const EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(30),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.08),
-              blurRadius: 24,
-              offset: const Offset(0, 8),
-            ),
-          ],
-        ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(30),
-          child: BottomNavigationBar(
-            currentIndex: _currentIndex,
-            onTap: (index) {
-              setState(() {
-                _currentIndex = index;
-              });
-            },
-            type: BottomNavigationBarType.fixed,
-            backgroundColor: Colors.white,
-            selectedItemColor: const Color(0xFF6C63FF),
-            unselectedItemColor: const Color(0xFF94A3B8),
-            showSelectedLabels: true,
-            showUnselectedLabels: false,
-            elevation: 0,
-            selectedLabelStyle: const TextStyle(fontWeight: FontWeight.w800, fontSize: 12),
-            items: const [
-              BottomNavigationBarItem(
-                icon: Icon(Icons.home_rounded),
-                activeIcon: Icon(Icons.home_rounded, size: 28),
-                label: 'Home',
+      body: _pages[_selectedIndex],
+      bottomNavigationBar: BottomNavigationBar(
+        items: const <BottomNavigationBarItem>[
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home),
+            label: 'Home',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.people),
+            label: 'Clubs',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.edit_note),
+            label: 'My Responses',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person),
+            label: 'Profile',
+          ),
+        ],
+        currentIndex: _selectedIndex,
+        selectedItemColor: Colors.blueAccent,
+        unselectedItemColor: Colors.grey,
+        onTap: _onItemTapped,
+        type: BottomNavigationBarType.fixed,
+        backgroundColor: Colors.white,
+      ),
+    );
+  }
+}
+
+// ----------------- EVENT CARD -----------------
+class AimCard extends StatelessWidget {
+  final Aim aim;
+  const AimCard({super.key, required this.aim});
+
+  Color _getStatusColor(String? status) {
+    switch (status) {
+      case 'Today':
+        return Colors.blue[200]!;
+      case 'Tomorrow':
+        return Colors.orange[200]!;
+      case 'Yesterday':
+        return Colors.pink[200]!;
+      case 'Completed':
+        return Colors.green[200]!;
+      default:
+        return Colors.green[200]!;
+    }
+  }
+
+  Color _getIconColor(int? progress) {
+    return (progress ?? 0) >= 100 ? Colors.green : Colors.black;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => clgeventsDetailsPage(event: aim),
+          ),
+        );
+      },
+      child: Card(
+        elevation: 4,
+        color: const Color(0xFFF0F6FC),
+        shape:
+        RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child: Row(
+                      children: [
+                        Icon(
+                          (aim.progress ?? 0) >= 100
+                              ? Icons.check_circle_outline
+                              : Icons.circle_outlined,
+                          color: _getIconColor(aim.progress),
+                          size: 20,
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            aim.title ?? '',
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 8.0, vertical: 4.0),
+                    decoration: BoxDecoration(
+                      color: _getStatusColor(aim.status),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Text(
+                      aim.status ?? '',
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.grey[800],
+                      ),
+                    ),
+                  ),
+                ],
               ),
-              BottomNavigationBarItem(
-                icon: Icon(Icons.groups_rounded),
-                activeIcon: Icon(Icons.groups_rounded, size: 28),
-                label: 'Clubs',
+              const SizedBox(height: 8),
+              Text(
+                aim.description ?? '',
+                style: TextStyle(
+                  fontSize: 14,
+                  color: Colors.grey[600],
+                ),
               ),
-              BottomNavigationBarItem(
-                icon: Icon(Icons.event_note_rounded),
-                activeIcon: Icon(Icons.event_note_rounded, size: 28),
-                label: 'Events',
+              const SizedBox(height: 12),
+              const Text(
+                'Progress',
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w500,
+                ),
               ),
-              BottomNavigationBarItem(
-                icon: Icon(Icons.person_rounded),
-                activeIcon: Icon(Icons.person_rounded, size: 28),
-                label: 'Profile',
+              const SizedBox(height: 4),
+              LinearProgressIndicator(
+                value: (aim.progress ?? 0) / 100,
+                backgroundColor: Colors.grey[300],
+                color: Colors.black,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                '${aim.progress ?? 0}%',
+                style: const TextStyle(
+                    fontSize: 12, fontWeight: FontWeight.bold),
               ),
             ],
           ),
@@ -319,184 +415,78 @@ class _StudentDashboardState extends State<StudentDashboard> {
   }
 }
 
-class AimCard extends StatelessWidget {
-  final Aim aim;
-  final int studentId;
+// ----------------- HOME PAGE -----------------
+class _HomePage extends StatelessWidget {
+  final List<Aim> aims;
+  final bool isLoading;
+  final String errorMessage;
 
-  const AimCard({Key? key, required this.aim, required this.studentId}) : super(key: key);
-
-  Color _getStatusColor(String status) {
-    if (status == 'Completed') return const Color(0xFFDCFCE7); // Light Green
-    if (status == 'In Progress') return const Color(0xFFE0F2FE); // Light Blue
-    return const Color(0xFFFEF3C7); // Light Amber
-  }
-
-  Color _getStatusTextColor(String status) {
-    if (status == 'Completed') return const Color(0xFF15803D); // Dark Green
-    if (status == 'In Progress') return const Color(0xFF0369A1); // Dark Blue
-    return const Color(0xFFB45309); // Dark Amber
-  }
+  const _HomePage({
+    required this.aims,
+    required this.isLoading,
+    required this.errorMessage,
+  });
 
   @override
   Widget build(BuildContext context) {
-    final statusColor = _getStatusColor(aim.status ?? 'Upcoming');
-    final statusTextColor = _getStatusTextColor(aim.status ?? 'Upcoming');
+    if (isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
 
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(24),
-        boxShadow: [
-          BoxShadow(
-            color: const Color(0xFF6C63FF).withOpacity(0.06),
-            blurRadius: 20,
-            offset: const Offset(0, 10),
-          ),
-        ],
-      ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          borderRadius: BorderRadius.circular(24),
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => clgeventsDetailsPage(aim: aim, studentId: studentId),
-              ),
-            );
-          },
-          child: Padding(
-            padding: const EdgeInsets.all(24.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                      decoration: BoxDecoration(
-                        color: statusColor,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Text(
-                        (aim.status ?? 'Upcoming').toUpperCase(),
-                        style: TextStyle(
-                          color: statusTextColor,
-                          fontSize: 11,
-                          fontWeight: FontWeight.w900,
-                          letterSpacing: 1.0,
-                        ),
-                      ),
-                    ),
-                    const Icon(Icons.arrow_forward_ios_rounded, color: Color(0xFFCBD5E1), size: 16),
-                  ],
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  aim.title ?? 'No Title',
-                  style: const TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.w900,
-                    color: Color(0xFF1E293B),
-                    height: 1.2,
-                  ),
-                ),
-                const SizedBox(height: 12),
-                Text(
-                  aim.description ?? 'No Description',
-                  style: const TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w500,
-                    color: Colors.black54,
-                    height: 1.5,
-                  ),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                const SizedBox(height: 24),
-                
-                // Progress Bar
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        const Text(
-                          'Timeline Progress',
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w700,
-                            color: Color(0xFF94A3B8),
-                          ),
-                        ),
-                        Text(
-                          '${aim.progress ?? 0}%',
-                          style: const TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w800,
-                            color: Color(0xFF6C63FF),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(10),
-                      child: LinearProgressIndicator(
-                        value: (aim.progress ?? 0) / 100,
-                        backgroundColor: const Color(0xFFF1F5F9),
-                        color: const Color(0xFF6C63FF),
-                        minHeight: 8,
-                      ),
-                    ),
-                  ],
-                ),
-                
-                const SizedBox(height: 20),
-                const Divider(height: 1, color: Color(0xFFE2E8F0)),
-                const SizedBox(height: 16),
-                
-                // Bottom Info
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Row(
-                      children: [
-                        const Icon(Icons.calendar_month_rounded, size: 16, color: Color(0xFF0EA5E9)),
-                        const SizedBox(width: 6),
-                        Text(
-                          DateFormat('MMM d, yyyy').format(aim.eventDate),
-                          style: const TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w700,
-                            color: Color(0xFF1E293B),
-                          ),
-                        ),
-                      ],
-                    ),
-                    Row(
-                      children: [
-                        const Icon(Icons.apartment_rounded, size: 16, color: Color(0xFFFF6584)),
-                        const SizedBox(width: 6),
-                        Text(
-                          aim.organizedClub,
-                          style: const TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w700,
-                            color: Color(0xFF1E293B),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ],
-            ),
+    if (errorMessage.isNotEmpty) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Text(
+            errorMessage,
+            textAlign: TextAlign.center,
+            style: const TextStyle(color: Colors.red, fontSize: 16),
           ),
         ),
+      );
+    }
+
+    if (aims.isEmpty) {
+      return const Center(
+        child: Text(
+          'No college functions are scheduled at this time.',
+          style: TextStyle(fontSize: 16),
+        ),
+      );
+    }
+
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Row(
+            children: [
+              Icon(Icons.school, size: 24, color: Colors.black87),
+              SizedBox(width: 8),
+              Text(
+                'College Functions',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          ListView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: aims.length,
+            itemBuilder: (context, index) {
+              final aim = aims[index];
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 16.0),
+                child: AimCard(aim: aim),
+              );
+            },
+          ),
+        ],
       ),
     );
   }

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:intl/intl.dart';
-import 'event_details.dart';
+import 'eventdetails.dart';
 import 'interested_events_page.dart';
 
 // Event model
@@ -130,8 +130,8 @@ class _MyResponsesPageState extends State<MyResponsesPage> {
   void _filterEvents({String? filterType}) {
     List<Event> tempEvents = _allEvents
         .where((event) =>
-            event.title.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-            event.club.toLowerCase().contains(_searchQuery.toLowerCase()))
+    event.title.toLowerCase().contains(_searchQuery.toLowerCase()) ||
+        event.club.toLowerCase().contains(_searchQuery.toLowerCase()))
         .toList();
 
     if (filterType == 'by_name') {
@@ -147,172 +147,91 @@ class _MyResponsesPageState extends State<MyResponsesPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      // A unique soft pastel background
-      backgroundColor: const Color(0xFFF7F9FC),
-      body: SafeArea(
-        child: _isLoading
-            ? const Center(child: CircularProgressIndicator(color: Color(0xFF6C63FF)))
-            : _errorMessage.isNotEmpty
-                ? Center(
-                    child: Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Text(
-                        _errorMessage,
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(color: Colors.redAccent, fontSize: 16),
+    if (_isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+    if (_errorMessage.isNotEmpty) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Text(
+            _errorMessage,
+            textAlign: TextAlign.center,
+            style: const TextStyle(color: Colors.red, fontSize: 16),
+          ),
+        ),
+      );
+    }
+
+    return SingleChildScrollView(
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                const Text(
+                  'Club Events',
+                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                ),
+                TextButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => InterestedEventsPage(
+                          studentId: widget.studentId,
+                        ),
                       ),
+                    );
+                  },
+                  child: const Text(
+                    'My Responses',
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Colors.blue,
+                      fontWeight: FontWeight.bold,
                     ),
-                  )
-                : CustomScrollView(
-                    physics: const BouncingScrollPhysics(),
-                    slivers: [
-                      SliverToBoxAdapter(
-                        child: Padding(
-                          padding: const EdgeInsets.fromLTRB(24, 32, 24, 8),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                crossAxisAlignment: CrossAxisAlignment.end,
-                                children: [
-                                  Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: const [
-                                      Text(
-                                        'Campus Connect',
-                                        style: TextStyle(
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.w700,
-                                          color: Color(0xFF6C63FF),
-                                          letterSpacing: 1.5,
-                                        ),
-                                      ),
-                                      SizedBox(height: 4),
-                                      Text(
-                                        'Club Events',
-                                        style: TextStyle(
-                                          fontSize: 34,
-                                          fontWeight: FontWeight.w900,
-                                          color: Color(0xFF1E293B),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  InkWell(
-                                    borderRadius: BorderRadius.circular(20),
-                                    onTap: () {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) => InterestedEventsPage(
-                                            studentId: widget.studentId,
-                                          ),
-                                        ),
-                                      );
-                                    },
-                                    child: Container(
-                                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                                      decoration: BoxDecoration(
-                                        gradient: const LinearGradient(
-                                          colors: [Color(0xFF6C63FF), Color(0xFFFF6584)],
-                                          begin: Alignment.topLeft,
-                                          end: Alignment.bottomRight,
-                                        ),
-                                        borderRadius: BorderRadius.circular(20),
-                                        boxShadow: [
-                                          BoxShadow(
-                                            color: const Color(0xFF6C63FF).withOpacity(0.3),
-                                            blurRadius: 12,
-                                            offset: const Offset(0, 6),
-                                          ),
-                                        ],
-                                      ),
-                                      child: const Row(
-                                        children: [
-                                          Icon(Icons.bookmark_added_rounded, color: Colors.white, size: 18),
-                                          SizedBox(width: 6),
-                                          Text(
-                                            'Responses',
-                                            style: TextStyle(
-                                              color: Colors.white,
-                                              fontWeight: FontWeight.w800,
-                                              fontSize: 14,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 28),
-                              
-                              // Floating Search Bar Design
-                              Container(
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(24),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.black.withOpacity(0.04),
-                                      blurRadius: 20,
-                                      offset: const Offset(0, 10),
-                                    ),
-                                  ],
-                                ),
-                                child: TextField(
-                                  onChanged: _onSearchChanged,
-                                  style: const TextStyle(fontWeight: FontWeight.w600, color: Color(0xFF1E293B)),
-                                  decoration: const InputDecoration(
-                                    hintText: 'Search for an event...',
-                                    hintStyle: TextStyle(color: Colors.black38, fontSize: 15, fontWeight: FontWeight.w500),
-                                    prefixIcon: Padding(
-                                      padding: EdgeInsets.only(left: 16, right: 12),
-                                      child: Icon(Icons.search_rounded, color: Color(0xFF6C63FF), size: 24),
-                                    ),
-                                    border: InputBorder.none,
-                                    contentPadding: EdgeInsets.symmetric(vertical: 20),
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(height: 24),
-                              
-                              Text(
-                                '${_filteredEvents.length} events found',
-                                style: const TextStyle(
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.w700,
-                                  color: Colors.black45,
-                                ),
-                              ),
-                              const SizedBox(height: 16),
-                            ],
-                          ),
-                        ),
-                      ),
-                      
-                      SliverPadding(
-                        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
-                        sliver: SliverList(
-                          delegate: SliverChildBuilderDelegate(
-                            (context, index) {
-                              return Padding(
-                                padding: const EdgeInsets.only(bottom: 20.0),
-                                child: EventCard(
-                                  event: _filteredEvents[index],
-                                  studentId: widget.studentId, // ✅ pass studentId down
-                                ),
-                              );
-                            },
-                            childCount: _filteredEvents.length,
-                          ),
-                        ),
-                      ),
-                      const SliverToBoxAdapter(child: SizedBox(height: 80)),
-                    ],
                   ),
+                ),
+              ],
+            ),
+            Text(
+              '${_filteredEvents.length} events found',
+              style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              decoration: InputDecoration(
+                hintText: 'Search events...',
+                prefixIcon: const Icon(Icons.search),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                  borderSide: BorderSide.none,
+                ),
+                filled: true,
+                fillColor: Colors.grey[200],
+                contentPadding: const EdgeInsets.symmetric(vertical: 10),
+              ),
+              onChanged: _onSearchChanged,
+            ),
+            const SizedBox(height: 16),
+            ListView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: _filteredEvents.length,
+              itemBuilder: (context, index) {
+                return EventCard(
+                  event: _filteredEvents[index],
+                  studentId: widget.studentId, // ✅ pass studentId down
+                );
+              },
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -322,176 +241,147 @@ class EventCard extends StatelessWidget {
   final Event event;
   final int studentId; // ✅ added
 
-  const EventCard({Key? key, required this.event, required this.studentId}) : super(key: key);
+  const EventCard({Key? key, required this.event, required this.studentId})
+      : super(key: key);
 
   Color _getStatusColor(String status) {
     switch (status) {
       case 'Today':
-        return const Color(0xFFE0F2FE); // Light Blue
+        return Colors.blue[100]!;
       case 'Tomorrow':
-        return const Color(0xFFFEF3C7); // Light Amber
+        return Colors.orange[100]!;
       case 'Yesterday':
-        return const Color(0xFFFCE7F3); // Light Pink
+        return Colors.pink[100]!;
       default:
-        return const Color(0xFFDCFCE7); // Light Green
+        return Colors.green[100]!;
     }
   }
 
   Color _getStatusTextColor(String status) {
     switch (status) {
       case 'Today':
-        return const Color(0xFF0369A1); // Dark Blue
+        return Colors.blue[800]!;
       case 'Tomorrow':
-        return const Color(0xFFB45309); // Dark Amber
+        return Colors.orange[800]!;
       case 'Yesterday':
-        return const Color(0xFFBE185D); // Dark Pink
+        return Colors.pink[800]!;
       default:
-        return const Color(0xFF15803D); // Dark Green
+        return Colors.green[800]!;
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(28),
-        boxShadow: [
-          BoxShadow(
-            color: const Color(0xFF6C63FF).withOpacity(0.06),
-            blurRadius: 24,
-            offset: const Offset(0, 12),
+    return InkWell(
+      onTap: () {
+        // ✅ pass the REAL studentId
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) =>
+                EventDetailsPage(eventId: event.id, studentId: studentId),
           ),
-        ],
-      ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          borderRadius: BorderRadius.circular(28),
-          onTap: () {
-            // ✅ pass the REAL studentId
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => EventDetailsPage(eventId: event.id, studentId: studentId),
-              ),
-            );
-          },
-          child: Padding(
-            padding: const EdgeInsets.all(24.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
+        );
+      },
+      child: Card(
+        elevation: 2,
+        color: const Color(0xFFF0F6FC),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(15.0),
+        ),
+        margin: const EdgeInsets.only(bottom: 16.0),
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Image section has been removed
+              Expanded(
+                child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                            decoration: BoxDecoration(
-                              color: _getStatusColor(event.dayStatus),
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Text(
-                              event.dayStatus.toUpperCase(),
-                              style: TextStyle(
-                                fontSize: 11,
-                                fontWeight: FontWeight.w900,
-                                color: _getStatusTextColor(event.dayStatus),
-                                letterSpacing: 1.0,
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: 16),
-                          Text(
-                            event.title,
-                            style: const TextStyle(
-                              fontSize: 22,
-                              fontWeight: FontWeight.w900,
-                              color: Color(0xFF1E293B),
-                              height: 1.2,
-                            ),
-                          ),
-                        ],
-                      ),
+                    Text(
+                      event.title,
+                      style: const TextStyle(
+                          fontSize: 20, fontWeight: FontWeight.bold), // Increased font size
                     ),
-                    const SizedBox(width: 16),
-                    Container(
-                      width: 52,
-                      height: 52,
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFF7F9FC),
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      child: const Center(
-                        child: Icon(
-                          Icons.arrow_forward_ios_rounded,
-                          color: Color(0xFF6C63FF),
-                          size: 18,
-                        ),
-                      ),
+                    const SizedBox(height: 8),
+                    Text(
+                      event.description, // Added description back
+                      style: TextStyle(
+                          fontSize: 14, color: Colors.grey[600]), // Increased font size
                     ),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                Text(
-                  event.description,
-                  style: const TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w500,
-                    color: Colors.black54,
-                    height: 1.5,
-                  ),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                const SizedBox(height: 24),
-                
-                // Bottom Info Row
-                Row(
-                  children: [
-                    Expanded(
+                    const SizedBox(height: 8),
+                    FittedBox(
+                      fit: BoxFit.scaleDown,
                       child: Row(
                         children: [
-                          const Icon(Icons.apartment_rounded, size: 18, color: Color(0xFF0EA5E9)), // Cyan
+                          const Icon(Icons.calendar_today,
+                              size: 16, color: Colors.blue), // Changed color to blue
+                          const SizedBox(width: 4),
+                          Text(
+                            event.formattedDate,
+                            style: const TextStyle(
+                                fontSize: 14, color: Colors.grey), // Increased font size
+                          ),
                           const SizedBox(width: 8),
-                          Expanded(
-                            child: Text(
-                              event.club,
-                              style: const TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w800,
-                                color: Color(0xFF1E293B),
-                              ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
+                          const Icon(Icons.access_time,
+                              size: 16, color: Colors.orange), // Changed color to orange
+                          const SizedBox(width: 4),
+                          Text(
+                            event.formattedTime,
+                            style: const TextStyle(
+                                fontSize: 14, color: Colors.grey), // Increased font size
+                          ),
+                          const SizedBox(width: 8),
+                          const Icon(Icons.location_on,
+                              size: 16, color: Colors.purple), // Changed color to purple
+                          const SizedBox(width: 4),
+                          Text(
+                            event.location,
+                            style: const TextStyle(
+                                fontSize: 14, color: Colors.grey), // Increased font size
                           ),
                         ],
                       ),
                     ),
-                    const SizedBox(width: 16),
-                    Row(
-                      children: [
-                        const Icon(Icons.access_time_filled_rounded, size: 18, color: Color(0xFFFF6584)), // Pink
-                        const SizedBox(width: 8),
-                        Text(
-                          event.formattedTime,
-                          style: const TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w800,
-                            color: Color(0xFF1E293B),
-                          ),
-                        ),
-                      ],
+                    const SizedBox(height: 8),
+                    Text(
+                      event.club,
+                      style: const TextStyle(
+                          fontSize: 14, color: Colors.grey), // Increased font size
                     ),
                   ],
                 ),
-              ],
-            ),
+              ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Container(
+                    padding:
+                    const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: _getStatusColor(event.dayStatus),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Text(
+                      event.dayStatus,
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                        color: _getStatusTextColor(event.dayStatus),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  const Icon(
+                    Icons.arrow_forward_ios,
+                    color: Colors.grey,
+                    size: 16,
+                  ),
+                ],
+              ),
+            ],
           ),
         ),
       ),

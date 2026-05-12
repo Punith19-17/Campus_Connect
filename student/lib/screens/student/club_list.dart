@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'club_details.dart';
+import 'club-details.dart';
 
+// 1. Updated Club model to match the API response
 class Club {
   final int id;
   final String name;
   final String description;
-  final String clubType;
+  final String clubType; // 'departmental' or 'institutional'
   final String? picUrl;
+  // Add all the specific fields from your admin module's Club model
   final String department;
   final String? responsibleFaculty;
   final String president;
@@ -39,6 +41,7 @@ class Club {
       description: json['club_discription'] ?? 'No Description',
       clubType: json['club_type'] ?? 'institutional',
       picUrl: json['pic'],
+      // Map the new fields from your API response
       department: json['department'] ?? '',
       responsibleFaculty: json['responsible_faculty'],
       president: json['president'] ?? '',
@@ -46,6 +49,100 @@ class Club {
       jointSecretary: json['joint_secretary'] ?? '',
       treasury: json['treasury'] ?? '',
       groupMembers: json['group_members'] ?? '',
+    );
+  }
+}
+
+// The reusable widget for the club card.
+class ClubCard extends StatelessWidget {
+  final Club club;
+
+  const ClubCard({
+    Key? key,
+    required this.club,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(12.0),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF0F6FC),
+        borderRadius: BorderRadius.circular(15.0),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.2),
+            spreadRadius: 2,
+            blurRadius: 5,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: 60,
+            height: 60,
+            decoration: BoxDecoration(
+              color: Colors.grey[300],
+              borderRadius: BorderRadius.circular(30),
+            ),
+            child: const Center(
+              child: Icon(Icons.group, color: Colors.black54),
+            ),
+          ),
+          const SizedBox(height: 12),
+          Text(
+            club.name,
+            style: const TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: Colors.black87,
+            ),
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+          ),
+          const SizedBox(height: 4),
+          Expanded(
+            child: Text(
+              club.description,
+              style: const TextStyle(
+                fontSize: 12,
+                color: Colors.black54,
+              ),
+              maxLines: 4,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              Expanded(
+                child: MaterialButton(
+                  onPressed: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => ClubDetailsPage(club: club),
+                      ),
+                    );
+                  },
+                  color: const Color(0xFF1E88E5),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8.0),
+                  ),
+                  height: 30,
+                  padding: const EdgeInsets.symmetric(horizontal: 4),
+                  child: const Text(
+                    'Details',
+                    style: TextStyle(color: Colors.white, fontSize: 10),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 }
@@ -71,7 +168,7 @@ class _ClubDirectoryPageState extends State<ClubDirectoryPage> {
   }
 
   Future<void> _fetchClubs() async {
-    const String url = 'https://campus-connect-p1ow.onrender.com/api/clubs';
+    const String url = 'http://10.0.2.2:5000/api/clubs';
 
     try {
       final response = await http.get(Uri.parse(url));
@@ -121,280 +218,108 @@ class _ClubDirectoryPageState extends State<ClubDirectoryPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      color: const Color(0xFFF7F9FC),
-      child: Column(
+    return Scaffold(
+      appBar: AppBar(
+        automaticallyImplyLeading: false,
+        backgroundColor: Colors.white,
+        elevation: 0,
+        title: Row(
+          children: [
+            InkWell(
+              onTap: () {
+                setState(() {
+                  _isDepartmentClubSelected = true;
+                });
+              },
+              child: Text(
+                'Department Clubs',
+                style: TextStyle(
+                  fontSize: 20,
+                  color: _isDepartmentClubSelected ? Colors.black : Colors.grey[400],
+                  fontWeight: _isDepartmentClubSelected ? FontWeight.bold : FontWeight.normal,
+                ),
+              ),
+            ),
+            const SizedBox(width: 40),
+            InkWell(
+              onTap: () {
+                setState(() {
+                  _isDepartmentClubSelected = false;
+                });
+              },
+              child: Text(
+                'College Clubs',
+                style: TextStyle(
+                  fontSize: 20,
+                  color: !_isDepartmentClubSelected ? Colors.black : Colors.grey[400],
+                  fontWeight: !_isDepartmentClubSelected ? FontWeight.bold : FontWeight.normal,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : _errorMessage.isNotEmpty
+          ? Center(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Text(
+            _errorMessage,
+            textAlign: TextAlign.center,
+            style: const TextStyle(color: Colors.red, fontSize: 16),
+          ),
+        ),
+      )
+          : Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
-            padding: const EdgeInsets.fromLTRB(24, 48, 24, 16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  "Clubs Directory",
-                  style: TextStyle(
-                    fontSize: 34,
-                    fontWeight: FontWeight.w900,
-                    color: Color(0xFF1E293B),
-                    letterSpacing: -1,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                const Text(
-                  "Join communities & grow",
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: Colors.black45,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                const SizedBox(height: 24),
-                Container(
-                  padding: const EdgeInsets.all(6),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(20),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.04),
-                        blurRadius: 15,
-                        offset: const Offset(0, 5),
-                      ),
-                    ],
-                  ),
-                  child: Row(
-                    children: [
-                      Expanded(child: _buildTab('Department', true)),
-                      const SizedBox(width: 6),
-                      Expanded(child: _buildTab('College', false)),
-                    ],
-                  ),
-                ),
-              ],
+            padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 0),
+            child: Text(
+              _isDepartmentClubSelected ? 'Department Club Directory' : 'Collage Club Directory',
+              style: const TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+                color: Colors.black45,
+              ),
             ),
           ),
           Expanded(
-            child: _isLoading
-                ? const Center(child: CircularProgressIndicator(color: Color(0xFF6C63FF)))
-                : _errorMessage.isNotEmpty
-                    ? Center(
-                        child: Padding(
-                          padding: const EdgeInsets.all(24.0),
-                          child: Container(
-                            padding: const EdgeInsets.all(24),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(24),
-                            ),
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                const Icon(Icons.error_outline_rounded, color: Colors.redAccent, size: 48),
-                                const SizedBox(height: 16),
-                                Text(
-                                  _errorMessage,
-                                  textAlign: TextAlign.center,
-                                  style: const TextStyle(color: Colors.redAccent, fontWeight: FontWeight.bold),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      )
-                    : _buildClubGrid(_isDepartmentClubSelected ? _departmentClubs : _collageClubs),
+            child: _buildClubGrid(
+              _isDepartmentClubSelected ? _departmentClubs : _collageClubs,
+            ),
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildTab(String title, bool isDepartmentTab) {
-    bool isSelected = _isDepartmentClubSelected == isDepartmentTab;
-    return GestureDetector(
-      onTap: () {
-        setState(() {
-          _isDepartmentClubSelected = isDepartmentTab;
-        });
-      },
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 300),
-        padding: const EdgeInsets.symmetric(vertical: 14),
-        decoration: BoxDecoration(
-          color: isSelected ? const Color(0xFF6C63FF) : Colors.transparent,
-          borderRadius: BorderRadius.circular(16),
-        ),
-        alignment: Alignment.center,
-        child: Text(
-          title,
-          style: TextStyle(
-            fontSize: 14,
-            fontWeight: isSelected ? FontWeight.w900 : FontWeight.w700,
-            color: isSelected ? Colors.white : const Color(0xFF94A3B8),
-            letterSpacing: 0.5,
-          ),
-        ),
       ),
     );
   }
 
   Widget _buildClubGrid(List<Club> clubs) {
     if (clubs.isEmpty) {
-      return Center(
-        child: Padding(
-          padding: const EdgeInsets.all(24.0),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                padding: const EdgeInsets.all(24),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  shape: BoxShape.circle,
-                  boxShadow: [
-                    BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 20, offset: const Offset(0, 10)),
-                  ],
-                ),
-                child: const Icon(Icons.groups_rounded, color: Color(0xFFCBD5E1), size: 64),
-              ),
-              const SizedBox(height: 24),
-              const Text(
-                'No clubs found',
-                textAlign: TextAlign.center,
-                style: TextStyle(color: Color(0xFF1E293B), fontWeight: FontWeight.w900, fontSize: 20),
-              ),
-            ],
-          ),
+      return const Center(
+        child: Text(
+          'No clubs found in this category.',
+          style: TextStyle(fontSize: 16, color: Colors.grey),
         ),
       );
     }
-    
     return GridView.builder(
-      physics: const BouncingScrollPhysics(),
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
-        childAspectRatio: 0.78,
-        crossAxisSpacing: 16.0,
-        mainAxisSpacing: 16.0,
+        childAspectRatio: 0.65,
+        crossAxisSpacing: 10.0,
+        mainAxisSpacing: 10.0,
       ),
-      padding: const EdgeInsets.fromLTRB(24, 8, 24, 120),
+      padding: const EdgeInsets.all(16.0),
       itemCount: clubs.length,
       itemBuilder: (context, index) {
-        return Transform.translate(
-          offset: Offset(0, index % 2 != 0 ? 20 : 0),
-          child: ClubCard(club: clubs[index]),
+        final club = clubs[index];
+        return ClubCard(
+          club: club,
         );
       },
-    );
-  }
-}
-
-class ClubCard extends StatelessWidget {
-  final Club club;
-
-  const ClubCard({
-    Key? key,
-    required this.club,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(16.0),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(24),
-        boxShadow: [
-          BoxShadow(
-            color: const Color(0xFF6C63FF).withOpacity(0.06),
-            blurRadius: 15,
-            offset: const Offset(0, 8),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Container(
-            width: 60,
-            height: 60,
-            decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                colors: [Color(0xFFE2E8F0), Color(0xFFF8FAFC)],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-              shape: BoxShape.circle,
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
-                  blurRadius: 10,
-                  offset: const Offset(0, 5),
-                ),
-              ],
-            ),
-            child: const Center(
-              child: Icon(Icons.groups_rounded, color: Color(0xFF94A3B8), size: 30),
-            ),
-          ),
-          const SizedBox(height: 12),
-          Text(
-            club.name,
-            textAlign: TextAlign.center,
-            style: const TextStyle(
-              fontSize: 15,
-              fontWeight: FontWeight.w900,
-              color: Color(0xFF1E293B),
-            ),
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-          ),
-          const SizedBox(height: 6),
-          Expanded(
-            child: Text(
-              club.description,
-              textAlign: TextAlign.center,
-              style: const TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w500,
-                color: Colors.black54,
-                height: 1.4,
-              ),
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-          const SizedBox(height: 12),
-          SizedBox(
-            width: double.infinity,
-            height: 36,
-            child: ElevatedButton(
-              onPressed: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (context) => ClubDetailsPage(club: club),
-                  ),
-                );
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF6C63FF).withOpacity(0.1),
-                elevation: 0,
-                shadowColor: Colors.transparent,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
-              ),
-              child: const Text(
-                'DETAILS',
-                style: TextStyle(
-                  color: Color(0xFF6C63FF),
-                  fontSize: 11,
-                  fontWeight: FontWeight.w900,
-                  letterSpacing: 0.5,
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
     );
   }
 }
