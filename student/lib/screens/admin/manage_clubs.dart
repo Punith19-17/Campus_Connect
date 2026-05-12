@@ -224,7 +224,7 @@ class _ManageClubsState extends State<ManageClubs> {
               letterSpacing: -0.5,
             ),
           ),
-          centerTitle: true,
+          centerTitle: false,
           actions: [
             Padding(
               padding: const EdgeInsets.only(right: 16.0),
