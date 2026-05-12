@@ -5,193 +5,400 @@ import 'admin_signup.dart';
 import 'admin_login.dart';
 import 'aboutus.dart';
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
   const HomePage({super.key});
+
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1200),
+    );
+    // Start the animation as soon as the screen loads
+    _controller.forward();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      extendBodyBehindAppBar: true,
-      appBar: AppBar(
-        title: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              padding: const EdgeInsets.all(6),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(8),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
-                    blurRadius: 8,
+      backgroundColor: const Color(0xFFF5F7FA), // Light grey background, classic app feel
+      body: CustomScrollView(
+        physics: const BouncingScrollPhysics(),
+        slivers: [
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.only(bottom: 30.0), // Space for overlapping card
+              child: Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  // Curved Header Background with Light Gradient
+                  Container(
+                    height: 300,
+                    width: double.infinity,
+                    decoration: const BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [
+                          Color(0xFF7F7FD5), // Soft Indigo
+                          Color(0xFF86A8E7), // Soft Blue
+                          Color(0xFF91EAE4), // Soft Cyan
+                        ],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                      borderRadius: BorderRadius.only(
+                        bottomLeft: Radius.circular(40),
+                        bottomRight: Radius.circular(40),
+                      ),
+                    ),
+                  ),
+
+                  // Header Content
+                  SafeArea(
+                    bottom: false,
+                    child: Padding(
+                      padding: const EdgeInsets.all(24.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              const Text(
+                                "Campus Connect",
+                                style: TextStyle(
+                                  fontSize: 22,
+                                  fontWeight: FontWeight.w800,
+                                  color: Colors.white,
+                                  letterSpacing: 0.5,
+                                ),
+                              ),
+                              Container(
+                                padding: const EdgeInsets.all(10),
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withOpacity(0.2),
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: const Icon(Icons.notifications_none_rounded, color: Colors.white, size: 24),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 30),
+                          const Text(
+                            "Welcome Back 👋",
+                            style: TextStyle(
+                              fontSize: 32,
+                              fontWeight: FontWeight.w900,
+                              color: Colors.white,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            "Your unified campus experience",
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: Colors.white.withOpacity(0.9),
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+
+                  // Overlapping Greeting Card
+                  Positioned(
+                    bottom: -30,
+                    left: 24,
+                    right: 24,
+                    child: _AnimatedChild(
+                      animation: _controller,
+                      index: 0,
+                      child: Container(
+                        padding: const EdgeInsets.all(20),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(20),
+                          boxShadow: [
+                            BoxShadow(
+                              color: const Color(0xFF7F7FD5).withOpacity(0.15),
+                              blurRadius: 20,
+                              offset: const Offset(0, 10),
+                            ),
+                          ],
+                        ),
+                        child: Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(12),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFF1F5F9),
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                              child: const Icon(Icons.school_rounded, color: Color(0xFF6366F1), size: 28),
+                            ),
+                            const SizedBox(width: 16),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: const [
+                                  Text(
+                                    "Ready to connect?",
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.w800,
+                                      fontSize: 16,
+                                      color: Color(0xFF1E293B),
+                                    ),
+                                  ),
+                                  SizedBox(height: 4),
+                                  Text(
+                                    "Access your portals below.",
+                                    style: TextStyle(
+                                      color: Color(0xFF64748B),
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
                   ),
                 ],
               ),
-              child: const Icon(Icons.school_rounded, color: Color(0xFF6366F1), size: 22),
-            ),
-            const SizedBox(width: 10),
-            const Text(
-              'Campus Connect',
-              style: TextStyle(
-                color: Color(0xFF1E293B),
-                fontWeight: FontWeight.w800,
-                fontSize: 22,
-                letterSpacing: -0.5,
-              ),
-            ),
-          ],
-        ),
-        centerTitle: true,
-        backgroundColor: Colors.white.withOpacity(0.4),
-        elevation: 0,
-        flexibleSpace: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [
-                Colors.white.withOpacity(0.7),
-                Colors.white.withOpacity(0.0),
-              ],
             ),
           ),
-        ),
-      ),
-      body: Container(
-        height: double.infinity,
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            stops: [0.0, 0.4, 0.7, 1.0],
-            colors: [
-              Color(0xFFFFF0F5), // Lavender Blush
-              Color(0xFFE8F4F8), // Soft Light Blue
-              Color(0xFFF3E8FF), // Light Purple
-              Color(0xFFFFF5E6), // Soft Peach
-            ],
-          ),
-        ),
-        child: SafeArea(
-          bottom: false,
-          child: SingleChildScrollView(
-            physics: const BouncingScrollPhysics(),
+
+          SliverPadding(
             padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const SizedBox(height: 10),
-                // Hero Section
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.6),
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: Colors.white, width: 1.5),
-                  ),
+            sliver: SliverList(
+              delegate: SliverChildListDelegate([
+                const SizedBox(height: 16),
+
+                // Quick Actions Title
+                _AnimatedChild(
+                  animation: _controller,
+                  index: 1,
                   child: const Text(
-                    "👋 Welcome to your new portal",
+                    "Quick Explore",
                     style: TextStyle(
-                      color: Color(0xFF6366F1),
-                      fontWeight: FontWeight.w700,
-                      fontSize: 14,
+                      fontSize: 18,
+                      fontWeight: FontWeight.w800,
+                      color: Color(0xFF1E293B),
                     ),
                   ),
                 ),
-                const SizedBox(height: 20),
-                const Text(
-                  "Discover &\nManage Your\nCampus Life.",
-                  style: TextStyle(
-                    fontSize: 44,
-                    fontWeight: FontWeight.w900,
-                    color: Color(0xFF0F172A),
-                    height: 1.1,
-                    letterSpacing: -1.0,
+                const SizedBox(height: 16),
+
+                // Quick Actions Grid (2x3 format for apps)
+                _AnimatedChild(
+                  animation: _controller,
+                  index: 2,
+                  child: _buildQuickLinks(),
+                ),
+                const SizedBox(height: 32),
+
+                // Portals Title
+                _AnimatedChild(
+                  animation: _controller,
+                  index: 3,
+                  child: const Text(
+                    "Access Portals",
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w800,
+                      color: Color(0xFF1E293B),
+                    ),
                   ),
                 ),
                 const SizedBox(height: 16),
-                const Text(
-                  "Everything you need from events to notices, right at your fingertips in one unified platform.",
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: Color(0xFF475569),
-                    fontWeight: FontWeight.w500,
-                    height: 1.5,
+
+                // Student Portal App Card
+                _AnimatedChild(
+                  animation: _controller,
+                  index: 4,
+                  child: _PortalAppCard(
+                    title: "Student Portal",
+                    subtitle: "Dashboard, Classes & Marks",
+                    icon: Icons.face_retouching_natural_rounded,
+                    gradientColors: const [Color(0xFF38BDF8), Color(0xFF0284C7)],
+                    onLogin: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AuthScreen())),
+                    onSignup: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const Student_signup())),
+                  ),
+                ),
+                const SizedBox(height: 20),
+
+                // Admin Portal App Card
+                _AnimatedChild(
+                  animation: _controller,
+                  index: 5,
+                  child: _PortalAppCard(
+                    title: "Admin Portal",
+                    subtitle: "Manage Events & Clubs",
+                    icon: Icons.admin_panel_settings_rounded,
+                    gradientColors: const [Color(0xFFFBBF24), Color(0xFFEA580C)],
+                    onLogin: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AdminLogin())),
+                    onSignup: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AdminSignup())),
                   ),
                 ),
                 const SizedBox(height: 32),
 
-                // Horizontal Scrolling Feature Pills
-                SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  physics: const BouncingScrollPhysics(),
-                  clipBehavior: Clip.none,
-                  child: Row(
-                    children: const [
-                      _FeaturePill(icon: Icons.event_available_rounded, text: "Events", color: Color(0xFFF43F5E)),
-                      SizedBox(width: 12),
-                      _FeaturePill(icon: Icons.campaign_rounded, text: "Notices", color: Color(0xFF8B5CF6)),
-                      SizedBox(width: 12),
-                      _FeaturePill(icon: Icons.schedule_rounded, text: "Timings", color: Color(0xFF06B6D4)),
-                      SizedBox(width: 12),
-                      _FeaturePill(icon: Icons.groups_rounded, text: "Clubs", color: Color(0xFF10B981)),
-                      SizedBox(width: 12),
-                      _FeaturePill(icon: Icons.place_rounded, text: "Venues", color: Color(0xFFF59E0B)),
-                    ],
+                // About Us App Card
+                _AnimatedChild(
+                  animation: _controller,
+                  index: 6,
+                  child: _AboutUsCard(
+                    onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AboutUsPage())),
                   ),
                 ),
                 const SizedBox(height: 40),
-
-                // Portals Section
-                const Text(
-                  "Get Started",
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w800,
-                    color: Color(0xFF1E293B),
-                  ),
-                ),
-                const SizedBox(height: 16),
-
-                _InteractivePortalCard(
-                  title: "Student Portal",
-                  subtitle: "Access your dashboard, classes, and marks.",
-                  icon: Icons.face_retouching_natural_rounded,
-                  gradientColors: const [Color(0xFF6366F1), Color(0xFF8B5CF6)],
-                  onLogin: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AuthScreen())),
-                  onSignup: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const Student_signup())),
-                ),
-                const SizedBox(height: 20),
-
-                _InteractivePortalCard(
-                  title: "Admin Portal",
-                  subtitle: "Publish notices, manage clubs and events.",
-                  icon: Icons.admin_panel_settings_rounded,
-                  gradientColors: const [Color(0xFFF59E0B), Color(0xFFEF4444)],
-                  onLogin: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AdminLogin())),
-                  onSignup: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AdminSignup())),
-                ),
-                const SizedBox(height: 24),
-
-                _InfoCard(
-                  title: "About Us",
-                  subtitle: "Learn more about Campus Connect.",
-                  icon: Icons.info_outline_rounded,
-                  color: const Color(0xFF10B981),
-                  onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AboutUsPage())),
-                ),
-                const SizedBox(height: 40),
-              ],
+              ]),
             ),
           ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildQuickLinks() {
+    return Column(
+      children: [
+        Row(
+          children: const [
+            Expanded(child: _AppFeatureCard(icon: Icons.event_available_rounded, title: "Events", color: Color(0xFF6366F1))),
+            SizedBox(width: 12),
+            Expanded(child: _AppFeatureCard(icon: Icons.campaign_rounded, title: "Notices", color: Color(0xFFF43F5E))),
+            SizedBox(width: 12),
+            Expanded(child: _AppFeatureCard(icon: Icons.schedule_rounded, title: "Timings", color: Color(0xFF10B981))),
+          ],
         ),
+        const SizedBox(height: 12),
+        Row(
+          children: const [
+            Expanded(child: _AppFeatureCard(icon: Icons.place_rounded, title: "Venues", color: Color(0xFFF59E0B))),
+            SizedBox(width: 12),
+            Expanded(child: _AppFeatureCard(icon: Icons.groups_rounded, title: "Clubs", color: Color(0xFF8B5CF6))),
+            SizedBox(width: 12),
+            Expanded(child: _AppFeatureCard(icon: Icons.analytics_rounded, title: "Analytics", color: Color(0xFF06B6D4))),
+          ],
+        ),
+      ],
+    );
+  }
+}
+
+// ----------------------------------------------------------------------
+// Custom Widgets tailored for Mobile App aesthetic
+// ----------------------------------------------------------------------
+
+/// Handles staggered entry animations for items
+class _AnimatedChild extends StatelessWidget {
+  final AnimationController animation;
+  final int index;
+  final Widget child;
+
+  const _AnimatedChild({
+    required this.animation,
+    required this.index,
+    required this.child,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    // Stagger item animations by slightly delaying their start times based on index
+    final start = (index * 0.1).clamp(0.0, 1.0);
+    final end = (start + 0.5).clamp(0.0, 1.0);
+    final curve = CurvedAnimation(
+      parent: animation,
+      curve: Interval(start, end, curve: Curves.easeOutCubic),
+    );
+
+    return AnimatedBuilder(
+      animation: curve,
+      builder: (context, childWidget) {
+        return Opacity(
+          opacity: curve.value,
+          child: Transform.translate(
+            offset: Offset(0, 30 * (1 - curve.value)),
+            child: childWidget,
+          ),
+        );
+      },
+      child: child,
+    );
+  }
+}
+
+class _AppFeatureCard extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final Color color;
+
+  const _AppFeatureCard({
+    required this.icon,
+    required this.title,
+    required this.color,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: color.withOpacity(0.08),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: color.withOpacity(0.1),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(icon, color: color, size: 24),
+          ),
+          const SizedBox(height: 10),
+          Text(
+            title,
+            style: const TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w700,
+              color: Color(0xFF1E293B),
+            ),
+            textAlign: TextAlign.center,
+          ),
+        ],
       ),
     );
   }
 }
 
-class _InteractivePortalCard extends StatelessWidget {
+class _PortalAppCard extends StatelessWidget {
   final String title;
   final String subtitle;
   final IconData icon;
@@ -199,7 +406,7 @@ class _InteractivePortalCard extends StatelessWidget {
   final VoidCallback onLogin;
   final VoidCallback onSignup;
 
-  const _InteractivePortalCard({
+  const _PortalAppCard({
     required this.title,
     required this.subtitle,
     required this.icon,
@@ -211,92 +418,120 @@ class _InteractivePortalCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.65), // Glassy feel
-        borderRadius: BorderRadius.circular(32),
-        border: Border.all(color: Colors.white, width: 2),
+        borderRadius: BorderRadius.circular(24),
+        gradient: LinearGradient(
+          colors: gradientColors,
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
         boxShadow: [
           BoxShadow(
-            color: gradientColors[0].withOpacity(0.08),
-            blurRadius: 24,
+            color: gradientColors[0].withOpacity(0.3),
+            blurRadius: 15,
             offset: const Offset(0, 8),
           ),
         ],
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Stack(
+        clipBehavior: Clip.none,
         children: [
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(14),
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: gradientColors,
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                  borderRadius: BorderRadius.circular(20),
-                  boxShadow: [
-                    BoxShadow(
-                      color: gradientColors[0].withOpacity(0.3),
-                      blurRadius: 12,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
-                ),
-                child: Icon(icon, color: Colors.white, size: 30),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      title,
-                      style: const TextStyle(
-                        fontSize: 22,
-                        fontWeight: FontWeight.w800,
-                        color: Color(0xFF1E293B),
-                        letterSpacing: -0.5,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      subtitle,
-                      style: const TextStyle(
-                        fontSize: 14,
-                        color: Color(0xFF64748B),
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
+          // Background Icon Watermark
+          Positioned(
+            right: -20,
+            bottom: -20,
+            child: Icon(
+              icon,
+              size: 140,
+              color: Colors.white.withOpacity(0.15),
+            ),
           ),
-          const SizedBox(height: 24),
-          Row(
-            children: [
-              Expanded(
-                child: _PortalButton(
-                  text: "Login",
-                  isPrimary: true,
-                  gradientColors: gradientColors,
-                  onTap: onLogin,
+          Padding(
+            padding: const EdgeInsets.all(24.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.2),
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: Icon(icon, color: Colors.white, size: 28),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            title,
+                            style: const TextStyle(
+                              fontSize: 22,
+                              fontWeight: FontWeight.w800,
+                              color: Colors.white,
+                              letterSpacing: -0.5,
+                            ),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            subtitle,
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Colors.white.withOpacity(0.9),
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: _PortalButton(
-                  text: "Sign Up",
-                  isPrimary: false,
-                  gradientColors: gradientColors,
-                  onTap: onSignup,
+                const SizedBox(height: 24),
+                Row(
+                  children: [
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: onLogin,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.white,
+                          foregroundColor: gradientColors[0],
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(14),
+                          ),
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          elevation: 0,
+                        ),
+                        child: const Text(
+                          "Login",
+                          style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: OutlinedButton(
+                        onPressed: onSignup,
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: Colors.white,
+                          side: const BorderSide(color: Colors.white, width: 2),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(14),
+                          ),
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                        ),
+                        child: const Text(
+                          "Sign Up",
+                          style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ],
       ),
@@ -304,116 +539,58 @@ class _InteractivePortalCard extends StatelessWidget {
   }
 }
 
-class _PortalButton extends StatelessWidget {
-  final String text;
-  final bool isPrimary;
-  final List<Color> gradientColors;
+class _AboutUsCard extends StatelessWidget {
   final VoidCallback onTap;
 
-  const _PortalButton({
-    required this.text,
-    required this.isPrimary,
-    required this.gradientColors,
-    required this.onTap,
-  });
+  const _AboutUsCard({required this.onTap});
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(16),
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 14),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(16),
-          gradient: isPrimary
-              ? LinearGradient(
-                  colors: gradientColors,
-                  begin: Alignment.centerLeft,
-                  end: Alignment.centerRight,
-                )
-              : null,
-          color: isPrimary ? null : Colors.white.withOpacity(0.7),
-          border: isPrimary ? null : Border.all(color: Colors.white, width: 2),
-          boxShadow: isPrimary
-              ? [
-                  BoxShadow(
-                    color: gradientColors[0].withOpacity(0.3),
-                    blurRadius: 10,
-                    offset: const Offset(0, 4),
-                  )
-                ]
-              : [],
-        ),
-        alignment: Alignment.center,
-        child: Text(
-          text,
-          style: TextStyle(
-            color: isPrimary ? Colors.white : const Color(0xFF1E293B),
-            fontSize: 16,
-            fontWeight: FontWeight.w700,
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _InfoCard extends StatelessWidget {
-  final String title;
-  final String subtitle;
-  final IconData icon;
-  final Color color;
-  final VoidCallback onTap;
-
-  const _InfoCard({
-    required this.title,
-    required this.subtitle,
-    required this.icon,
-    required this.color,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(24),
+      borderRadius: BorderRadius.circular(20),
       child: Container(
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.65),
-          borderRadius: BorderRadius.circular(24),
-          border: Border.all(color: Colors.white, width: 2),
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.03),
+              blurRadius: 15,
+              offset: const Offset(0, 5),
+            ),
+          ],
+          border: Border.all(color: const Color(0xFFF1F5F9), width: 1.5),
         ),
         child: Row(
           children: [
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: color.withOpacity(0.15),
+                color: const Color(0xFFF1F5F9),
                 borderRadius: BorderRadius.circular(16),
               ),
-              child: Icon(icon, color: color, size: 26),
+              child: const Icon(Icons.info_outline_rounded, color: Color(0xFF64748B), size: 24),
             ),
             const SizedBox(width: 16),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
+                children: const [
                   Text(
-                    title,
-                    style: const TextStyle(
-                      fontSize: 18,
+                    "About Campus Connect",
+                    style: TextStyle(
+                      fontSize: 16,
                       fontWeight: FontWeight.w800,
                       color: Color(0xFF1E293B),
                     ),
                   ),
-                  const SizedBox(height: 2),
+                  SizedBox(height: 4),
                   Text(
-                    subtitle,
-                    style: const TextStyle(
-                      fontSize: 14,
+                    "Learn about our mission and features.",
+                    style: TextStyle(
+                      fontSize: 13,
                       color: Color(0xFF64748B),
                       fontWeight: FontWeight.w500,
                     ),
@@ -421,55 +598,9 @@ class _InfoCard extends StatelessWidget {
                 ],
               ),
             ),
-            const Icon(Icons.arrow_forward_ios_rounded, color: Color(0xFF94A3B8), size: 18),
+            const Icon(Icons.arrow_forward_ios_rounded, color: Color(0xFFCBD5E1), size: 16),
           ],
         ),
-      ),
-    );
-  }
-}
-
-class _FeaturePill extends StatelessWidget {
-  final IconData icon;
-  final String text;
-  final Color color;
-
-  const _FeaturePill({
-    required this.icon,
-    required this.text,
-    required this.color,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
-      decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.8),
-        borderRadius: BorderRadius.circular(100),
-        border: Border.all(color: Colors.white, width: 2),
-        boxShadow: [
-          BoxShadow(
-            color: color.withOpacity(0.08),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, color: color, size: 20),
-          const SizedBox(width: 8),
-          Text(
-            text,
-            style: const TextStyle(
-              fontWeight: FontWeight.w700,
-              color: Color(0xFF1E293B),
-              fontSize: 15,
-            ),
-          ),
-        ],
       ),
     );
   }
