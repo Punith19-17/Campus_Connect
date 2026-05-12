@@ -210,7 +210,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                 _AnimatedChild(
                   animation: _controller,
                   index: 2,
-                  child: _buildQuickLinks(),
+                  child: _buildQuickLinks(context),
                 ),
                 const SizedBox(height: 32),
 
@@ -276,26 +276,37 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     );
   }
 
-  Widget _buildQuickLinks() {
+  Widget _buildQuickLinks(BuildContext context) {
+    void showLoginMessage(String feature) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Please Login to view details in $feature", style: const TextStyle(fontWeight: FontWeight.bold)),
+          backgroundColor: const Color(0xFF6366F1),
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        ),
+      );
+    }
+
     return Column(
       children: [
         Row(
-          children: const [
-            Expanded(child: _AppFeatureCard(icon: Icons.event_available_rounded, title: "Events", color: Color(0xFF6366F1))),
-            SizedBox(width: 12),
-            Expanded(child: _AppFeatureCard(icon: Icons.campaign_rounded, title: "Notices", color: Color(0xFFF43F5E))),
-            SizedBox(width: 12),
-            Expanded(child: _AppFeatureCard(icon: Icons.schedule_rounded, title: "Timings", color: Color(0xFF10B981))),
+          children: [
+            Expanded(child: _AppFeatureCard(icon: Icons.event_available_rounded, title: "Events", color: const Color(0xFF6366F1), onTap: () => showLoginMessage("Events"))),
+            const SizedBox(width: 12),
+            Expanded(child: _AppFeatureCard(icon: Icons.campaign_rounded, title: "Notices", color: const Color(0xFFF43F5E), onTap: () => showLoginMessage("Notices"))),
+            const SizedBox(width: 12),
+            Expanded(child: _AppFeatureCard(icon: Icons.schedule_rounded, title: "Timings", color: const Color(0xFF10B981), onTap: () => showLoginMessage("Timings"))),
           ],
         ),
         const SizedBox(height: 12),
         Row(
-          children: const [
-            Expanded(child: _AppFeatureCard(icon: Icons.place_rounded, title: "Venues", color: Color(0xFFF59E0B))),
-            SizedBox(width: 12),
-            Expanded(child: _AppFeatureCard(icon: Icons.groups_rounded, title: "Clubs", color: Color(0xFF8B5CF6))),
-            SizedBox(width: 12),
-            Expanded(child: _AppFeatureCard(icon: Icons.analytics_rounded, title: "Analytics", color: Color(0xFF06B6D4))),
+          children: [
+            Expanded(child: _AppFeatureCard(icon: Icons.place_rounded, title: "Venues", color: const Color(0xFFF59E0B), onTap: () => showLoginMessage("Venues"))),
+            const SizedBox(width: 12),
+            Expanded(child: _AppFeatureCard(icon: Icons.groups_rounded, title: "Clubs", color: const Color(0xFF8B5CF6), onTap: () => showLoginMessage("Clubs"))),
+            const SizedBox(width: 12),
+            Expanded(child: _AppFeatureCard(icon: Icons.analytics_rounded, title: "Analytics", color: const Color(0xFF06B6D4), onTap: () => showLoginMessage("Analytics"))),
           ],
         ),
       ],
@@ -349,17 +360,18 @@ class _AppFeatureCard extends StatelessWidget {
   final IconData icon;
   final String title;
   final Color color;
+  final VoidCallback onTap;
 
   const _AppFeatureCard({
     required this.icon,
     required this.title,
     required this.color,
+    required this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 16),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
@@ -371,28 +383,38 @@ class _AppFeatureCard extends StatelessWidget {
           ),
         ],
       ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: color.withOpacity(0.1),
-              shape: BoxShape.circle,
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(20),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 16),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: color.withOpacity(0.1),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(icon, color: color, size: 24),
+                ),
+                const SizedBox(height: 10),
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
+                    color: Color(0xFF1E293B),
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ],
             ),
-            child: Icon(icon, color: color, size: 24),
           ),
-          const SizedBox(height: 10),
-          Text(
-            title,
-            style: const TextStyle(
-              fontSize: 13,
-              fontWeight: FontWeight.w700,
-              color: Color(0xFF1E293B),
-            ),
-            textAlign: TextAlign.center,
-          ),
-        ],
+        ),
       ),
     );
   }
