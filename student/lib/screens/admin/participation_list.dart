@@ -118,74 +118,151 @@ class _ParticipationListPageState extends State<ParticipationListPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xFFF5F7FA), // Light grey background matching add_event.dart
       appBar: AppBar(
-        title: const Text('Participation Details'),
-        backgroundColor: Colors.blue,
-        foregroundColor: Colors.white,
+        backgroundColor: Colors.transparent,
         elevation: 0,
+        centerTitle: true,
+        title: const Text(
+          'Participation Details',
+          style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: Color(0xFF1E293B)),
+        ),
+        iconTheme: const IconThemeData(color: Color(0xFF1E293B)),
       ),
-      body: Column(
-        children: [
-          // Search Bar
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: TextField(
-              controller: _searchController,
-              decoration: InputDecoration(
-                hintText: 'Search by event name, date, or department...',
-                prefixIcon: const Icon(Icons.search),
-                // --- MODIFICATION HERE: Changed BorderSide.none to BorderSide(color: Colors.black, width: 1.5) ---
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12.0),
-                  borderSide: const BorderSide(color: Colors.black, width: 1.5), // Added black border
+      body: Container(
+        width: double.infinity,
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.only(topLeft: Radius.circular(40), topRight: Radius.circular(40)),
+        ),
+        child: Column(
+          children: [
+            // Modern Search Bar
+            Padding(
+              padding: const EdgeInsets.fromLTRB(24, 32, 24, 16),
+              child: TextField(
+                controller: _searchController,
+                style: const TextStyle(fontWeight: FontWeight.w600, color: Color(0xFF1E293B)),
+                decoration: InputDecoration(
+                  hintText: 'Search by event, date, or department...',
+                  hintStyle: const TextStyle(color: Color(0xFF94A3B8), fontWeight: FontWeight.w500),
+                  prefixIcon: const Icon(Icons.search_rounded, color: Color(0xFF4F46E5)), // Indigo accent
+                  filled: true,
+                  fillColor: const Color(0xFFF8FAFC),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(16.0),
+                    borderSide: BorderSide.none,
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(16.0),
+                    borderSide: const BorderSide(color: Color(0xFF4F46E5), width: 2),
+                  ),
                 ),
-                filled: true,
-                fillColor: Colors.grey[100],
               ),
             ),
-          ),
 
-          // Conditional Body (Loading/Error/List)
-          Expanded(
-            child: _buildBody(),
-          ),
-        ],
+            // Conditional Body (Loading/Error/List)
+            Expanded(
+              child: _buildBody(),
+            ),
+          ],
+        ),
       ),
     );
   }
 
   Widget _buildBody() {
     if (_isLoading) {
-      return const Center(child: CircularProgressIndicator());
+      return const Center(child: CircularProgressIndicator(color: Color(0xFF4F46E5)));
     } else if (_errorMessage != null) {
-      return Center(child: Text(_errorMessage!));
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24.0),
+          child: Text(
+            _errorMessage!,
+            textAlign: TextAlign.center,
+            style: const TextStyle(color: Colors.redAccent, fontWeight: FontWeight.w600),
+          ),
+        ),
+      );
     } else if (_filteredParticipants.isEmpty) {
-      return const Center(child: Text('No participants match your search criteria.'));
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.search_off_rounded, size: 64, color: Colors.grey.withOpacity(0.5)),
+            const SizedBox(height: 16),
+            const Text(
+              'No participants found.',
+              style: TextStyle(color: Color(0xFF64748B), fontWeight: FontWeight.w600, fontSize: 16),
+            ),
+          ],
+        ),
+      );
     } else {
       // Data is loaded, display the filtered list
       return ListView.builder(
+        padding: const EdgeInsets.only(left: 24, right: 24, bottom: 24),
+        physics: const BouncingScrollPhysics(),
         itemCount: _filteredParticipants.length,
         itemBuilder: (context, index) {
           final participant = _filteredParticipants[index];
-          return Card(
-            margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            elevation: 2,
+          return Container(
+            margin: const EdgeInsets.only(bottom: 16),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: const Color(0xFFF1F5F9), width: 2),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.02),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
             child: Padding(
-              padding: const EdgeInsets.all(16.0),
+              padding: const EdgeInsets.all(20.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _buildDetailRow('Event Name', participant.eventName),
-                  const SizedBox(height: 8),
-                  _buildDetailRow('Register Number', participant.registerNumber),
-                  const SizedBox(height: 8),
-                  _buildDetailRow('Name', participant.name),
-                  const SizedBox(height: 8),
-                  _buildDetailRow('Phone Number', participant.phoneNumber),
-                  const SizedBox(height: 8),
-                  _buildDetailRow('Department', participant.department),
-                  const SizedBox(height: 8),
-                  _buildDetailRow('Date & Time', participant.createdAt),
+                  // Event Name Header
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFEEF2FF), // Indigo tint
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: const Icon(Icons.event_rounded, color: Color(0xFF4F46E5), size: 20),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          participant.eventName,
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w800,
+                            color: Color(0xFF1E293B),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  const Divider(color: Color(0xFFF1F5F9), height: 1),
+                  const SizedBox(height: 16),
+
+                  _buildDetailRow(Icons.person_rounded, 'Name', participant.name),
+                  const SizedBox(height: 12),
+                  _buildDetailRow(Icons.badge_rounded, 'Register No.', participant.registerNumber),
+                  const SizedBox(height: 12),
+                  _buildDetailRow(Icons.business_center_rounded, 'Department', participant.department),
+                  const SizedBox(height: 12),
+                  _buildDetailRow(Icons.phone_rounded, 'Phone', participant.phoneNumber),
+                  const SizedBox(height: 12),
+                  _buildDetailRow(Icons.access_time_rounded, 'Date & Time', participant.createdAt),
                 ],
               ),
             ),
@@ -194,26 +271,28 @@ class _ParticipationListPageState extends State<ParticipationListPage> {
       );
     }
   }
-}
 
-Widget _buildDetailRow(String title, String value) {
-  return Row(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      Expanded(
-        flex: 2,
-        child: Text(
-          title,
-          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Colors.blueGrey),
+  Widget _buildDetailRow(IconData icon, String title, String value) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Icon(icon, size: 18, color: const Color(0xFF94A3B8)),
+        const SizedBox(width: 8),
+        Expanded(
+          flex: 2,
+          child: Text(
+            title,
+            style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: Color(0xFF64748B)),
+          ),
         ),
-      ),
-      Expanded(
-        flex: 3,
-        child: Text(
-          value,
-          style: const TextStyle(fontSize: 15, color: Colors.black87),
+        Expanded(
+          flex: 3,
+          child: Text(
+            value,
+            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Color(0xFF334155)),
+          ),
         ),
-      ),
-    ],
-  );
+      ],
+    );
+  }
 }

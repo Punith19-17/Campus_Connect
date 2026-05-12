@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'dart:ui'; // For BackdropFilter
 import '/../config.dart'; // Import the config file
+import 'admin_login.dart';
 
 class AdminSignup extends StatefulWidget {
   const AdminSignup({super.key});
@@ -21,6 +21,15 @@ class _AdminSignUpPageState extends State<AdminSignup> {
   bool _isLoading = false;
   String _statusMessage = '';
   Color _statusColor = Colors.transparent;
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _emailController.dispose();
+    _deptController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
 
   // Test server connection
   Future<void> _testServerConnection() async {
@@ -92,18 +101,21 @@ class _AdminSignUpPageState extends State<AdminSignup> {
         if (response.statusCode == 201) {
           setState(() {
             _statusMessage = responseData['message'] ?? 'Admin registration successful!';
-            _statusColor = Colors.green;
+            _statusColor = const Color(0xFF10B981); // Emerald
           });
 
           await Future.delayed(const Duration(milliseconds: 1500));
 
           if (mounted) {
-            Navigator.of(context).pop();
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => const AdminLogin()),
+            );
           }
         } else {
           setState(() {
             _statusMessage = responseData['message'] ?? 'Registration failed. Please try again.';
-            _statusColor = Colors.redAccent;
+            _statusColor = const Color(0xFFEF4444); // Red
           });
           _showModernSnackBar(_statusMessage, Colors.redAccent);
         }
@@ -120,7 +132,7 @@ class _AdminSignUpPageState extends State<AdminSignup> {
 
         setState(() {
           _statusMessage = errorMessage;
-          _statusColor = Colors.redAccent;
+          _statusColor = const Color(0xFFEF4444);
         });
 
         _showModernSnackBar(errorMessage, Colors.redAccent);
@@ -135,78 +147,108 @@ class _AdminSignUpPageState extends State<AdminSignup> {
     }
   }
 
+  Widget _buildTextField({
+    required TextEditingController controller,
+    required String label,
+    required IconData icon,
+    bool isPassword = false,
+    TextInputType keyboardType = TextInputType.text,
+    String? Function(String?)? validator,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16.0),
+      child: TextFormField(
+        controller: controller,
+        style: const TextStyle(color: Color(0xFF1E293B), fontWeight: FontWeight.w500),
+        decoration: InputDecoration(
+          labelText: label,
+          labelStyle: const TextStyle(color: Color(0xFF94A3B8)),
+          prefixIcon: Icon(icon, color: const Color(0xFF94A3B8)),
+          filled: true,
+          fillColor: const Color(0xFFF8FAFC),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(16),
+            borderSide: BorderSide.none,
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(16),
+            borderSide: const BorderSide(color: Color(0xFFF43F5E), width: 2), // Rose for Admin Signup
+          ),
+          contentPadding: const EdgeInsets.symmetric(vertical: 16),
+        ),
+        obscureText: isPassword,
+        keyboardType: keyboardType,
+        validator: validator,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            Color(0xFFFFE4E1), // Misty Rose
-            Color(0xFFE0F7FA), // Light Cyan
-            Color(0xFFF3E5F5), // Light Purple
-          ],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          stops: [0.0, 0.5, 1.0],
+    return Scaffold(
+      extendBodyBehindAppBar: true,
+      appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Color(0xFF1E293B)),
+          onPressed: () => Navigator.of(context).pop(),
         ),
-      ),
-      child: Scaffold(
         backgroundColor: Colors.transparent,
-        appBar: AppBar(
-          backgroundColor: Colors.transparent,
-          elevation: 0,
-          leading: Padding(
-            padding: const EdgeInsets.only(left: 8.0),
-            child: Container(
-              margin: const EdgeInsets.all(8.0),
-              decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.5),
-                shape: BoxShape.circle,
-              ),
-              child: IconButton(
-                icon: const Icon(Icons.arrow_back_rounded, color: Color(0xFF1E293B), size: 20),
-                onPressed: () => Navigator.pop(context),
-              ),
-            ),
+        elevation: 0,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.wifi_rounded, color: Color(0xFF1E293B)),
+            onPressed: _testServerConnection,
+            tooltip: 'Test Server Connection',
           ),
-          title: const Text(
-            'Admin Signup',
-            style: TextStyle(
-              color: Color(0xFF1E293B),
-              fontWeight: FontWeight.w900,
-              fontSize: 22,
-              letterSpacing: -0.5,
-            ),
+        ],
+      ),
+      body: Container(
+        height: double.infinity,
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Color(0xFFF8FAFC), Color(0xFFEFF6FF)],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
           ),
-          centerTitle: true,
-          actions: [
-            IconButton(
-              icon: const Icon(Icons.wifi_rounded, color: Color(0xFF1E293B)),
-              onPressed: _testServerConnection,
-              tooltip: 'Test Server Connection',
-            ),
-          ],
         ),
-        body: Center(
+        child: SafeArea(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.all(24.0),
-            physics: const BouncingScrollPhysics(),
+            padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
             child: Form(
               key: _formKey,
               child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  const Icon(
-                    Icons.person_add_alt_1_rounded,
-                    size: 70,
-                    color: Color(0xFFF43F5E),
+                  // Icon Header
+                  Center(
+                    child: Container(
+                      padding: const EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Colors.white,
+                        boxShadow: [
+                          BoxShadow(
+                            color: const Color(0xFFF43F5E).withOpacity(0.15),
+                            blurRadius: 20,
+                            offset: const Offset(0, 10),
+                          ),
+                        ],
+                      ),
+                      child: const Icon(
+                        Icons.person_add_alt_1_rounded,
+                        size: 48,
+                        color: Color(0xFFF43F5E), // Rose color for Admin Signup
+                      ),
+                    ),
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 32),
+
                   const Text(
                     'Create Account',
+                    textAlign: TextAlign.center,
                     style: TextStyle(
                       fontSize: 32,
-                      fontWeight: FontWeight.w900,
+                      fontWeight: FontWeight.w800,
                       color: Color(0xFF1E293B),
                       letterSpacing: -0.5,
                     ),
@@ -214,162 +256,115 @@ class _AdminSignUpPageState extends State<AdminSignup> {
                   const SizedBox(height: 8),
                   const Text(
                     'Fill out the form to manage events',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Color(0xFF64748B),
+                      fontWeight: FontWeight.w500,
+                    ),
                   ),
                   const SizedBox(height: 32),
+
                   if (_statusMessage.isNotEmpty)
                     Container(
                       padding: const EdgeInsets.all(16),
                       margin: const EdgeInsets.only(bottom: 24),
                       decoration: BoxDecoration(
-                        color: _statusColor.withOpacity(0.15),
-                        borderRadius: BorderRadius.circular(16),
-                        border: Border.all(color: _statusColor.withOpacity(0.5)),
+                        color: _statusColor.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: _statusColor.withOpacity(0.3)),
                       ),
                       child: Row(
                         children: [
                           Icon(
-                            _statusColor == Colors.green ? Icons.check_circle_rounded : Icons.error_rounded,
+                            _statusColor == const Color(0xFF10B981)
+                                ? Icons.check_circle_rounded
+                                : Icons.error_rounded,
                             color: _statusColor,
                           ),
                           const SizedBox(width: 12),
                           Expanded(
                             child: Text(
                               _statusMessage,
-                              style: TextStyle(color: _statusColor, fontWeight: FontWeight.w700),
+                              style: TextStyle(
+                                color: _statusColor,
+                                fontWeight: FontWeight.w600,
+                              ),
                             ),
                           ),
                         ],
                       ),
                     ),
-                  _GlassContainer(
+
+                  // Registration Form Card
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(24),
+                      boxShadow: [
+                        BoxShadow(
+                          color: const Color(0xFFF43F5E).withOpacity(0.05),
+                          blurRadius: 24,
+                          offset: const Offset(0, 8),
+                        ),
+                      ],
+                    ),
+                    padding: const EdgeInsets.all(24.0),
                     child: Column(
                       children: [
-                        TextFormField(
+                        _buildTextField(
                           controller: _nameController,
-                          decoration: InputDecoration(
-                            labelText: 'Full Name',
-                            labelStyle: const TextStyle(color: Color(0xFF64748B), fontWeight: FontWeight.w600),
-                            prefixIcon: const Icon(Icons.person_rounded, color: Color(0xFFF43F5E)),
-                            filled: true,
-                            fillColor: Colors.white.withOpacity(0.5),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(16),
-                              borderSide: BorderSide.none,
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(16),
-                              borderSide: const BorderSide(color: Color(0xFFF43F5E), width: 2),
-                            ),
-                          ),
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Please enter your full name';
-                            }
-                            return null;
-                          },
+                          label: 'Full Name',
+                          icon: Icons.person_rounded,
+                          validator: (v) => v!.isEmpty ? 'Enter full name' : null,
                         ),
-                        const SizedBox(height: 16),
-                        TextFormField(
+                        _buildTextField(
                           controller: _emailController,
-                          decoration: InputDecoration(
-                            labelText: 'Email Address',
-                            labelStyle: const TextStyle(color: Color(0xFF64748B), fontWeight: FontWeight.w600),
-                            prefixIcon: const Icon(Icons.email_rounded, color: Color(0xFFF43F5E)),
-                            filled: true,
-                            fillColor: Colors.white.withOpacity(0.5),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(16),
-                              borderSide: BorderSide.none,
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(16),
-                              borderSide: const BorderSide(color: Color(0xFFF43F5E), width: 2),
-                            ),
-                          ),
+                          label: 'Email Address',
+                          icon: Icons.email_rounded,
                           keyboardType: TextInputType.emailAddress,
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Please enter your email address';
-                            }
-                            if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
-                              return 'Please enter a valid email address';
-                            }
+                          validator: (v) {
+                            if (v!.isEmpty) return 'Enter email';
+                            if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(v)) return 'Invalid email';
                             return null;
                           },
                         ),
-                        const SizedBox(height: 16),
-                        TextFormField(
+                        _buildTextField(
                           controller: _deptController,
-                          decoration: InputDecoration(
-                            labelText: 'Department',
-                            labelStyle: const TextStyle(color: Color(0xFF64748B), fontWeight: FontWeight.w600),
-                            prefixIcon: const Icon(Icons.business_rounded, color: Color(0xFFF43F5E)),
-                            filled: true,
-                            fillColor: Colors.white.withOpacity(0.5),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(16),
-                              borderSide: BorderSide.none,
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(16),
-                              borderSide: const BorderSide(color: Color(0xFFF43F5E), width: 2),
-                            ),
-                          ),
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Please enter your department';
-                            }
+                          label: 'Department',
+                          icon: Icons.business_center_rounded,
+                          validator: (v) => v!.isEmpty ? 'Enter department' : null,
+                        ),
+                        _buildTextField(
+                          controller: _passwordController,
+                          label: 'Password',
+                          icon: Icons.lock_rounded,
+                          isPassword: true,
+                          validator: (v) {
+                            if (v!.isEmpty) return 'Enter password';
+                            if (v.length < 6) return 'Min 6 characters';
                             return null;
                           },
                         ),
                         const SizedBox(height: 16),
-                        TextFormField(
-                          controller: _passwordController,
-                          decoration: InputDecoration(
-                            labelText: 'Password',
-                            labelStyle: const TextStyle(color: Color(0xFF64748B), fontWeight: FontWeight.w600),
-                            prefixIcon: const Icon(Icons.lock_rounded, color: Color(0xFFF43F5E)),
-                            filled: true,
-                            fillColor: Colors.white.withOpacity(0.5),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(16),
-                              borderSide: BorderSide.none,
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(16),
-                              borderSide: const BorderSide(color: Color(0xFFF43F5E), width: 2),
-                            ),
-                          ),
-                          obscureText: true,
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Please enter a password';
-                            }
-                            if (value.length < 6) {
-                              return 'Password must be at least 6 characters';
-                            }
-                            return null;
-                          },
-                        ),
-                        const SizedBox(height: 32),
+
                         _isLoading
-                            ? const CircularProgressIndicator(color: Color(0xFFF43F5E))
+                            ? const Center(child: CircularProgressIndicator(color: Color(0xFFF43F5E)))
                             : Container(
                                 width: double.infinity,
                                 height: 56,
                                 decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(16),
                                   gradient: const LinearGradient(
-                                    colors: [Color(0xFFF43F5E), Color(0xFFFB923C)],
+                                    colors: [Color(0xFFFB7185), Color(0xFFF43F5E)], // Rose gradient
                                     begin: Alignment.centerLeft,
                                     end: Alignment.centerRight,
                                   ),
                                   boxShadow: [
                                     BoxShadow(
                                       color: const Color(0xFFF43F5E).withOpacity(0.3),
-                                      blurRadius: 15,
-                                      offset: const Offset(0, 8),
+                                      blurRadius: 12,
+                                      offset: const Offset(0, 6),
                                     ),
                                   ],
                                 ),
@@ -381,12 +376,12 @@ class _AdminSignUpPageState extends State<AdminSignup> {
                                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                                   ),
                                   child: const Text(
-                                    'SIGN UP',
+                                    'Sign Up',
                                     style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w800,
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w700,
                                       color: Colors.white,
-                                      letterSpacing: 1.5,
+                                      letterSpacing: 0.5,
                                     ),
                                   ),
                                 ),
@@ -395,61 +390,35 @@ class _AdminSignUpPageState extends State<AdminSignup> {
                     ),
                   ),
                   const SizedBox(height: 24),
-                  TextButton(
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
-                    child: RichText(
-                      text: const TextSpan(
-                        text: 'Already have an account? ',
-                        style: TextStyle(color: Color(0xFF64748B), fontWeight: FontWeight.w600, fontSize: 15),
-                        children: [
-                          TextSpan(
-                            text: 'Login',
-                            style: TextStyle(color: Color(0xFFF43F5E), fontWeight: FontWeight.w800),
-                          ),
-                        ],
+
+                  // Login Link
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Text(
+                        "Already have an account? ",
+                        style: TextStyle(color: Color(0xFF64748B), fontWeight: FontWeight.w500),
                       ),
-                    ),
+                      TextButton(
+                        onPressed: () {
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(builder: (context) => const AdminLogin()),
+                          );
+                        },
+                        style: TextButton.styleFrom(
+                          foregroundColor: const Color(0xFFF43F5E),
+                          padding: EdgeInsets.zero,
+                        ),
+                        child: const Text('Login', style: TextStyle(fontWeight: FontWeight.w700)),
+                      ),
+                    ],
                   ),
+                  const SizedBox(height: 24),
                 ],
               ),
             ),
           ),
-        ),
-      ),
-    );
-  }
-}
-
-/// A reusable frosted glass container
-class _GlassContainer extends StatelessWidget {
-  final Widget child;
-  final EdgeInsetsGeometry? padding;
-
-  const _GlassContainer({required this.child, this.padding});
-
-  @override
-  Widget build(BuildContext context) {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(28),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
-        child: Container(
-          padding: padding ?? const EdgeInsets.all(24),
-          decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.4),
-            borderRadius: BorderRadius.circular(28),
-            border: Border.all(color: Colors.white.withOpacity(0.6), width: 1.5),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.05),
-                blurRadius: 20,
-                offset: const Offset(0, 10),
-              ),
-            ],
-          ),
-          child: child,
         ),
       ),
     );
