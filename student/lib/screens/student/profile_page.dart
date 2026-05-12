@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'dart:ui';
 import 'Student_login.dart'; 
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -112,15 +111,22 @@ class _StudentProfilePageState extends State<StudentProfilePage> {
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
-      return const Center(child: CircularProgressIndicator(color: Color(0xFF0EA5E9)));
+      return const Center(child: CircularProgressIndicator(color: Color(0xFF6C63FF)));
     }
     
     if (_errorMessage.isNotEmpty) {
       return Center(
         child: Padding(
           padding: const EdgeInsets.all(24.0),
-          child: _StudentGlassContainer(
+          child: Container(
             padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(24),
+              boxShadow: [
+                BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 20, offset: const Offset(0, 10)),
+              ],
+            ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -153,149 +159,142 @@ class _StudentProfilePageState extends State<StudentProfilePage> {
 
     return RefreshIndicator(
       onRefresh: _loadUserProfile,
-      color: const Color(0xFF0EA5E9),
+      color: const Color(0xFF6C63FF),
       child: SingleChildScrollView(
         physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
-        child: Column(
+        child: Stack(
           children: [
-            // Profile Header
             Container(
+              height: 260,
               width: double.infinity,
-              padding: const EdgeInsets.fromLTRB(24, 60, 24, 40),
               decoration: const BoxDecoration(
                 gradient: LinearGradient(
-                  colors: [
-                    Color(0xFFF43F5E), // Rose
-                    Color(0xFFF97316), // Orange
-                  ],
+                  colors: [Color(0xFF6C63FF), Color(0xFFFF6584)],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
-                borderRadius: BorderRadius.only(
-                  bottomLeft: Radius.circular(40),
-                  bottomRight: Radius.circular(40),
-                ),
-              ),
-              child: Column(
-                children: [
-                  const Text(
-                    'My Profile',
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.w900,
-                      color: Colors.white,
-                    ),
-                  ),
-                  const SizedBox(height: 32),
-                  Container(
-                    width: 120,
-                    height: 120,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: Colors.white,
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.15),
-                          blurRadius: 30,
-                          offset: const Offset(0, 15),
-                        ),
-                      ],
-                      border: Border.all(color: Colors.white.withOpacity(0.5), width: 4),
-                    ),
-                    child: const Center(
-                      child: Icon(Icons.face_retouching_natural_rounded, size: 70, color: Color(0xFFF43F5E)),
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-                  Text(
-                    _userProfile!['name'] ?? 'N/A',
-                    style: const TextStyle(
-                      fontSize: 28,
-                      fontWeight: FontWeight.w900,
-                      color: Colors.white,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.2),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Text(
-                      _userProfile!['register_number'] ?? 'N/A',
-                      style: const TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w800,
-                        color: Colors.white,
-                        letterSpacing: 1.0,
-                      ),
-                    ),
-                  ),
-                ],
               ),
             ),
-            
-            // Details
-            Padding(
-              padding: const EdgeInsets.all(24.0),
-              child: Column(
-                children: [
-                  _StudentGlassContainer(
-                    padding: const EdgeInsets.all(24),
-                    child: Column(
-                      children: [
-                        _buildDetailRow(Icons.phone_rounded, 'Phone Number', _userProfile!['phone_number'] ?? 'N/A', const Color(0xFF10B981)),
-                        const Padding(
-                          padding: EdgeInsets.symmetric(vertical: 16),
-                          child: Divider(color: Colors.black12, height: 1),
-                        ),
-                        _buildDetailRow(Icons.school_rounded, 'Department', _userProfile!['department'] ?? 'N/A', const Color(0xFF38BDF8)),
-                      ],
+            Column(
+              children: [
+                const SizedBox(height: 60),
+                const Text(
+                  'My Profile',
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.w900,
+                    color: Colors.white,
+                  ),
+                ),
+                const SizedBox(height: 40),
+                
+                Container(
+                  width: 120,
+                  height: 120,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.white,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.15),
+                        blurRadius: 30,
+                        offset: const Offset(0, 15),
+                      ),
+                    ],
+                    border: Border.all(color: Colors.white, width: 4),
+                  ),
+                  child: const Center(
+                    child: Icon(Icons.face_retouching_natural_rounded, size: 70, color: Color(0xFF6C63FF)),
+                  ),
+                ),
+                const SizedBox(height: 24),
+                Text(
+                  _userProfile!['name'] ?? 'N/A',
+                  style: const TextStyle(
+                    fontSize: 28,
+                    fontWeight: FontWeight.w900,
+                    color: Color(0xFF1E293B),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF6C63FF).withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Text(
+                    _userProfile!['register_number'] ?? 'N/A',
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w800,
+                      color: Color(0xFF6C63FF),
+                      letterSpacing: 1.0,
                     ),
                   ),
-                  const SizedBox(height: 40),
-                  
-                  // Logout Button
-                  Container(
-                    decoration: BoxDecoration(
-                      boxShadow: [
-                        BoxShadow(
-                          color: const Color(0xFFEF4444).withOpacity(0.2),
-                          blurRadius: 20,
-                          offset: const Offset(0, 10),
+                ),
+                
+                Padding(
+                  padding: const EdgeInsets.all(24.0),
+                  child: Column(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(24),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(24),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.04),
+                              blurRadius: 20,
+                              offset: const Offset(0, 10),
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
-                    child: ElevatedButton(
-                      onPressed: _handleLogout,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.white,
-                        foregroundColor: const Color(0xFFEF4444),
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(20),
-                          side: const BorderSide(color: Color(0xFFEF4444), width: 1.5),
+                        child: Column(
+                          children: [
+                            _buildDetailRow(Icons.phone_rounded, 'Phone Number', _userProfile!['phone_number'] ?? 'N/A', const Color(0xFF2CB67D)),
+                            const Padding(
+                              padding: EdgeInsets.symmetric(vertical: 16),
+                              child: Divider(color: Color(0xFFE2E8F0), height: 1),
+                            ),
+                            _buildDetailRow(Icons.school_rounded, 'Department', _userProfile!['department'] ?? 'N/A', const Color(0xFF0EA5E9)),
+                          ],
                         ),
-                        minimumSize: const Size(double.infinity, 0),
-                        elevation: 0,
                       ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: const [
-                          Icon(Icons.logout_rounded, size: 20),
-                          SizedBox(width: 8),
-                          Text(
-                            'Log Out',
-                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w900),
+                      const SizedBox(height: 40),
+                      
+                      // Logout Button
+                      ElevatedButton(
+                        onPressed: _handleLogout,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.white,
+                          foregroundColor: const Color(0xFFEF4444),
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20),
+                            side: const BorderSide(color: Color(0xFFEF4444), width: 1.5),
                           ),
-                        ],
+                          minimumSize: const Size(double.infinity, 0),
+                          elevation: 0,
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: const [
+                            Icon(Icons.logout_rounded, size: 20),
+                            SizedBox(width: 8),
+                            Text(
+                              'Log Out',
+                              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w900),
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
+                      const SizedBox(height: 100), // Bottom padding for nav bar
+                    ],
                   ),
-                  const SizedBox(height: 100), // Bottom padding for nav bar
-                ],
-              ),
+                ),
+              ],
             ),
           ],
         ),
@@ -309,7 +308,7 @@ class _StudentProfilePageState extends State<StudentProfilePage> {
         Container(
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: color.withOpacity(0.15),
+            color: color.withOpacity(0.1),
             shape: BoxShape.circle,
           ),
           child: Icon(icon, color: color, size: 24),
@@ -324,7 +323,7 @@ class _StudentProfilePageState extends State<StudentProfilePage> {
                 style: const TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w700,
-                  color: Color(0xFF94A3B8),
+                  color: Colors.black45,
                 ),
               ),
               const SizedBox(height: 4),
@@ -340,39 +339,6 @@ class _StudentProfilePageState extends State<StudentProfilePage> {
           ),
         ),
       ],
-    );
-  }
-}
-
-class _StudentGlassContainer extends StatelessWidget {
-  final Widget child;
-  final EdgeInsetsGeometry? padding;
-
-  const _StudentGlassContainer({required this.child, this.padding});
-
-  @override
-  Widget build(BuildContext context) {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(28),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
-        child: Container(
-          padding: padding ?? const EdgeInsets.all(24),
-          decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.6),
-            borderRadius: BorderRadius.circular(28),
-            border: Border.all(color: Colors.white.withOpacity(0.8), width: 1.5),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.03),
-                blurRadius: 20,
-                offset: const Offset(0, 10),
-              ),
-            ],
-          ),
-          child: child,
-        ),
-      ),
     );
   }
 }

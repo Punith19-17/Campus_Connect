@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'dart:ui';
 import 'club_details.dart';
 
 class Club {
@@ -122,73 +121,91 @@ class _ClubDirectoryPageState extends State<ClubDirectoryPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.fromLTRB(24, 24, 24, 16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                "Clubs",
-                style: TextStyle(
-                  fontSize: 36,
-                  fontWeight: FontWeight.w900,
-                  color: Color(0xFF1E293B),
-                  letterSpacing: -1,
+    return Container(
+      color: const Color(0xFFF7F9FC),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(24, 48, 24, 16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  "Clubs Directory",
+                  style: TextStyle(
+                    fontSize: 34,
+                    fontWeight: FontWeight.w900,
+                    color: Color(0xFF1E293B),
+                    letterSpacing: -1,
+                  ),
                 ),
-              ),
-              const SizedBox(height: 4),
-              const Text(
-                "Join communities & grow",
-                style: TextStyle(
-                  fontSize: 16,
-                  color: Color(0xFF64748B),
-                  fontWeight: FontWeight.w700,
+                const SizedBox(height: 4),
+                const Text(
+                  "Join communities & grow",
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: Colors.black45,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
-              ),
-              const SizedBox(height: 24),
-              _StudentGlassContainer(
-                padding: const EdgeInsets.all(8),
-                child: Row(
-                  children: [
-                    Expanded(child: _buildTab('Department', true)),
-                    const SizedBox(width: 8),
-                    Expanded(child: _buildTab('College', false)),
-                  ],
+                const SizedBox(height: 24),
+                Container(
+                  padding: const EdgeInsets.all(6),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(20),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.04),
+                        blurRadius: 15,
+                        offset: const Offset(0, 5),
+                      ),
+                    ],
+                  ),
+                  child: Row(
+                    children: [
+                      Expanded(child: _buildTab('Department', true)),
+                      const SizedBox(width: 6),
+                      Expanded(child: _buildTab('College', false)),
+                    ],
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
-        ),
-        Expanded(
-          child: _isLoading
-              ? const Center(child: CircularProgressIndicator(color: Color(0xFF0EA5E9)))
-              : _errorMessage.isNotEmpty
-                  ? Center(
-                      child: Padding(
-                        padding: const EdgeInsets.all(24.0),
-                        child: _StudentGlassContainer(
-                          padding: const EdgeInsets.all(24),
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              const Icon(Icons.error_outline_rounded, color: Colors.redAccent, size: 48),
-                              const SizedBox(height: 16),
-                              Text(
-                                _errorMessage,
-                                textAlign: TextAlign.center,
-                                style: const TextStyle(color: Colors.redAccent, fontWeight: FontWeight.bold),
-                              ),
-                            ],
+          Expanded(
+            child: _isLoading
+                ? const Center(child: CircularProgressIndicator(color: Color(0xFF6C63FF)))
+                : _errorMessage.isNotEmpty
+                    ? Center(
+                        child: Padding(
+                          padding: const EdgeInsets.all(24.0),
+                          child: Container(
+                            padding: const EdgeInsets.all(24),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(24),
+                            ),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const Icon(Icons.error_outline_rounded, color: Colors.redAccent, size: 48),
+                                const SizedBox(height: 16),
+                                Text(
+                                  _errorMessage,
+                                  textAlign: TextAlign.center,
+                                  style: const TextStyle(color: Colors.redAccent, fontWeight: FontWeight.bold),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
-                      ),
-                    )
-                  : _buildClubGrid(_isDepartmentClubSelected ? _departmentClubs : _collageClubs),
-        ),
-      ],
+                      )
+                    : _buildClubGrid(_isDepartmentClubSelected ? _departmentClubs : _collageClubs),
+          ),
+        ],
+      ),
     );
   }
 
@@ -202,9 +219,9 @@ class _ClubDirectoryPageState extends State<ClubDirectoryPage> {
       },
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 300),
-        padding: const EdgeInsets.symmetric(vertical: 12),
+        padding: const EdgeInsets.symmetric(vertical: 14),
         decoration: BoxDecoration(
-          color: isSelected ? const Color(0xFF0EA5E9) : Colors.transparent,
+          color: isSelected ? const Color(0xFF6C63FF) : Colors.transparent,
           borderRadius: BorderRadius.circular(16),
         ),
         alignment: Alignment.center,
@@ -213,7 +230,7 @@ class _ClubDirectoryPageState extends State<ClubDirectoryPage> {
           style: TextStyle(
             fontSize: 14,
             fontWeight: isSelected ? FontWeight.w900 : FontWeight.w700,
-            color: isSelected ? Colors.white : const Color(0xFF64748B),
+            color: isSelected ? Colors.white : const Color(0xFF94A3B8),
             letterSpacing: 0.5,
           ),
         ),
@@ -226,39 +243,45 @@ class _ClubDirectoryPageState extends State<ClubDirectoryPage> {
       return Center(
         child: Padding(
           padding: const EdgeInsets.all(24.0),
-          child: _StudentGlassContainer(
-            padding: const EdgeInsets.all(32),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: const [
-                Icon(Icons.groups_rounded, color: Color(0xFF94A3B8), size: 64),
-                SizedBox(height: 16),
-                Text(
-                  'No clubs found in this category.',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(color: Color(0xFF64748B), fontWeight: FontWeight.w700, fontSize: 16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(24),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 20, offset: const Offset(0, 10)),
+                  ],
                 ),
-              ],
-            ),
+                child: const Icon(Icons.groups_rounded, color: Color(0xFFCBD5E1), size: 64),
+              ),
+              const SizedBox(height: 24),
+              const Text(
+                'No clubs found',
+                textAlign: TextAlign.center,
+                style: TextStyle(color: Color(0xFF1E293B), fontWeight: FontWeight.w900, fontSize: 20),
+              ),
+            ],
           ),
         ),
       );
     }
     
-    // Use staggered/masonry look by slightly offsetting the second column
     return GridView.builder(
       physics: const BouncingScrollPhysics(),
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
-        childAspectRatio: 0.75, // Optimized for glass cards
+        childAspectRatio: 0.78,
         crossAxisSpacing: 16.0,
         mainAxisSpacing: 16.0,
       ),
-      padding: const EdgeInsets.fromLTRB(24, 8, 24, 100), // Extra bottom padding for nav bar
+      padding: const EdgeInsets.fromLTRB(24, 8, 24, 120),
       itemCount: clubs.length,
       itemBuilder: (context, index) {
         return Transform.translate(
-          offset: Offset(0, index % 2 != 0 ? 20 : 0), // Masonry stagger effect
+          offset: Offset(0, index % 2 != 0 ? 20 : 0),
           child: ClubCard(club: clubs[index]),
         );
       },
@@ -276,14 +299,25 @@ class ClubCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return _StudentGlassContainer(
+    return Container(
       padding: const EdgeInsets.all(16.0),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF6C63FF).withOpacity(0.06),
+            blurRadius: 15,
+            offset: const Offset(0, 8),
+          ),
+        ],
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Container(
-            width: 64,
-            height: 64,
+            width: 60,
+            height: 60,
             decoration: BoxDecoration(
               gradient: const LinearGradient(
                 colors: [Color(0xFFE2E8F0), Color(0xFFF8FAFC)],
@@ -293,40 +327,40 @@ class ClubCard extends StatelessWidget {
               shape: BoxShape.circle,
               boxShadow: [
                 BoxShadow(
-                  color: const Color(0xFF0EA5E9).withOpacity(0.15),
+                  color: Colors.black.withOpacity(0.05),
                   blurRadius: 10,
                   offset: const Offset(0, 5),
                 ),
               ],
             ),
             child: const Center(
-              child: Icon(Icons.groups_rounded, color: Color(0xFF94A3B8), size: 32),
+              child: Icon(Icons.groups_rounded, color: Color(0xFF94A3B8), size: 30),
             ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 12),
           Text(
             club.name,
             textAlign: TextAlign.center,
             style: const TextStyle(
-              fontSize: 16,
+              fontSize: 15,
               fontWeight: FontWeight.w900,
               color: Color(0xFF1E293B),
             ),
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 6),
           Expanded(
             child: Text(
               club.description,
               textAlign: TextAlign.center,
               style: const TextStyle(
                 fontSize: 12,
-                fontWeight: FontWeight.w600,
-                color: Color(0xFF64748B),
+                fontWeight: FontWeight.w500,
+                color: Colors.black54,
                 height: 1.4,
               ),
-              maxLines: 3,
+              maxLines: 2,
               overflow: TextOverflow.ellipsis,
             ),
           ),
@@ -343,7 +377,7 @@ class ClubCard extends StatelessWidget {
                 );
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF0EA5E9).withOpacity(0.1),
+                backgroundColor: const Color(0xFF6C63FF).withOpacity(0.1),
                 elevation: 0,
                 shadowColor: Colors.transparent,
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
@@ -351,7 +385,7 @@ class ClubCard extends StatelessWidget {
               child: const Text(
                 'DETAILS',
                 style: TextStyle(
-                  color: Color(0xFF0EA5E9),
+                  color: Color(0xFF6C63FF),
                   fontSize: 11,
                   fontWeight: FontWeight.w900,
                   letterSpacing: 0.5,
@@ -360,40 +394,6 @@ class ClubCard extends StatelessWidget {
             ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-/// A reusable vibrant frosted glass container for the Student Module
-class _StudentGlassContainer extends StatelessWidget {
-  final Widget child;
-  final EdgeInsetsGeometry? padding;
-
-  const _StudentGlassContainer({required this.child, this.padding});
-
-  @override
-  Widget build(BuildContext context) {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(28),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
-        child: Container(
-          padding: padding ?? const EdgeInsets.all(24),
-          decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.55),
-            borderRadius: BorderRadius.circular(28),
-            border: Border.all(color: Colors.white.withOpacity(0.8), width: 1.5),
-            boxShadow: [
-              BoxShadow(
-                color: const Color(0xFF0EA5E9).withOpacity(0.05),
-                blurRadius: 24,
-                offset: const Offset(0, 12),
-              ),
-            ],
-          ),
-          child: child,
-        ),
       ),
     );
   }

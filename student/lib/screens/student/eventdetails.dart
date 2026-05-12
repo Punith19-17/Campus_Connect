@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'dart:ui';
 import 'package:intl/intl.dart';
 import 'myresponsespage.dart'; // for Event model
 import 'participate.dart'; // Import the ParticipatePage
@@ -126,14 +125,14 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
   Widget build(BuildContext context) {
     if (_isLoading) {
       return const Scaffold(
-        backgroundColor: Color(0xFFF8FAFC),
-        body: Center(child: CircularProgressIndicator(color: Color(0xFF0EA5E9))),
+        backgroundColor: Color(0xFFF7F9FC),
+        body: Center(child: CircularProgressIndicator(color: Color(0xFF6C63FF))),
       );
     }
 
     if (_errorMessage != null) {
       return Scaffold(
-        backgroundColor: const Color(0xFFF8FAFC),
+        backgroundColor: const Color(0xFFF7F9FC),
         body: Center(
           child: Padding(
             padding: const EdgeInsets.all(24.0),
@@ -157,320 +156,371 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
     final event = _event!;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: const Color(0xFFF7F9FC),
       extendBodyBehindAppBar: true,
       appBar: AppBar(
-        leading: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Container(
-            decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.8),
-              shape: BoxShape.circle,
-            ),
-            child: IconButton(
-              icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Color(0xFF1E293B), size: 18),
-              onPressed: () => Navigator.of(context).pop(),
-            ),
-          ),
-        ),
         title: const Text(
           'Event Details',
           style: TextStyle(
-            color: Color(0xFF1E293B),
+            color: Colors.white,
             fontWeight: FontWeight.w900,
-            fontSize: 20,
+            letterSpacing: 0.5,
           ),
         ),
         centerTitle: true,
         backgroundColor: Colors.transparent,
         elevation: 0,
+        leading: IconButton(
+          icon: Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: Colors.black.withOpacity(0.2),
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white, size: 18),
+          ),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
       ),
-      body: SingleChildScrollView(
-        physics: const BouncingScrollPhysics(),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Immersive Header Area
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.fromLTRB(24, 120, 24, 40),
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    Color(0xFF38BDF8), // Vibrant Sky Blue
-                    Color(0xFF818CF8), // Indigo
-                  ],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-                borderRadius: BorderRadius.only(
-                  bottomLeft: Radius.circular(40),
-                  bottomRight: Radius.circular(40),
-                ),
+      body: Stack(
+        children: [
+          // Background Gradient Header
+          Container(
+            height: MediaQuery.of(context).size.height * 0.45,
+            width: double.infinity,
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                colors: [Color(0xFF6C63FF), Color(0xFF3F3D56)],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
               ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            ),
+          ),
+
+          // Pattern Overlay (Optional simple shapes)
+          Positioned(
+            top: -50,
+            right: -50,
+            child: Container(
+              width: 200,
+              height: 200,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: Colors.white.withOpacity(0.05),
+              ),
+            ),
+          ),
+
+          // Main Content Layer
+          SafeArea(
+            bottom: false,
+            child: Column(
+              children: [
+                const SizedBox(height: 20),
+                // Header Info
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.2),
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Row(
-                          children: [
-                            const Icon(Icons.calendar_month_rounded, color: Colors.white, size: 14),
-                            const SizedBox(width: 6),
-                            Text(
-                              event.formattedDate,
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.w800,
-                                fontSize: 12,
-                                letterSpacing: 0.5,
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withOpacity(0.2),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Row(
+                              children: [
+                                const Icon(Icons.calendar_month_rounded, color: Colors.white, size: 16),
+                                const SizedBox(width: 6),
+                                Text(
+                                  event.formattedDate,
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.w800,
+                                    fontSize: 12,
+                                    letterSpacing: 0.5,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          GestureDetector(
+                            onTap: _toggleLike,
+                            child: AnimatedContainer(
+                              duration: const Duration(milliseconds: 300),
+                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                              decoration: BoxDecoration(
+                                color: _isInterested ? Colors.white : Colors.black.withOpacity(0.2),
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              child: Row(
+                                children: [
+                                  Text(
+                                    'Interested',
+                                    style: TextStyle(
+                                      color: _isInterested ? const Color(0xFFFF6584) : Colors.white,
+                                      fontWeight: FontWeight.w800,
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 6),
+                                  Icon(
+                                    _isInterested ? Icons.favorite_rounded : Icons.favorite_border_rounded,
+                                    color: _isInterested ? const Color(0xFFFF6584) : Colors.white,
+                                    size: 18,
+                                  ),
+                                ],
                               ),
                             ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
-                      GestureDetector(
-                        onTap: _toggleLike,
-                        child: Container(
-                          padding: const EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.2),
-                            shape: BoxShape.circle,
-                          ),
-                          child: Icon(
-                            _isInterested ? Icons.favorite_rounded : Icons.favorite_border_rounded,
-                            color: _isInterested ? const Color(0xFFF43F5E) : Colors.white,
-                            size: 20,
-                          ),
+                      const SizedBox(height: 24),
+                      Text(
+                        event.title,
+                        style: const TextStyle(
+                          fontSize: 32,
+                          fontWeight: FontWeight.w900,
+                          color: Colors.white,
+                          height: 1.2,
                         ),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 16),
-                  Text(
-                    event.title,
-                    style: const TextStyle(
-                      fontSize: 32,
-                      fontWeight: FontWeight.w900,
-                      color: Colors.white,
-                      height: 1.2,
-                    ),
-                  ),
-                ],
-              ),
-            ),
+                ),
 
-            // Content Area
-            Padding(
-              padding: const EdgeInsets.all(24.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    'About This Event',
-                    style: TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.w900,
-                      color: Color(0xFF1E293B),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    event.description,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      color: Color(0xFF475569),
-                      height: 1.6,
-                    ),
-                  ),
-                  const SizedBox(height: 32),
+                const SizedBox(height: 32),
 
-                  const Text(
-                    'Event Details',
-                    style: TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.w900,
-                      color: Color(0xFF1E293B),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-
-                  // Detail Glass Cards
-                  _buildDetailCard(
-                    icon: Icons.calendar_month_rounded,
-                    title: 'Date',
-                    subtitle: event.formattedDate,
-                    color: const Color(0xFF38BDF8),
-                  ),
-                  const SizedBox(height: 12),
-                  _buildDetailCard(
-                    icon: Icons.access_time_rounded,
-                    title: 'Time',
-                    subtitle: event.time,
-                    color: const Color(0xFF8B5CF6),
-                  ),
-                  const SizedBox(height: 12),
-                  _buildDetailCard(
-                    icon: Icons.location_on_rounded,
-                    title: 'Location',
-                    subtitle: event.location,
-                    color: const Color(0xFF10B981),
-                  ),
-                  const SizedBox(height: 12),
-                  _buildDetailCard(
-                    icon: Icons.business_rounded,
-                    title: 'Organized By',
-                    subtitle: event.club,
-                    color: const Color(0xFFEC4899),
-                  ),
-
-                  if (event.award.isNotEmpty) ...[
-                    const SizedBox(height: 32),
-                    const Text(
-                      'Prizes & Awards',
-                      style: TextStyle(
-                        fontSize: 22,
-                        fontWeight: FontWeight.w900,
-                        color: Color(0xFF1E293B),
+                // Overlapping Sheet
+                Expanded(
+                  child: Container(
+                    width: double.infinity,
+                    decoration: const BoxDecoration(
+                      color: Color(0xFFF7F9FC),
+                      borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(40),
+                        topRight: Radius.circular(40),
                       ),
                     ),
-                    const SizedBox(height: 16),
-                    _buildDetailCard(
-                      icon: Icons.emoji_events_rounded,
-                      title: 'Award',
-                      subtitle: event.award,
-                      color: const Color(0xFFF59E0B),
+                    child: SingleChildScrollView(
+                      physics: const BouncingScrollPhysics(),
+                      padding: const EdgeInsets.fromLTRB(24, 40, 24, 120),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _buildSectionTitle('About This Event'),
+                          const SizedBox(height: 12),
+                          _buildSectionText(event.description),
+
+                          const SizedBox(height: 32),
+                          _buildSectionTitle('Event Details'),
+                          const SizedBox(height: 16),
+
+                          // Grid Layout for details
+                          GridView.count(
+                            crossAxisCount: 2,
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            crossAxisSpacing: 16,
+                            mainAxisSpacing: 16,
+                            childAspectRatio: 1.5,
+                            children: [
+                              _buildGridCard(Icons.calendar_today_rounded, 'Date', event.formattedDate, const Color(0xFF6C63FF)),
+                              _buildGridCard(Icons.access_time_rounded, 'Time', event.time, const Color(0xFFFF9E79)),
+                              _buildGridCard(Icons.location_on_rounded, 'Location', event.location, const Color(0xFF2CB67D)),
+                              _buildGridCard(Icons.apartment_rounded, 'Club', event.club, const Color(0xFFFF6584)),
+                            ],
+                          ),
+
+                          if (event.award.isNotEmpty && event.award != 'No Award') ...[
+                            const SizedBox(height: 32),
+                            _buildSectionTitle('Prizes & Awards'),
+                            const SizedBox(height: 16),
+                            Container(
+                              width: double.infinity,
+                              padding: const EdgeInsets.all(20),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFFFD700).withOpacity(0.1),
+                                borderRadius: BorderRadius.circular(20),
+                                border: Border.all(color: const Color(0xFFFFD700).withOpacity(0.3), width: 1.5),
+                              ),
+                              child: Row(
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.all(12),
+                                    decoration: const BoxDecoration(
+                                      color: Colors.white,
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: const Icon(Icons.emoji_events_rounded, color: Color(0xFFF59E0B), size: 32),
+                                  ),
+                                  const SizedBox(width: 16),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        const Text(
+                                          'Award',
+                                          style: TextStyle(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w700,
+                                            color: Color(0xFFB45309),
+                                          ),
+                                        ),
+                                        const SizedBox(height: 4),
+                                        Text(
+                                          event.award,
+                                          style: const TextStyle(
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.w900,
+                                            color: Color(0xFF92400E),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          // Floating Bottom Button
+          Positioned(
+            bottom: 0,
+            left: 0,
+            right: 0,
+            child: Container(
+              padding: const EdgeInsets.fromLTRB(24, 24, 24, 32),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    const Color(0xFFF7F9FC).withOpacity(0.0),
+                    const Color(0xFFF7F9FC),
+                  ],
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                ),
+              ),
+              child: Container(
+                decoration: BoxDecoration(
+                  boxShadow: [
+                    BoxShadow(
+                      color: const Color(0xFF6C63FF).withOpacity(0.3),
+                      blurRadius: 20,
+                      offset: const Offset(0, 10),
                     ),
                   ],
-                  const SizedBox(height: 100),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-      bottomSheet: Container(
-        padding: const EdgeInsets.all(24.0),
-        decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.9),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.05),
-              blurRadius: 20,
-              offset: const Offset(0, -10),
-            ),
-          ],
-        ),
-        child: Container(
-          decoration: BoxDecoration(
-            gradient: const LinearGradient(
-              colors: [Color(0xFF38BDF8), Color(0xFF818CF8)],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-            borderRadius: BorderRadius.circular(20),
-            boxShadow: [
-              BoxShadow(
-                color: const Color(0xFF38BDF8).withOpacity(0.3),
-                blurRadius: 15,
-                offset: const Offset(0, 8),
-              ),
-            ],
-          ),
-          child: ElevatedButton(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => ParticipatePage(eventName: event.title),
                 ),
-              );
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.transparent,
-              shadowColor: Colors.transparent,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-              minimumSize: const Size(double.infinity, 56),
-            ),
-            child: const Text(
-              'Join Event',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 18,
-                fontWeight: FontWeight.w900,
-                letterSpacing: 0.5,
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => ParticipatePage(eventName: event.title),
+                      ),
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF6C63FF),
+                    padding: const EdgeInsets.symmetric(vertical: 20),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    elevation: 0,
+                  ),
+                  child: const Text(
+                    'JOIN EVENT',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w900,
+                      letterSpacing: 1.5,
+                    ),
+                  ),
+                ),
               ),
             ),
           ),
-        ),
+        ],
       ),
     );
   }
 
-  Widget _buildDetailCard({required IconData icon, required String title, required String subtitle, required Color color}) {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(20),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-        child: Container(
-          padding: const EdgeInsets.all(16.0),
-          decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.8),
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: Colors.white, width: 2),
-            boxShadow: [
-              BoxShadow(
-                color: color.withOpacity(0.05),
-                blurRadius: 15,
-                offset: const Offset(0, 5),
-              ),
-            ],
+  Widget _buildSectionTitle(String title) {
+    return Text(
+      title,
+      style: const TextStyle(
+        fontSize: 22,
+        fontWeight: FontWeight.w900,
+        color: Color(0xFF1E293B),
+      ),
+    );
+  }
+
+  Widget _buildSectionText(String text) {
+    return Text(
+      text,
+      style: const TextStyle(
+        fontSize: 16,
+        height: 1.6,
+        fontWeight: FontWeight.w500,
+        color: Colors.black54,
+      ),
+    );
+  }
+
+  Widget _buildGridCard(IconData icon, String title, String subtitle, Color color) {
+    return Container(
+      padding: const EdgeInsets.all(16.0),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: color.withOpacity(0.1),
+            blurRadius: 15,
+            offset: const Offset(0, 5),
           ),
-          child: Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: color.withOpacity(0.15),
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(icon, color: color, size: 24),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      title,
-                      style: const TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w800,
-                        color: Color(0xFF1E293B),
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      subtitle,
-                      style: const TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w600,
-                        color: Color(0xFF64748B),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(icon, color: color, size: 28),
+          const Spacer(),
+          Text(
+            title,
+            style: const TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w700,
+              color: Colors.black45,
+            ),
           ),
-        ),
+          const SizedBox(height: 2),
+          Text(
+            subtitle,
+            style: TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.w800,
+              color: color.withOpacity(0.8),
+            ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ],
       ),
     );
   }

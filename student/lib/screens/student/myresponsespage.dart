@@ -1,64 +1,72 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'dart:ui';
-import 'event_details.dart'; // Import EventDetailsPage
+import 'package:intl/intl.dart';
+import 'event_details.dart';
+import 'interested_events_page.dart';
 
-// We need to define Event here for my responses.
+// Event model
 class Event {
   final int id;
   final String title;
   final String description;
-  final String date;
+  final DateTime eventDate;
+  final String time;
   final String location;
   final String club;
+  final String? imageUrl;
+  final String eventType;
   final String award;
-  final String time;
-  final String originalDate;
-  final String formattedDate;
 
   Event({
     required this.id,
     required this.title,
     required this.description,
-    required this.date,
+    required this.eventDate,
+    required this.time,
     required this.location,
     required this.club,
+    this.imageUrl,
+    required this.eventType,
     required this.award,
-    required this.time,
-    required this.originalDate,
-    required this.formattedDate,
   });
 
+  String get formattedDate => DateFormat('MMM d').format(eventDate);
+  String get formattedTime => DateFormat('h:mm a').format(eventDate);
+
+  String get dayStatus {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final dayOfEvent = DateTime(eventDate.year, eventDate.month, eventDate.day);
+
+    if (dayOfEvent == today) return 'Today';
+    if (dayOfEvent == today.add(const Duration(days: 1))) return 'Tomorrow';
+    if (dayOfEvent == today.subtract(const Duration(days: 1))) return 'Yesterday';
+    return DateFormat('EEEE').format(eventDate);
+  }
+
   factory Event.fromJson(Map<String, dynamic> json) {
-    String rawDate = json['date']?.toString() ?? '';
-    String displayDate = 'N/A';
-    if (rawDate.isNotEmpty) {
-      try {
-        final parsed = DateTime.parse(rawDate);
-        displayDate = '${parsed.month}/${parsed.day}/${parsed.year}';
-      } catch (e) {
-        displayDate = rawDate;
-      }
-    }
+    final dateStr = json['date']?.toString().split('T')[0] ?? '';
+    final timeStr = json['time']?.toString() ?? '00:00:00';
+    final fullDateTimeStr = '$dateStr $timeStr';
 
     return Event(
-      id: json['id'] is int ? json['id'] : int.tryParse(json['id']?.toString() ?? '0') ?? 0,
-      title: json['event_title'] ?? 'No Title',
-      description: json['description'] ?? '',
-      date: displayDate,
-      location: json['location'] ?? 'No Location',
+      id: json['id'] ?? 0,
+      title: json['event_title']?.toString() ?? 'No Title',
+      description: json['description']?.toString() ?? 'No Description',
+      eventDate: (DateTime.tryParse(fullDateTimeStr) ?? DateTime.now()).toLocal(),
+      time: json['time']?.toString() ?? '',
+      location: json['location']?.toString() ?? 'N/A',
       club: json['organized_club']?.toString() ?? 'N/A',
-      award: json['award'] ?? '',
-      time: json['time'] ?? 'N/A',
-      originalDate: rawDate,
-      formattedDate: displayDate,
+      imageUrl: json['pic']?.toString(),
+      eventType: json['event_type']?.toString() ?? 'General',
+      award: json['award']?.toString() ?? 'No Award',
     );
   }
 }
 
 class MyResponsesPage extends StatefulWidget {
-  final int studentId;
+  final int studentId; // ✅ take studentId dynamically
   const MyResponsesPage({super.key, required this.studentId});
 
   @override
@@ -66,299 +74,425 @@ class MyResponsesPage extends StatefulWidget {
 }
 
 class _MyResponsesPageState extends State<MyResponsesPage> {
-  List<Event> _interestedEvents = [];
   bool _isLoading = true;
-  String _error = '';
+  String _errorMessage = '';
+  List<Event> _allEvents = [];
+  List<Event> _filteredEvents = [];
+  String _searchQuery = '';
 
   @override
   void initState() {
     super.initState();
-    _fetchInterestedEvents();
+    _fetchEvents();
   }
 
-  Future<void> _fetchInterestedEvents() async {
-    setState(() {
-      _isLoading = true;
-      _error = '';
-    });
-
+  Future<void> _fetchEvents() async {
+    const String url = 'http://10.0.2.2:5000/api/addevents/club';
     try {
-      final String url =
-          'https://campus-connect-p1ow.onrender.com/api/addevents/interested/${widget.studentId}';
       final response = await http.get(Uri.parse(url));
       if (!mounted) return;
 
       if (response.statusCode == 200) {
-        final jsonResponse = json.decode(response.body);
-        final List eventsJson = jsonResponse['events'] ?? [];
-        final events = eventsJson.map((json) => Event.fromJson(json)).toList();
-        setState(() {
-          _interestedEvents = List<Event>.from(events);
-          _isLoading = false;
-        });
+        final Map<String, dynamic> data = json.decode(response.body);
+        if (data['success'] == true && data['events'] is List) {
+          final allApiEvents = (data['events'] as List)
+              .map((eventJson) => Event.fromJson(eventJson))
+              .toList();
+
+          setState(() {
+            _allEvents = allApiEvents;
+            _filteredEvents = allApiEvents;
+          });
+        } else {
+          _errorMessage = 'Invalid data format from server.';
+        }
       } else {
-        throw Exception('Failed to load interested events');
+        _errorMessage = 'Failed to load events. Status: ${response.statusCode}';
       }
     } catch (e) {
-      if (!mounted) return;
+      _errorMessage = 'Failed to connect to the server.\nError: $e';
+    }
+
+    if (mounted) {
       setState(() {
         _isLoading = false;
-        _error = 'Failed to load interested events. Please try again.';
       });
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.fromLTRB(24, 24, 24, 16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: const [
-              Text(
-                "My Responses",
-                style: TextStyle(
-                  fontSize: 36,
-                  fontWeight: FontWeight.w900,
-                  color: Color(0xFF1E293B),
-                  letterSpacing: -1,
-                ),
-              ),
-              SizedBox(height: 4),
-              Text(
-                "Events you are interested in",
-                style: TextStyle(
-                  fontSize: 16,
-                  color: Color(0xFF64748B),
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-            ],
-          ),
-        ),
-        Expanded(
-          child: _buildBody(),
-        ),
-      ],
-    );
+  void _onSearchChanged(String query) {
+    setState(() {
+      _searchQuery = query;
+      _filterEvents();
+    });
   }
 
-  Widget _buildBody() {
-    if (_isLoading) {
-      return const Center(child: CircularProgressIndicator(color: Color(0xFF0EA5E9)));
-    }
-    if (_error.isNotEmpty) {
-      return Center(
-        child: Padding(
-          padding: const EdgeInsets.all(24.0),
-          child: _StudentGlassContainer(
-            padding: const EdgeInsets.all(24),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Icon(Icons.error_outline_rounded, color: Colors.redAccent, size: 48),
-                const SizedBox(height: 16),
-                Text(
-                  _error,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(color: Colors.redAccent, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 16),
-                ElevatedButton(
-                  onPressed: _fetchInterestedEvents,
-                  child: const Text('Retry'),
-                )
-              ],
-            ),
-          ),
-        ),
-      );
-    }
-    if (_interestedEvents.isEmpty) {
-      return Center(
-        child: Padding(
-          padding: const EdgeInsets.all(24.0),
-          child: _StudentGlassContainer(
-            padding: const EdgeInsets.all(32),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: const [
-                Icon(Icons.favorite_border_rounded, color: Color(0xFF94A3B8), size: 64),
-                SizedBox(height: 16),
-                Text(
-                  'You haven\'t shown interest in any events yet.',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(color: Color(0xFF64748B), fontWeight: FontWeight.w700, fontSize: 16),
-                ),
-                SizedBox(height: 8),
-                Text(
-                  'Explore the home tab to find events!',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(color: Color(0xFF94A3B8), fontWeight: FontWeight.w600, fontSize: 14),
-                ),
-              ],
-            ),
-          ),
-        ),
-      );
+  void _filterEvents({String? filterType}) {
+    List<Event> tempEvents = _allEvents
+        .where((event) =>
+            event.title.toLowerCase().contains(_searchQuery.toLowerCase()) ||
+            event.club.toLowerCase().contains(_searchQuery.toLowerCase()))
+        .toList();
+
+    if (filterType == 'by_name') {
+      tempEvents.sort((a, b) => a.title.compareTo(b.title));
+    } else if (filterType == 'by_date') {
+      tempEvents.sort((a, b) => a.eventDate.compareTo(b.eventDate));
     }
 
-    return ListView.builder(
-      physics: const BouncingScrollPhysics(),
-      padding: const EdgeInsets.fromLTRB(24, 8, 24, 100), // Bottom padding for nav bar
-      itemCount: _interestedEvents.length,
-      itemBuilder: (context, index) {
-        final event = _interestedEvents[index];
-        return Padding(
-          padding: const EdgeInsets.only(bottom: 16.0),
-          child: InterestedEventCard(event: event, studentId: widget.studentId),
-        );
-      },
-    );
+    setState(() {
+      _filteredEvents = tempEvents;
+    });
   }
-}
-
-class InterestedEventCard extends StatelessWidget {
-  final Event event;
-  final int studentId;
-
-  const InterestedEventCard({
-    Key? key,
-    required this.event,
-    required this.studentId,
-  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => EventDetailsPage(eventId: event.id, studentId: studentId),
-          ),
-        );
-      },
-      child: _StudentGlassContainer(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFF43F5E).withOpacity(0.15), // Rose/Pink for favorite
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(Icons.favorite_rounded, color: Color(0xFFF43F5E), size: 24),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        event.title,
-                        style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w900,
-                          color: Color(0xFF1E293B),
-                        ),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
+    return Scaffold(
+      // A unique soft pastel background
+      backgroundColor: const Color(0xFFF7F9FC),
+      body: SafeArea(
+        child: _isLoading
+            ? const Center(child: CircularProgressIndicator(color: Color(0xFF6C63FF)))
+            : _errorMessage.isNotEmpty
+                ? Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Text(
+                        _errorMessage,
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(color: Colors.redAccent, fontSize: 16),
                       ),
-                      const SizedBox(height: 4),
-                      Text(
-                        event.club,
-                        style: const TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w700,
-                          color: Color(0xFF64748B),
+                    ),
+                  )
+                : CustomScrollView(
+                    physics: const BouncingScrollPhysics(),
+                    slivers: [
+                      SliverToBoxAdapter(
+                        child: Padding(
+                          padding: const EdgeInsets.fromLTRB(24, 32, 24, 8),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                crossAxisAlignment: CrossAxisAlignment.end,
+                                children: [
+                                  Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: const [
+                                      Text(
+                                        'Campus Connect',
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w700,
+                                          color: Color(0xFF6C63FF),
+                                          letterSpacing: 1.5,
+                                        ),
+                                      ),
+                                      SizedBox(height: 4),
+                                      Text(
+                                        'Club Events',
+                                        style: TextStyle(
+                                          fontSize: 34,
+                                          fontWeight: FontWeight.w900,
+                                          color: Color(0xFF1E293B),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  InkWell(
+                                    borderRadius: BorderRadius.circular(20),
+                                    onTap: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => InterestedEventsPage(
+                                            studentId: widget.studentId,
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                                      decoration: BoxDecoration(
+                                        gradient: const LinearGradient(
+                                          colors: [Color(0xFF6C63FF), Color(0xFFFF6584)],
+                                          begin: Alignment.topLeft,
+                                          end: Alignment.bottomRight,
+                                        ),
+                                        borderRadius: BorderRadius.circular(20),
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color: const Color(0xFF6C63FF).withOpacity(0.3),
+                                            blurRadius: 12,
+                                            offset: const Offset(0, 6),
+                                          ),
+                                        ],
+                                      ),
+                                      child: const Row(
+                                        children: [
+                                          Icon(Icons.bookmark_added_rounded, color: Colors.white, size: 18),
+                                          SizedBox(width: 6),
+                                          Text(
+                                            'Responses',
+                                            style: TextStyle(
+                                              color: Colors.white,
+                                              fontWeight: FontWeight.w800,
+                                              fontSize: 14,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 28),
+                              
+                              // Floating Search Bar Design
+                              Container(
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(24),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withOpacity(0.04),
+                                      blurRadius: 20,
+                                      offset: const Offset(0, 10),
+                                    ),
+                                  ],
+                                ),
+                                child: TextField(
+                                  onChanged: _onSearchChanged,
+                                  style: const TextStyle(fontWeight: FontWeight.w600, color: Color(0xFF1E293B)),
+                                  decoration: const InputDecoration(
+                                    hintText: 'Search for an event...',
+                                    hintStyle: TextStyle(color: Colors.black38, fontSize: 15, fontWeight: FontWeight.w500),
+                                    prefixIcon: Padding(
+                                      padding: EdgeInsets.only(left: 16, right: 12),
+                                      child: Icon(Icons.search_rounded, color: Color(0xFF6C63FF), size: 24),
+                                    ),
+                                    border: InputBorder.none,
+                                    contentPadding: EdgeInsets.symmetric(vertical: 20),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: 24),
+                              
+                              Text(
+                                '${_filteredEvents.length} events found',
+                                style: const TextStyle(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w700,
+                                  color: Colors.black45,
+                                ),
+                              ),
+                              const SizedBox(height: 16),
+                            ],
+                          ),
                         ),
                       ),
+                      
+                      SliverPadding(
+                        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+                        sliver: SliverList(
+                          delegate: SliverChildBuilderDelegate(
+                            (context, index) {
+                              return Padding(
+                                padding: const EdgeInsets.only(bottom: 20.0),
+                                child: EventCard(
+                                  event: _filteredEvents[index],
+                                  studentId: widget.studentId, // ✅ pass studentId down
+                                ),
+                              );
+                            },
+                            childCount: _filteredEvents.length,
+                          ),
+                        ),
+                      ),
+                      const SliverToBoxAdapter(child: SizedBox(height: 80)),
                     ],
                   ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            const Divider(color: Colors.white, height: 1),
-            const SizedBox(height: 16),
-            Row(
-              children: [
-                Expanded(
-                  child: Row(
-                    children: [
-                      const Icon(Icons.calendar_month_rounded, color: Color(0xFF38BDF8), size: 16),
-                      const SizedBox(width: 6),
-                      Text(
-                        event.formattedDate,
-                        style: const TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w700,
-                          color: Color(0xFF475569),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                Expanded(
-                  child: Row(
-                    children: [
-                      const Icon(Icons.access_time_rounded, color: Color(0xFF8B5CF6), size: 16),
-                      const SizedBox(width: 6),
-                      Text(
-                        event.time,
-                        style: const TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w700,
-                          color: Color(0xFF475569),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
       ),
     );
   }
 }
 
-class _StudentGlassContainer extends StatelessWidget {
-  final Widget child;
-  final EdgeInsetsGeometry? padding;
+class EventCard extends StatelessWidget {
+  final Event event;
+  final int studentId; // ✅ added
 
-  const _StudentGlassContainer({required this.child, this.padding});
+  const EventCard({Key? key, required this.event, required this.studentId}) : super(key: key);
+
+  Color _getStatusColor(String status) {
+    switch (status) {
+      case 'Today':
+        return const Color(0xFFE0F2FE); // Light Blue
+      case 'Tomorrow':
+        return const Color(0xFFFEF3C7); // Light Amber
+      case 'Yesterday':
+        return const Color(0xFFFCE7F3); // Light Pink
+      default:
+        return const Color(0xFFDCFCE7); // Light Green
+    }
+  }
+
+  Color _getStatusTextColor(String status) {
+    switch (status) {
+      case 'Today':
+        return const Color(0xFF0369A1); // Dark Blue
+      case 'Tomorrow':
+        return const Color(0xFFB45309); // Dark Amber
+      case 'Yesterday':
+        return const Color(0xFFBE185D); // Dark Pink
+      default:
+        return const Color(0xFF15803D); // Dark Green
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(24),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
-        child: Container(
-          padding: padding ?? const EdgeInsets.all(24),
-          decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.6),
-            borderRadius: BorderRadius.circular(24),
-            border: Border.all(color: Colors.white.withOpacity(0.8), width: 1.5),
-            boxShadow: [
-              BoxShadow(
-                color: const Color(0xFF0EA5E9).withOpacity(0.05),
-                blurRadius: 20,
-                offset: const Offset(0, 10),
-              ),
-            ],
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(28),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF6C63FF).withOpacity(0.06),
+            blurRadius: 24,
+            offset: const Offset(0, 12),
           ),
-          child: child,
+        ],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(28),
+          onTap: () {
+            // ✅ pass the REAL studentId
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => EventDetailsPage(eventId: event.id, studentId: studentId),
+              ),
+            );
+          },
+          child: Padding(
+            padding: const EdgeInsets.all(24.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                            decoration: BoxDecoration(
+                              color: _getStatusColor(event.dayStatus),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Text(
+                              event.dayStatus.toUpperCase(),
+                              style: TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.w900,
+                                color: _getStatusTextColor(event.dayStatus),
+                                letterSpacing: 1.0,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            event.title,
+                            style: const TextStyle(
+                              fontSize: 22,
+                              fontWeight: FontWeight.w900,
+                              color: Color(0xFF1E293B),
+                              height: 1.2,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Container(
+                      width: 52,
+                      height: 52,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFF7F9FC),
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: const Center(
+                        child: Icon(
+                          Icons.arrow_forward_ios_rounded,
+                          color: Color(0xFF6C63FF),
+                          size: 18,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  event.description,
+                  style: const TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w500,
+                    color: Colors.black54,
+                    height: 1.5,
+                  ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 24),
+                
+                // Bottom Info Row
+                Row(
+                  children: [
+                    Expanded(
+                      child: Row(
+                        children: [
+                          const Icon(Icons.apartment_rounded, size: 18, color: Color(0xFF0EA5E9)), // Cyan
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              event.club,
+                              style: const TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w800,
+                                color: Color(0xFF1E293B),
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Row(
+                      children: [
+                        const Icon(Icons.access_time_filled_rounded, size: 18, color: Color(0xFFFF6584)), // Pink
+                        const SizedBox(width: 8),
+                        Text(
+                          event.formattedTime,
+                          style: const TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w800,
+                            color: Color(0xFF1E293B),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
         ),
       ),
     );
