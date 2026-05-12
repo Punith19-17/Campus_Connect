@@ -202,22 +202,9 @@ class _ManageEventsPageState extends State<ManageEventsPage> {
       child: Scaffold(
         backgroundColor: Colors.transparent,
         appBar: AppBar(
+          automaticallyImplyLeading: false, // Removed back arrow
           backgroundColor: Colors.transparent,
           elevation: 0,
-          leading: Padding(
-            padding: const EdgeInsets.only(left: 8.0),
-            child: Container(
-              margin: const EdgeInsets.all(8.0),
-              decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.5),
-                shape: BoxShape.circle,
-              ),
-              child: IconButton(
-                icon: const Icon(Icons.arrow_back_rounded, color: Color(0xFF1E293B), size: 20),
-                onPressed: () => Navigator.pop(context),
-              ),
-            ),
-          ),
           title: const Text(
             'Manage Events',
             style: TextStyle(
@@ -231,28 +218,26 @@ class _ManageEventsPageState extends State<ManageEventsPage> {
           actions: [
             Padding(
               padding: const EdgeInsets.only(right: 16.0),
-              child: Container(
-                margin: const EdgeInsets.symmetric(vertical: 8.0),
-                decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    colors: [Color(0xFF6366F1), Color(0xFF8B5CF6)],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                  borderRadius: BorderRadius.circular(20),
-                  boxShadow: [
-                    BoxShadow(
-                      color: const Color(0xFF6366F1).withOpacity(0.3),
-                      blurRadius: 8,
-                      offset: const Offset(0, 4),
+              child: Center( // Center widget strictly controls height
+                child: Container(
+                  height: 36, // Explicit fixed height for perfect alignment
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                      colors: [Color(0xFF6366F1), Color(0xFF8B5CF6)],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
                     ),
-                  ],
-                ),
-                child: Material(
-                  color: Colors.transparent,
-                  child: InkWell(
                     borderRadius: BorderRadius.circular(20),
-                    onTap: () async {
+                    boxShadow: [
+                      BoxShadow(
+                        color: const Color(0xFF6366F1).withOpacity(0.3),
+                        blurRadius: 8,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: ElevatedButton.icon(
+                    onPressed: () async {
                       final result = await Navigator.of(context).push(
                         MaterialPageRoute(builder: (context) => const CheckScreen.ManageEventsPage()),
                       );
@@ -260,23 +245,21 @@ class _ManageEventsPageState extends State<ManageEventsPage> {
                         _refreshEvents();
                       }
                     },
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                      child: Row(
-                        children: const [
-                          Icon(Icons.add_rounded, color: Colors.white, size: 18),
-                          SizedBox(width: 4),
-                          Text(
-                            'NEW',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.w800,
-                              fontSize: 13,
-                              letterSpacing: 0.5,
-                            ),
-                          ),
-                        ],
+                    icon: const Icon(Icons.add_rounded, color: Colors.white, size: 18),
+                    label: const Text(
+                      'NEW',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w800,
+                        fontSize: 13,
+                        letterSpacing: 0.5,
                       ),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.transparent,
+                      shadowColor: Colors.transparent,
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                     ),
                   ),
                 ),
