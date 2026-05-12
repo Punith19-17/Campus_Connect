@@ -33,7 +33,7 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
 
   Future<void> _fetchEventDetails() async {
     // NOTE: Hardcoded URL for local development/emulator access
-    const String baseUrl = 'http://10.0.2.2:5000';
+    const String baseUrl = 'https://campus-connect-p1ow.onrender.com';
     final String url = '$baseUrl/api/addevents/${widget.eventId}';
     final String likeStatusUrl =
         '$baseUrl/api/addevents/like/status?eventId=${widget.eventId}&studentId=${widget.studentId}';
@@ -83,7 +83,7 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
     });
 
     try {
-      const String baseUrl = 'http://10.0.2.2:5000';
+      const String baseUrl = 'https://campus-connect-p1ow.onrender.com';
       final String url = _isInterested
           ? '$baseUrl/api/addevents/like'
           : '$baseUrl/api/addevents/unlike';

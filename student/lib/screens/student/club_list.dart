@@ -168,7 +168,7 @@ class _ClubDirectoryPageState extends State<ClubDirectoryPage> {
   }
 
   Future<void> _fetchClubs() async {
-    const String url = 'http://10.0.2.2:5000/api/clubs';
+    const String url = 'https://campus-connect-p1ow.onrender.com/api/clubs';
 
     try {
       final response = await http.get(Uri.parse(url));

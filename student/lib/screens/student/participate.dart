@@ -61,7 +61,7 @@ class _ParticipatePageState extends State<ParticipatePage> {
 
     try {
       final response = await http.post(
-        Uri.parse('http://10.0.2.2:5000/api/participate/register'),
+        Uri.parse('https://campus-connect-p1ow.onrender.com/api/participate/register'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },

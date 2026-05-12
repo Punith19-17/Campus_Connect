@@ -152,7 +152,7 @@ class _StudentDashboardState extends State<StudentDashboard> {
   }
 
   Future<void> _fetchAims() async {
-    const String url = 'http://10.0.2.2:5000/api/addevents/collegefunctions';
+    const String url = 'https://campus-connect-p1ow.onrender.com/api/addevents/collegefunctions';
     try {
       final response =
       await http.get(Uri.parse(url)).timeout(const Duration(seconds: 10));
