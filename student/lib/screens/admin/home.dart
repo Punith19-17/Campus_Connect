@@ -77,7 +77,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                           const Text(
                             "Campus Connect",
                             style: TextStyle(
-                              fontSize: 22,
+                              fontSize: 26,
                               fontWeight: FontWeight.w800,
                               color: Colors.white,
                               letterSpacing: 0.5,

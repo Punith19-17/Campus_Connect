@@ -1,16 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'club-details.dart';
+import 'dart:ui';
+import 'club_details.dart';
 
-// 1. Updated Club model to match the API response
 class Club {
   final int id;
   final String name;
   final String description;
-  final String clubType; // 'departmental' or 'institutional'
+  final String clubType;
   final String? picUrl;
-  // Add all the specific fields from your admin module's Club model
   final String department;
   final String? responsibleFaculty;
   final String president;
@@ -41,7 +40,6 @@ class Club {
       description: json['club_discription'] ?? 'No Description',
       clubType: json['club_type'] ?? 'institutional',
       picUrl: json['pic'],
-      // Map the new fields from your API response
       department: json['department'] ?? '',
       responsibleFaculty: json['responsible_faculty'],
       president: json['president'] ?? '',
@@ -49,100 +47,6 @@ class Club {
       jointSecretary: json['joint_secretary'] ?? '',
       treasury: json['treasury'] ?? '',
       groupMembers: json['group_members'] ?? '',
-    );
-  }
-}
-
-// The reusable widget for the club card.
-class ClubCard extends StatelessWidget {
-  final Club club;
-
-  const ClubCard({
-    Key? key,
-    required this.club,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(12.0),
-      decoration: BoxDecoration(
-        color: const Color(0xFFF0F6FC),
-        borderRadius: BorderRadius.circular(15.0),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.2),
-            spreadRadius: 2,
-            blurRadius: 5,
-            offset: const Offset(0, 3),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            width: 60,
-            height: 60,
-            decoration: BoxDecoration(
-              color: Colors.grey[300],
-              borderRadius: BorderRadius.circular(30),
-            ),
-            child: const Center(
-              child: Icon(Icons.group, color: Colors.black54),
-            ),
-          ),
-          const SizedBox(height: 12),
-          Text(
-            club.name,
-            style: const TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              color: Colors.black87,
-            ),
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-          ),
-          const SizedBox(height: 4),
-          Expanded(
-            child: Text(
-              club.description,
-              style: const TextStyle(
-                fontSize: 12,
-                color: Colors.black54,
-              ),
-              maxLines: 4,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Row(
-            children: [
-              Expanded(
-                child: MaterialButton(
-                  onPressed: () {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (context) => ClubDetailsPage(club: club),
-                      ),
-                    );
-                  },
-                  color: const Color(0xFF1E88E5),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8.0),
-                  ),
-                  height: 30,
-                  padding: const EdgeInsets.symmetric(horizontal: 4),
-                  child: const Text(
-                    'Details',
-                    style: TextStyle(color: Colors.white, fontSize: 10),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
     );
   }
 }
@@ -218,108 +122,279 @@ class _ClubDirectoryPageState extends State<ClubDirectoryPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        automaticallyImplyLeading: false,
-        backgroundColor: Colors.white,
-        elevation: 0,
-        title: Row(
-          children: [
-            InkWell(
-              onTap: () {
-                setState(() {
-                  _isDepartmentClubSelected = true;
-                });
-              },
-              child: Text(
-                'Department Clubs',
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(24, 24, 24, 16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                "Clubs",
                 style: TextStyle(
-                  fontSize: 20,
-                  color: _isDepartmentClubSelected ? Colors.black : Colors.grey[400],
-                  fontWeight: _isDepartmentClubSelected ? FontWeight.bold : FontWeight.normal,
+                  fontSize: 36,
+                  fontWeight: FontWeight.w900,
+                  color: Color(0xFF1E293B),
+                  letterSpacing: -1,
                 ),
               ),
-            ),
-            const SizedBox(width: 40),
-            InkWell(
-              onTap: () {
-                setState(() {
-                  _isDepartmentClubSelected = false;
-                });
-              },
-              child: Text(
-                'College Clubs',
+              const SizedBox(height: 4),
+              const Text(
+                "Join communities & grow",
                 style: TextStyle(
-                  fontSize: 20,
-                  color: !_isDepartmentClubSelected ? Colors.black : Colors.grey[400],
-                  fontWeight: !_isDepartmentClubSelected ? FontWeight.bold : FontWeight.normal,
+                  fontSize: 16,
+                  color: Color(0xFF64748B),
+                  fontWeight: FontWeight.w700,
                 ),
               ),
-            ),
-          ],
-        ),
-      ),
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : _errorMessage.isNotEmpty
-          ? Center(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Text(
-            _errorMessage,
-            textAlign: TextAlign.center,
-            style: const TextStyle(color: Colors.red, fontSize: 16),
-          ),
-        ),
-      )
-          : Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 0),
-            child: Text(
-              _isDepartmentClubSelected ? 'Department Club Directory' : 'Collage Club Directory',
-              style: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w600,
-                color: Colors.black45,
+              const SizedBox(height: 24),
+              _StudentGlassContainer(
+                padding: const EdgeInsets.all(8),
+                child: Row(
+                  children: [
+                    Expanded(child: _buildTab('Department', true)),
+                    const SizedBox(width: 8),
+                    Expanded(child: _buildTab('College', false)),
+                  ],
+                ),
               ),
-            ),
+            ],
           ),
-          Expanded(
-            child: _buildClubGrid(
-              _isDepartmentClubSelected ? _departmentClubs : _collageClubs,
-            ),
+        ),
+        Expanded(
+          child: _isLoading
+              ? const Center(child: CircularProgressIndicator(color: Color(0xFF0EA5E9)))
+              : _errorMessage.isNotEmpty
+                  ? Center(
+                      child: Padding(
+                        padding: const EdgeInsets.all(24.0),
+                        child: _StudentGlassContainer(
+                          padding: const EdgeInsets.all(24),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(Icons.error_outline_rounded, color: Colors.redAccent, size: 48),
+                              const SizedBox(height: 16),
+                              Text(
+                                _errorMessage,
+                                textAlign: TextAlign.center,
+                                style: const TextStyle(color: Colors.redAccent, fontWeight: FontWeight.bold),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    )
+                  : _buildClubGrid(_isDepartmentClubSelected ? _departmentClubs : _collageClubs),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildTab(String title, bool isDepartmentTab) {
+    bool isSelected = _isDepartmentClubSelected == isDepartmentTab;
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          _isDepartmentClubSelected = isDepartmentTab;
+        });
+      },
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 300),
+        padding: const EdgeInsets.symmetric(vertical: 12),
+        decoration: BoxDecoration(
+          color: isSelected ? const Color(0xFF0EA5E9) : Colors.transparent,
+          borderRadius: BorderRadius.circular(16),
+        ),
+        alignment: Alignment.center,
+        child: Text(
+          title,
+          style: TextStyle(
+            fontSize: 14,
+            fontWeight: isSelected ? FontWeight.w900 : FontWeight.w700,
+            color: isSelected ? Colors.white : const Color(0xFF64748B),
+            letterSpacing: 0.5,
           ),
-        ],
+        ),
       ),
     );
   }
 
   Widget _buildClubGrid(List<Club> clubs) {
     if (clubs.isEmpty) {
-      return const Center(
-        child: Text(
-          'No clubs found in this category.',
-          style: TextStyle(fontSize: 16, color: Colors.grey),
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24.0),
+          child: _StudentGlassContainer(
+            padding: const EdgeInsets.all(32),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: const [
+                Icon(Icons.groups_rounded, color: Color(0xFF94A3B8), size: 64),
+                SizedBox(height: 16),
+                Text(
+                  'No clubs found in this category.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(color: Color(0xFF64748B), fontWeight: FontWeight.w700, fontSize: 16),
+                ),
+              ],
+            ),
+          ),
         ),
       );
     }
+    
+    // Use staggered/masonry look by slightly offsetting the second column
     return GridView.builder(
+      physics: const BouncingScrollPhysics(),
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
-        childAspectRatio: 0.65,
-        crossAxisSpacing: 10.0,
-        mainAxisSpacing: 10.0,
+        childAspectRatio: 0.75, // Optimized for glass cards
+        crossAxisSpacing: 16.0,
+        mainAxisSpacing: 16.0,
       ),
-      padding: const EdgeInsets.all(16.0),
+      padding: const EdgeInsets.fromLTRB(24, 8, 24, 100), // Extra bottom padding for nav bar
       itemCount: clubs.length,
       itemBuilder: (context, index) {
-        final club = clubs[index];
-        return ClubCard(
-          club: club,
+        return Transform.translate(
+          offset: Offset(0, index % 2 != 0 ? 20 : 0), // Masonry stagger effect
+          child: ClubCard(club: clubs[index]),
         );
       },
+    );
+  }
+}
+
+class ClubCard extends StatelessWidget {
+  final Club club;
+
+  const ClubCard({
+    Key? key,
+    required this.club,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return _StudentGlassContainer(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Container(
+            width: 64,
+            height: 64,
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
+                colors: [Color(0xFFE2E8F0), Color(0xFFF8FAFC)],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              shape: BoxShape.circle,
+              boxShadow: [
+                BoxShadow(
+                  color: const Color(0xFF0EA5E9).withOpacity(0.15),
+                  blurRadius: 10,
+                  offset: const Offset(0, 5),
+                ),
+              ],
+            ),
+            child: const Center(
+              child: Icon(Icons.groups_rounded, color: Color(0xFF94A3B8), size: 32),
+            ),
+          ),
+          const SizedBox(height: 16),
+          Text(
+            club.name,
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w900,
+              color: Color(0xFF1E293B),
+            ),
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+          ),
+          const SizedBox(height: 8),
+          Expanded(
+            child: Text(
+              club.description,
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+                color: Color(0xFF64748B),
+                height: 1.4,
+              ),
+              maxLines: 3,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          const SizedBox(height: 12),
+          SizedBox(
+            width: double.infinity,
+            height: 36,
+            child: ElevatedButton(
+              onPressed: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => ClubDetailsPage(club: club),
+                  ),
+                );
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF0EA5E9).withOpacity(0.1),
+                elevation: 0,
+                shadowColor: Colors.transparent,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
+              ),
+              child: const Text(
+                'DETAILS',
+                style: TextStyle(
+                  color: Color(0xFF0EA5E9),
+                  fontSize: 11,
+                  fontWeight: FontWeight.w900,
+                  letterSpacing: 0.5,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// A reusable vibrant frosted glass container for the Student Module
+class _StudentGlassContainer extends StatelessWidget {
+  final Widget child;
+  final EdgeInsetsGeometry? padding;
+
+  const _StudentGlassContainer({required this.child, this.padding});
+
+  @override
+  Widget build(BuildContext context) {
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(28),
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+        child: Container(
+          padding: padding ?? const EdgeInsets.all(24),
+          decoration: BoxDecoration(
+            color: Colors.white.withOpacity(0.55),
+            borderRadius: BorderRadius.circular(28),
+            border: Border.all(color: Colors.white.withOpacity(0.8), width: 1.5),
+            boxShadow: [
+              BoxShadow(
+                color: const Color(0xFF0EA5E9).withOpacity(0.05),
+                blurRadius: 24,
+                offset: const Offset(0, 12),
+              ),
+            ],
+          ),
+          child: child,
+        ),
+      ),
     );
   }
 }

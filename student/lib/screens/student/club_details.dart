@@ -162,7 +162,7 @@ class ClubDetailsPage extends StatelessWidget {
                 ],
               ),
             ),
-
+            
             // Content
             Padding(
               padding: const EdgeInsets.all(24.0),
@@ -187,7 +187,7 @@ class ClubDetailsPage extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 32),
-
+                  
                   const Text(
                     'Leadership',
                     style: TextStyle(
@@ -198,7 +198,7 @@ class ClubDetailsPage extends StatelessWidget {
                   ),
                   const SizedBox(height: 16),
                   _buildLeadershipList(leadership),
-
+                  
                   const SizedBox(height: 32),
                   const Text(
                     'Members',
@@ -224,7 +224,7 @@ class ClubDetailsPage extends StatelessWidget {
     if (leadership.isEmpty) {
       return const Text('No leadership roles defined.', style: TextStyle(color: Color(0xFF64748B)));
     }
-
+    
     return Column(
       children: leadership.entries.map((entry) {
         return Padding(
@@ -278,7 +278,7 @@ class ClubDetailsPage extends StatelessWidget {
     if (members.isEmpty) {
       return const Text('No members listed.', style: TextStyle(color: Color(0xFF64748B)));
     }
-
+    
     return Wrap(
       spacing: 12,
       runSpacing: 12,

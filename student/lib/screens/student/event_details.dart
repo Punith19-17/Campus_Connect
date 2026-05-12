@@ -266,7 +266,7 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
                 ],
               ),
             ),
-
+            
             // Content Area
             Padding(
               padding: const EdgeInsets.all(24.0),
@@ -291,7 +291,7 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
                     ),
                   ),
                   const SizedBox(height: 32),
-
+                  
                   const Text(
                     'Event Details',
                     style: TextStyle(
@@ -301,7 +301,7 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
                     ),
                   ),
                   const SizedBox(height: 16),
-
+                  
                   // Detail Glass Cards
                   _buildDetailCard(
                     icon: Icons.calendar_month_rounded,
@@ -330,7 +330,7 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
                     subtitle: event.club,
                     color: const Color(0xFFEC4899),
                   ),
-
+                  
                   if (event.award.isNotEmpty) ...[
                     const SizedBox(height: 32),
                     const Text(

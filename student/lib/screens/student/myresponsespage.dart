@@ -1,72 +1,64 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'package:intl/intl.dart';
-import 'eventdetails.dart';
-import 'interested_events_page.dart';
+import 'dart:ui';
+import 'event_details.dart'; // Import EventDetailsPage
 
-// Event model
+// We need to define Event here for my responses.
 class Event {
   final int id;
   final String title;
   final String description;
-  final DateTime eventDate;
-  final String time;
+  final String date;
   final String location;
   final String club;
-  final String? imageUrl;
-  final String eventType;
   final String award;
+  final String time;
+  final String originalDate;
+  final String formattedDate;
 
   Event({
     required this.id,
     required this.title,
     required this.description,
-    required this.eventDate,
-    required this.time,
+    required this.date,
     required this.location,
     required this.club,
-    this.imageUrl,
-    required this.eventType,
     required this.award,
+    required this.time,
+    required this.originalDate,
+    required this.formattedDate,
   });
 
-  String get formattedDate => DateFormat('MMM d').format(eventDate);
-  String get formattedTime => DateFormat('h:mm a').format(eventDate);
-
-  String get dayStatus {
-    final now = DateTime.now();
-    final today = DateTime(now.year, now.month, now.day);
-    final dayOfEvent = DateTime(eventDate.year, eventDate.month, eventDate.day);
-
-    if (dayOfEvent == today) return 'Today';
-    if (dayOfEvent == today.add(const Duration(days: 1))) return 'Tomorrow';
-    if (dayOfEvent == today.subtract(const Duration(days: 1))) return 'Yesterday';
-    return DateFormat('EEEE').format(eventDate);
-  }
-
   factory Event.fromJson(Map<String, dynamic> json) {
-    final dateStr = json['date']?.toString().split('T')[0] ?? '';
-    final timeStr = json['time']?.toString() ?? '00:00:00';
-    final fullDateTimeStr = '$dateStr $timeStr';
+    String rawDate = json['date']?.toString() ?? '';
+    String displayDate = 'N/A';
+    if (rawDate.isNotEmpty) {
+      try {
+        final parsed = DateTime.parse(rawDate);
+        displayDate = '${parsed.month}/${parsed.day}/${parsed.year}';
+      } catch (e) {
+        displayDate = rawDate;
+      }
+    }
 
     return Event(
-      id: json['id'] ?? 0,
-      title: json['event_title']?.toString() ?? 'No Title',
-      description: json['description']?.toString() ?? 'No Description',
-      eventDate: (DateTime.tryParse(fullDateTimeStr) ?? DateTime.now()).toLocal(),
-      time: json['time']?.toString() ?? '',
-      location: json['location']?.toString() ?? 'N/A',
+      id: json['id'] is int ? json['id'] : int.tryParse(json['id']?.toString() ?? '0') ?? 0,
+      title: json['event_title'] ?? 'No Title',
+      description: json['description'] ?? '',
+      date: displayDate,
+      location: json['location'] ?? 'No Location',
       club: json['organized_club']?.toString() ?? 'N/A',
-      imageUrl: json['pic']?.toString(),
-      eventType: json['event_type']?.toString() ?? 'General',
-      award: json['award']?.toString() ?? 'No Award',
+      award: json['award'] ?? '',
+      time: json['time'] ?? 'N/A',
+      originalDate: rawDate,
+      formattedDate: displayDate,
     );
   }
 }
 
 class MyResponsesPage extends StatefulWidget {
-  final int studentId; // ✅ take studentId dynamically
+  final int studentId;
   const MyResponsesPage({super.key, required this.studentId});
 
   @override
@@ -74,161 +66,264 @@ class MyResponsesPage extends StatefulWidget {
 }
 
 class _MyResponsesPageState extends State<MyResponsesPage> {
+  List<Event> _interestedEvents = [];
   bool _isLoading = true;
-  String _errorMessage = '';
-  List<Event> _allEvents = [];
-  List<Event> _filteredEvents = [];
-  String _searchQuery = '';
+  String _error = '';
 
   @override
   void initState() {
     super.initState();
-    _fetchEvents();
+    _fetchInterestedEvents();
   }
 
-  Future<void> _fetchEvents() async {
-    const String url = 'https://campus-connect-p1ow.onrender.com/api/addevents/club';
+  Future<void> _fetchInterestedEvents() async {
+    setState(() {
+      _isLoading = true;
+      _error = '';
+    });
+
     try {
+      final String url =
+          'https://campus-connect-p1ow.onrender.com/api/addevents/interested/${widget.studentId}';
       final response = await http.get(Uri.parse(url));
       if (!mounted) return;
 
       if (response.statusCode == 200) {
-        final Map<String, dynamic> data = json.decode(response.body);
-        if (data['success'] == true && data['events'] is List) {
-          final allApiEvents = (data['events'] as List)
-              .map((eventJson) => Event.fromJson(eventJson))
-              .toList();
-
-          setState(() {
-            _allEvents = allApiEvents;
-            _filteredEvents = allApiEvents;
-          });
-        } else {
-          _errorMessage = 'Invalid data format from server.';
-        }
+        final jsonResponse = json.decode(response.body);
+        final List eventsJson = jsonResponse['events'] ?? [];
+        final events = eventsJson.map((json) => Event.fromJson(json)).toList();
+        setState(() {
+          _interestedEvents = List<Event>.from(events);
+          _isLoading = false;
+        });
       } else {
-        _errorMessage = 'Failed to load events. Status: ${response.statusCode}';
+        throw Exception('Failed to load interested events');
       }
     } catch (e) {
-      _errorMessage = 'Failed to connect to the server.\nError: $e';
-    }
-
-    if (mounted) {
+      if (!mounted) return;
       setState(() {
         _isLoading = false;
+        _error = 'Failed to load interested events. Please try again.';
       });
     }
   }
 
-  void _onSearchChanged(String query) {
-    setState(() {
-      _searchQuery = query;
-      _filterEvents();
-    });
-  }
-
-  void _filterEvents({String? filterType}) {
-    List<Event> tempEvents = _allEvents
-        .where((event) =>
-    event.title.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-        event.club.toLowerCase().contains(_searchQuery.toLowerCase()))
-        .toList();
-
-    if (filterType == 'by_name') {
-      tempEvents.sort((a, b) => a.title.compareTo(b.title));
-    } else if (filterType == 'by_date') {
-      tempEvents.sort((a, b) => a.eventDate.compareTo(b.eventDate));
-    }
-
-    setState(() {
-      _filteredEvents = tempEvents;
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(24, 24, 24, 16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: const [
+              Text(
+                "My Responses",
+                style: TextStyle(
+                  fontSize: 36,
+                  fontWeight: FontWeight.w900,
+                  color: Color(0xFF1E293B),
+                  letterSpacing: -1,
+                ),
+              ),
+              SizedBox(height: 4),
+              Text(
+                "Events you are interested in",
+                style: TextStyle(
+                  fontSize: 16,
+                  color: Color(0xFF64748B),
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ],
+          ),
+        ),
+        Expanded(
+          child: _buildBody(),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildBody() {
     if (_isLoading) {
-      return const Center(child: CircularProgressIndicator());
+      return const Center(child: CircularProgressIndicator(color: Color(0xFF0EA5E9)));
     }
-    if (_errorMessage.isNotEmpty) {
+    if (_error.isNotEmpty) {
       return Center(
         child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Text(
-            _errorMessage,
-            textAlign: TextAlign.center,
-            style: const TextStyle(color: Colors.red, fontSize: 16),
+          padding: const EdgeInsets.all(24.0),
+          child: _StudentGlassContainer(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(Icons.error_outline_rounded, color: Colors.redAccent, size: 48),
+                const SizedBox(height: 16),
+                Text(
+                  _error,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(color: Colors.redAccent, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 16),
+                ElevatedButton(
+                  onPressed: _fetchInterestedEvents,
+                  child: const Text('Retry'),
+                )
+              ],
+            ),
+          ),
+        ),
+      );
+    }
+    if (_interestedEvents.isEmpty) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24.0),
+          child: _StudentGlassContainer(
+            padding: const EdgeInsets.all(32),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: const [
+                Icon(Icons.favorite_border_rounded, color: Color(0xFF94A3B8), size: 64),
+                SizedBox(height: 16),
+                Text(
+                  'You haven\'t shown interest in any events yet.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(color: Color(0xFF64748B), fontWeight: FontWeight.w700, fontSize: 16),
+                ),
+                SizedBox(height: 8),
+                Text(
+                  'Explore the home tab to find events!',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(color: Color(0xFF94A3B8), fontWeight: FontWeight.w600, fontSize: 14),
+                ),
+              ],
+            ),
           ),
         ),
       );
     }
 
-    return SingleChildScrollView(
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
+    return ListView.builder(
+      physics: const BouncingScrollPhysics(),
+      padding: const EdgeInsets.fromLTRB(24, 8, 24, 100), // Bottom padding for nav bar
+      itemCount: _interestedEvents.length,
+      itemBuilder: (context, index) {
+        final event = _interestedEvents[index];
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 16.0),
+          child: InterestedEventCard(event: event, studentId: widget.studentId),
+        );
+      },
+    );
+  }
+}
+
+class InterestedEventCard extends StatelessWidget {
+  final Event event;
+  final int studentId;
+
+  const InterestedEventCard({
+    Key? key,
+    required this.event,
+    required this.studentId,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => EventDetailsPage(eventId: event.id, studentId: studentId),
+          ),
+        );
+      },
+      child: _StudentGlassContainer(
+        padding: const EdgeInsets.all(20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                const Text(
-                  'Club Events',
-                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF43F5E).withOpacity(0.15), // Rose/Pink for favorite
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(Icons.favorite_rounded, color: Color(0xFFF43F5E), size: 24),
                 ),
-                TextButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => InterestedEventsPage(
-                          studentId: widget.studentId,
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        event.title,
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w900,
+                          color: Color(0xFF1E293B),
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        event.club,
+                        style: const TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w700,
+                          color: Color(0xFF64748B),
                         ),
                       ),
-                    );
-                  },
-                  child: const Text(
-                    'My Responses',
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.blue,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    ],
                   ),
                 ),
               ],
             ),
-            Text(
-              '${_filteredEvents.length} events found',
-              style: TextStyle(fontSize: 14, color: Colors.grey[600]),
-            ),
             const SizedBox(height: 16),
-            TextField(
-              decoration: InputDecoration(
-                hintText: 'Search events...',
-                prefixIcon: const Icon(Icons.search),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10),
-                  borderSide: BorderSide.none,
+            const Divider(color: Colors.white, height: 1),
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                Expanded(
+                  child: Row(
+                    children: [
+                      const Icon(Icons.calendar_month_rounded, color: Color(0xFF38BDF8), size: 16),
+                      const SizedBox(width: 6),
+                      Text(
+                        event.formattedDate,
+                        style: const TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w700,
+                          color: Color(0xFF475569),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-                filled: true,
-                fillColor: Colors.grey[200],
-                contentPadding: const EdgeInsets.symmetric(vertical: 10),
-              ),
-              onChanged: _onSearchChanged,
-            ),
-            const SizedBox(height: 16),
-            ListView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: _filteredEvents.length,
-              itemBuilder: (context, index) {
-                return EventCard(
-                  event: _filteredEvents[index],
-                  studentId: widget.studentId, // ✅ pass studentId down
-                );
-              },
+                Expanded(
+                  child: Row(
+                    children: [
+                      const Icon(Icons.access_time_rounded, color: Color(0xFF8B5CF6), size: 16),
+                      const SizedBox(width: 6),
+                      Text(
+                        event.time,
+                        style: const TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w700,
+                          color: Color(0xFF475569),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
           ],
         ),
@@ -237,152 +332,33 @@ class _MyResponsesPageState extends State<MyResponsesPage> {
   }
 }
 
-class EventCard extends StatelessWidget {
-  final Event event;
-  final int studentId; // ✅ added
+class _StudentGlassContainer extends StatelessWidget {
+  final Widget child;
+  final EdgeInsetsGeometry? padding;
 
-  const EventCard({Key? key, required this.event, required this.studentId})
-      : super(key: key);
-
-  Color _getStatusColor(String status) {
-    switch (status) {
-      case 'Today':
-        return Colors.blue[100]!;
-      case 'Tomorrow':
-        return Colors.orange[100]!;
-      case 'Yesterday':
-        return Colors.pink[100]!;
-      default:
-        return Colors.green[100]!;
-    }
-  }
-
-  Color _getStatusTextColor(String status) {
-    switch (status) {
-      case 'Today':
-        return Colors.blue[800]!;
-      case 'Tomorrow':
-        return Colors.orange[800]!;
-      case 'Yesterday':
-        return Colors.pink[800]!;
-      default:
-        return Colors.green[800]!;
-    }
-  }
+  const _StudentGlassContainer({required this.child, this.padding});
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: () {
-        // ✅ pass the REAL studentId
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) =>
-                EventDetailsPage(eventId: event.id, studentId: studentId),
-          ),
-        );
-      },
-      child: Card(
-        elevation: 2,
-        color: const Color(0xFFF0F6FC),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(15.0),
-        ),
-        margin: const EdgeInsets.only(bottom: 16.0),
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Image section has been removed
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      event.title,
-                      style: const TextStyle(
-                          fontSize: 20, fontWeight: FontWeight.bold), // Increased font size
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      event.description, // Added description back
-                      style: TextStyle(
-                          fontSize: 14, color: Colors.grey[600]), // Increased font size
-                    ),
-                    const SizedBox(height: 8),
-                    FittedBox(
-                      fit: BoxFit.scaleDown,
-                      child: Row(
-                        children: [
-                          const Icon(Icons.calendar_today,
-                              size: 16, color: Colors.blue), // Changed color to blue
-                          const SizedBox(width: 4),
-                          Text(
-                            event.formattedDate,
-                            style: const TextStyle(
-                                fontSize: 14, color: Colors.grey), // Increased font size
-                          ),
-                          const SizedBox(width: 8),
-                          const Icon(Icons.access_time,
-                              size: 16, color: Colors.orange), // Changed color to orange
-                          const SizedBox(width: 4),
-                          Text(
-                            event.formattedTime,
-                            style: const TextStyle(
-                                fontSize: 14, color: Colors.grey), // Increased font size
-                          ),
-                          const SizedBox(width: 8),
-                          const Icon(Icons.location_on,
-                              size: 16, color: Colors.purple), // Changed color to purple
-                          const SizedBox(width: 4),
-                          Text(
-                            event.location,
-                            style: const TextStyle(
-                                fontSize: 14, color: Colors.grey), // Increased font size
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      event.club,
-                      style: const TextStyle(
-                          fontSize: 14, color: Colors.grey), // Increased font size
-                    ),
-                  ],
-                ),
-              ),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Container(
-                    padding:
-                    const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: _getStatusColor(event.dayStatus),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Text(
-                      event.dayStatus,
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
-                        color: _getStatusTextColor(event.dayStatus),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  const Icon(
-                    Icons.arrow_forward_ios,
-                    color: Colors.grey,
-                    size: 16,
-                  ),
-                ],
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(24),
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
+        child: Container(
+          padding: padding ?? const EdgeInsets.all(24),
+          decoration: BoxDecoration(
+            color: Colors.white.withOpacity(0.6),
+            borderRadius: BorderRadius.circular(24),
+            border: Border.all(color: Colors.white.withOpacity(0.8), width: 1.5),
+            boxShadow: [
+              BoxShadow(
+                color: const Color(0xFF0EA5E9).withOpacity(0.05),
+                blurRadius: 20,
+                offset: const Offset(0, 10),
               ),
             ],
           ),
+          child: child,
         ),
       ),
     );

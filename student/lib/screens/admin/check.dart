@@ -229,7 +229,7 @@ class _ManageEventsPageState extends State<ManageEventsPage> {
           backgroundColor: Colors.transparent,
           elevation: 0,
           title: const Text(
-            'AIMS', // Preserved AIMS title
+            'Manage events',
             style: TextStyle(
               color: Color(0xFF1E293B),
               fontWeight: FontWeight.w900,

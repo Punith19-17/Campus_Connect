@@ -214,7 +214,7 @@ class _ManageEventsPageState extends State<ManageEventsPage> {
               letterSpacing: -0.5,
             ),
           ),
-          centerTitle: true,
+          centerTitle: false, // <--- CHANGED TO FALSE FOR LEFT ALIGNMENT
           actions: [
             Padding(
               padding: const EdgeInsets.only(right: 16.0),
