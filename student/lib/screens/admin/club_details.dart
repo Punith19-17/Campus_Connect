@@ -202,8 +202,8 @@ class ClubDetailsPage extends StatelessWidget {
                       itemBuilder: (context, index) {
                         String role = leadership.keys.elementAt(index);
                         String name = leadership.values.elementAt(index) ?? 'N/A';
+                        if (name.isEmpty) name = 'N/A';
 
-                        // Assigning custom colors based on index for a fun look
                         List<Color> roleColors = [
                           const Color(0xFF3B82F6), // Blue
                           const Color(0xFF10B981), // Emerald

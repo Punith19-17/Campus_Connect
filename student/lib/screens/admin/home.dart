@@ -92,7 +92,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                                   color: Colors.white.withOpacity(0.2),
                                   borderRadius: BorderRadius.circular(12),
                                 ),
-                                child: const Icon(Icons.notifications_none_rounded, color: Colors.white, size: 24),
+//                                 child: const Icon(Icons.notifications_none_rounded, color: Colors.white, size: 24),
                               ),
                             ],
                           ),
@@ -234,7 +234,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                   animation: _controller,
                   index: 4,
                   child: _PortalAppCard(
-                    title: "Student Portal",
+                    title: "User Portal",
                     subtitle: "Dashboard, Classes & Marks",
                     icon: Icons.face_retouching_natural_rounded,
                     gradientColors: const [Color(0xFF38BDF8), Color(0xFF0284C7)],

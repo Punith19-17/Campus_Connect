@@ -157,7 +157,7 @@ class _AuthScreenState extends State<AuthScreen> {
                     ),
                     const SizedBox(height: 8),
                     const Text(
-                      'Sign in to access your student portal',
+                      'Sign in to access your user portal',
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontSize: 16,
