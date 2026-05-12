@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'dart:ui';
 import 'manage_events.dart';
 import 'manage_clubs.dart';
 import 'add_event.dart';
@@ -57,66 +58,71 @@ class _AdminDashboardState extends State<AdminDashboard> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F7FA), // Light grey background
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        centerTitle: true,
-        elevation: 0,
-        title: const Text(
-          'Campus Admin',
-          style: TextStyle(
-            color: Color(0xFF1E293B),
-            fontWeight: FontWeight.w800,
-            fontSize: 22,
-            letterSpacing: 0.5,
-          ),
-        ),
-        iconTheme: const IconThemeData(color: Color(0xFF1E293B)),
-      ),
+      backgroundColor: const Color(0xFFF3F6F8), // Super light mobile grey
+      extendBody: true, // Allows the floating nav bar to sit over the body
       body: IndexedStack(
         index: _selectedIndex,
         children: _widgetOptions,
       ),
-      bottomNavigationBar: Container(
-        decoration: BoxDecoration(
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.05),
-              blurRadius: 20,
-              offset: const Offset(0, -5),
-            ),
-          ],
-        ),
-        child: ClipRRect(
-          borderRadius: const BorderRadius.only(
-            topLeft: Radius.circular(30.0),
-            topRight: Radius.circular(30.0),
-          ),
-          child: BottomNavigationBar(
-            items: const <BottomNavigationBarItem>[
-              BottomNavigationBarItem(
-                  icon: Icon(Icons.dashboard_outlined),
-                  activeIcon: Icon(Icons.dashboard_rounded),
-                  label: 'Dashboard'),
-              BottomNavigationBarItem(
-                  icon: Icon(Icons.event_outlined),
-                  activeIcon: Icon(Icons.event_rounded),
-                  label: 'Events'),
-              BottomNavigationBarItem(
-                  icon: Icon(Icons.group_work_outlined),
-                  activeIcon: Icon(Icons.group_work_rounded),
-                  label: 'Clubs'),
+      bottomNavigationBar: SafeArea(
+        child: Container(
+          margin: const EdgeInsets.only(left: 24, right: 24, bottom: 20),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+          decoration: BoxDecoration(
+            color: Colors.white.withOpacity(0.95),
+            borderRadius: BorderRadius.circular(40),
+            boxShadow: [
+              BoxShadow(
+                color: const Color(0xFF6366F1).withOpacity(0.15),
+                blurRadius: 30,
+                offset: const Offset(0, 10),
+              ),
             ],
-            currentIndex: _selectedIndex,
-            selectedItemColor: const Color(0xFF4F46E5),
-            unselectedItemColor: const Color(0xFF94A3B8),
-            selectedLabelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
-            unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.w500, fontSize: 12),
-            onTap: _onItemTapped,
-            backgroundColor: Colors.white,
-            elevation: 0,
-            type: BottomNavigationBarType.fixed,
           ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              _buildNavItem(0, Icons.dashboard_rounded, 'Dashboard'),
+              _buildNavItem(1, Icons.event_rounded, 'Events'),
+              _buildNavItem(2, Icons.groups_rounded, 'Clubs'),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildNavItem(int index, IconData icon, String label) {
+    final isSelected = _selectedIndex == index;
+    return GestureDetector(
+      onTap: () => _onItemTapped(index),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeOutCubic,
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+        decoration: BoxDecoration(
+          color: isSelected ? const Color(0xFF6366F1).withOpacity(0.1) : Colors.transparent,
+          borderRadius: BorderRadius.circular(30),
+        ),
+        child: Row(
+          children: [
+            Icon(
+              icon,
+              color: isSelected ? const Color(0xFF6366F1) : const Color(0xFF94A3B8),
+              size: 24,
+            ),
+            if (isSelected) ...[
+              const SizedBox(width: 8),
+              Text(
+                label,
+                style: const TextStyle(
+                  color: Color(0xFF6366F1),
+                  fontWeight: FontWeight.w800,
+                  fontSize: 14,
+                ),
+              ),
+            ]
+          ],
         ),
       ),
     );
@@ -132,22 +138,22 @@ class DashboardHome extends StatefulWidget {
 
 class _DashboardHomeState extends State<DashboardHome> with SingleTickerProviderStateMixin {
   late Future<DashboardStats> _statsFuture;
-  late AnimationController _animationController;
+  late AnimationController _controller;
 
   @override
   void initState() {
     super.initState();
     _statsFuture = _fetchDashboardStats();
-    _animationController = AnimationController(
+    _controller = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 1200),
+      duration: const Duration(milliseconds: 1500),
     );
-    _animationController.forward();
+    _controller.forward();
   }
 
   @override
   void dispose() {
-    _animationController.dispose();
+    _controller.dispose();
     super.dispose();
   }
 
@@ -169,303 +175,332 @@ class _DashboardHomeState extends State<DashboardHome> with SingleTickerProvider
     setState(() {
       _statsFuture = _fetchDashboardStats();
     });
-    _animationController.reset();
-    _animationController.forward();
+    _controller.reset();
+    _controller.forward();
   }
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
+    return CustomScrollView(
       physics: const BouncingScrollPhysics(),
-      padding: const EdgeInsets.all(24.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Header Row
-          _AnimatedChild(
-            animation: _animationController,
-            index: 0,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                const Text(
-                  'Overview',
-                  style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.w800,
-                      color: Color(0xFF1E293B)),
+      slivers: [
+        SliverToBoxAdapter(
+          child: Stack(
+            clipBehavior: Clip.none,
+            children: [
+              // Massive Curved Header Background
+              ClipPath(
+                clipper: _HeaderClipper(),
+                child: Container(
+                  height: 380,
+                  decoration: const BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [
+                        Color(0xFFE0C3FC), // Soft Light Purple
+                        Color(0xFF8EC5FC), // Soft Light Blue
+                      ],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                  ),
                 ),
-                Row(
-                  children: [
-                    InkWell(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const ParticipationListPage(),
-                          ),
-                        );
-                      },
-                      borderRadius: BorderRadius.circular(12),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFEEF2FF),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Row(
-                          children: const [
-                            Icon(Icons.playlist_add_check_rounded, color: Color(0xFF4F46E5), size: 20),
-                            SizedBox(width: 8),
-                            Text(
-                              'Responses',
-                              style: TextStyle(
-                                color: Color(0xFF4F46E5),
-                                fontWeight: FontWeight.bold,
-                                fontSize: 14,
+              ),
+
+              // Header Content
+              SafeArea(
+                bottom: false,
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 20, left: 24, right: 24),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Top Row (Greeting & Refresh)
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                "Good Morning,",
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  color: Colors.white.withOpacity(0.8),
+                                  fontWeight: FontWeight.w600,
+                                ),
                               ),
+                              const Text(
+                                "Admin 👋",
+                                style: TextStyle(
+                                  fontSize: 36,
+                                  fontWeight: FontWeight.w900,
+                                  color: Colors.white,
+                                  letterSpacing: -0.5,
+                                ),
+                              ),
+                            ],
+                          ),
+                          Container(
+                            decoration: BoxDecoration(
+                              color: Colors.white.withOpacity(0.2),
+                              shape: BoxShape.circle,
                             ),
-                          ],
+                            child: IconButton(
+                              icon: const Icon(Icons.refresh_rounded, color: Colors.white),
+                              onPressed: _refreshStats,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 40),
+
+                      // Horizontal Scrolling Stats
+                      SizedBox(
+                        height: 200,
+                        child: FutureBuilder<DashboardStats>(
+                          future: _statsFuture,
+                          builder: (context, snapshot) {
+                            if (snapshot.connectionState == ConnectionState.waiting) {
+                              return const Center(child: CircularProgressIndicator(color: Colors.white));
+                            }
+                            final stats = snapshot.hasData ? snapshot.data : null;
+                            final isError = snapshot.hasError || (stats?.totalEvents == -1);
+
+                            return ListView(
+                              scrollDirection: Axis.horizontal,
+                              physics: const BouncingScrollPhysics(),
+                              clipBehavior: Clip.none,
+                              children: [
+                                _AnimatedStatCard(
+                                  animation: _controller,
+                                  delay: 0.1,
+                                  title: "Total\nEvents",
+                                  value: isError ? "Err" : (stats?.totalEvents.toString() ?? "..."),
+                                  icon: Icons.event_available_rounded,
+                                  textColor: const Color(0xFF6366F1), // Indigo
+                                ),
+                                const SizedBox(width: 16),
+                                _AnimatedStatCard(
+                                  animation: _controller,
+                                  delay: 0.2,
+                                  title: "Active\nClubs",
+                                  value: isError ? "Err" : (stats?.totalClubs.toString() ?? "..."),
+                                  icon: Icons.groups_rounded,
+                                  textColor: const Color(0xFFF43F5E), // Rose
+                                ),
+                                const SizedBox(width: 16),
+                                _AnimatedStatCard(
+                                  animation: _controller,
+                                  delay: 0.3,
+                                  title: "Total\nStudents",
+                                  value: isError ? "Err" : (stats?.totalStudents.toString() ?? "..."),
+                                  icon: Icons.school_rounded,
+                                  textColor: const Color(0xFF10B981), // Emerald
+                                ),
+                                const SizedBox(width: 16),
+                                _AnimatedStatCard(
+                                  animation: _controller,
+                                  delay: 0.4,
+                                  title: "Active\nEvents",
+                                  value: isError ? "Err" : (stats?.activeEvents.toString() ?? "..."),
+                                  icon: Icons.local_activity_rounded,
+                                  textColor: const Color(0xFFF59E0B), // Amber
+                                ),
+                              ],
+                            );
+                          },
                         ),
                       ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+
+        // Management Section
+        SliverPadding(
+          padding: const EdgeInsets.symmetric(horizontal: 24.0),
+          sliver: SliverList(
+            delegate: SliverChildListDelegate([
+              const SizedBox(height: 24),
+              _AnimatedFadeSlide(
+                animation: _controller,
+                delay: 0.5,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      "Management",
+                      style: TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.w900,
+                        color: Color(0xFF1E293B),
+                        letterSpacing: -0.5,
+                      ),
                     ),
-                    const SizedBox(width: 12),
-                    InkWell(
-                      onTap: _refreshStats,
-                      borderRadius: BorderRadius.circular(12),
-                      child: Container(
-                        padding: const EdgeInsets.all(10),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(12),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.05),
-                              blurRadius: 10,
-                              offset: const Offset(0, 4),
-                            ),
-                          ],
-                        ),
-                        child: const Icon(Icons.refresh_rounded, color: Color(0xFF64748B), size: 20),
+                    TextButton.icon(
+                      onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ParticipationListPage())),
+                      icon: const Icon(Icons.history_rounded, size: 18),
+                      label: const Text("Logs", style: TextStyle(fontWeight: FontWeight.bold)),
+                      style: TextButton.styleFrom(
+                        foregroundColor: const Color(0xFF6366F1),
+                        backgroundColor: const Color(0xFF6366F1).withOpacity(0.1),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                       ),
                     ),
                   ],
                 ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 24),
+              ),
+              const SizedBox(height: 16),
 
-          // Stats Grid
-          FutureBuilder<DashboardStats>(
-            future: _statsFuture,
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return const Center(child: CircularProgressIndicator(color: Color(0xFF4F46E5)));
-              }
-              if (snapshot.hasError || (snapshot.hasData && snapshot.data!.totalEvents == -1)) {
-                return _buildSummaryGrid(DashboardStats(totalEvents: -1));
-              }
-              if (snapshot.hasData) {
-                return _buildSummaryGrid(snapshot.data);
-              }
-              return const Center(child: Text('No data available.'));
-            },
-          ),
-
-          const SizedBox(height: 40),
-          _AnimatedChild(
-            animation: _animationController,
-            index: 3,
-            child: const Text(
-              'Quick Actions',
-              style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w800,
-                  color: Color(0xFF1E293B)),
-            ),
-          ),
-          const SizedBox(height: 16),
-
-          // Quick Actions Grid
-          _AnimatedChild(
-            animation: _animationController,
-            index: 4,
-            child: Row(
-              children: [
-                Expanded(
-                  child: _QuickActionButton(
-                    label: 'Add Event',
-                    icon: Icons.add_circle_outline_rounded,
-                    color: const Color(0xFF10B981),
-                    onTap: () {
-                      Navigator.push(context, MaterialPageRoute(builder: (context) => const AddEventPage()));
-                    },
-                  ),
+              _AnimatedFadeSlide(
+                animation: _controller,
+                delay: 0.6,
+                child: _ManagementCard(
+                  title: "Create Event",
+                  subtitle: "Plan and schedule new campus activities.",
+                  icon: Icons.add_circle_rounded,
+                  color: const Color(0xFF10B981),
+                  onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AddEventPage())),
                 ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: _QuickActionButton(
-                    label: 'Add Club',
-                    icon: Icons.add_business_rounded,
-                    color: const Color(0xFFF59E0B),
-                    onTap: () {
-                      Navigator.push(context, MaterialPageRoute(builder: (context) => const AddClubPage()));
-                    },
-                  ),
+              ),
+              const SizedBox(height: 16),
+
+              _AnimatedFadeSlide(
+                animation: _controller,
+                delay: 0.7,
+                child: _ManagementCard(
+                  title: "Register Club",
+                  subtitle: "Add new organizations and departments.",
+                  icon: Icons.add_business_rounded,
+                  color: const Color(0xFFF59E0B),
+                  onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AddClubPage())),
                 ),
-              ],
-            ),
+              ),
+              const SizedBox(height: 120), // Space for floating bottom nav bar
+            ]),
           ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSummaryGrid(DashboardStats? stats) {
-    String getValue(int? statValue) {
-      if (stats == null) return '...';
-      if (statValue == -1) return 'Err';
-      return statValue.toString();
-    }
-
-    return _AnimatedChild(
-      animation: _animationController,
-      index: 1,
-      child: GridView.count(
-        crossAxisCount: 2,
-        crossAxisSpacing: 16.0,
-        mainAxisSpacing: 16.0,
-        shrinkWrap: true,
-        physics: const NeverScrollableScrollPhysics(),
-        children: [
-          _SummaryCard(
-            title: 'Total Events',
-            value: getValue(stats?.totalEvents),
-            icon: Icons.event_rounded,
-            gradientColors: const [Color(0xFF38BDF8), Color(0xFF0284C7)],
-          ),
-          _SummaryCard(
-            title: 'Total Clubs',
-            value: getValue(stats?.totalClubs),
-            icon: Icons.groups_rounded,
-            gradientColors: const [Color(0xFF818CF8), Color(0xFF4F46E5)],
-          ),
-          _SummaryCard(
-            title: 'Total Students',
-            value: getValue(stats?.totalStudents),
-            icon: Icons.people_alt_rounded,
-            gradientColors: const [Color(0xFFF472B6), Color(0xFFDB2777)],
-          ),
-          _SummaryCard(
-            title: 'Active Events',
-            value: getValue(stats?.activeEvents),
-            icon: Icons.local_activity_rounded,
-            gradientColors: const [Color(0xFF34D399), Color(0xFF059669)],
-          ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }
 
-class _SummaryCard extends StatelessWidget {
+// ----------------------------------------------------------------------
+// Custom UI Components
+// ----------------------------------------------------------------------
+
+class _HeaderClipper extends CustomClipper<Path> {
+  @override
+  Path getClip(Size size) {
+    var path = Path();
+    path.lineTo(0, size.height - 80);
+    path.quadraticBezierTo(
+      size.width / 2, size.height + 40,
+      size.width, size.height - 80,
+    );
+    path.lineTo(size.width, 0);
+    path.close();
+    return path;
+  }
+
+  @override
+  bool shouldReclip(CustomClipper<Path> oldClipper) => false;
+}
+
+class _AnimatedStatCard extends StatelessWidget {
+  final AnimationController animation;
+  final double delay;
   final String title;
   final String value;
   final IconData icon;
-  final List<Color> gradientColors;
+  final Color textColor;
 
-  const _SummaryCard({
+  const _AnimatedStatCard({
+    required this.animation,
+    required this.delay,
     required this.title,
     required this.value,
     required this.icon,
-    required this.gradientColors,
+    required this.textColor,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(24.0),
-        gradient: LinearGradient(
-          colors: gradientColors,
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
+    return _AnimatedFadeSlide(
+      animation: animation,
+      delay: delay,
+      child: Container(
+        width: 150,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(32),
+          boxShadow: [
+            BoxShadow(
+              color: textColor.withOpacity(0.15),
+              blurRadius: 25,
+              offset: const Offset(0, 15),
+            ),
+          ],
         ),
-        boxShadow: [
-          BoxShadow(
-            color: gradientColors[0].withOpacity(0.3),
-            blurRadius: 15,
-            offset: const Offset(0, 8),
-          ),
-        ],
-      ),
-      child: Stack(
-        clipBehavior: Clip.none,
-        children: [
-          Positioned(
-            right: -10,
-            bottom: -10,
-            child: Icon(
-              icon,
-              size: 80,
-              color: Colors.white.withOpacity(0.15),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(20.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.2),
-                    borderRadius: BorderRadius.circular(12),
+        child: Padding(
+          padding: const EdgeInsets.all(24.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(14),
+                decoration: BoxDecoration(
+                  color: textColor.withOpacity(0.1),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(icon, color: textColor, size: 28),
+              ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    value,
+                    style: TextStyle(
+                      fontSize: 36,
+                      fontWeight: FontWeight.w900,
+                      color: textColor,
+                      height: 1.0,
+                    ),
                   ),
-                  child: Icon(icon, color: Colors.white, size: 24),
-                ),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      value,
-                      style: const TextStyle(
-                        fontSize: 32,
-                        fontWeight: FontWeight.w900,
-                        color: Colors.white,
-                      ),
+                  const SizedBox(height: 8),
+                  Text(
+                    title,
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w700,
+                      color: Color(0xFF64748B),
+                      height: 1.3,
                     ),
-                    const SizedBox(height: 4),
-                    Text(
-                      title,
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.white.withOpacity(0.9),
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
+                  ),
+                ],
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
 }
 
-class _QuickActionButton extends StatelessWidget {
-  final String label;
+class _ManagementCard extends StatelessWidget {
+  final String title;
+  final String subtitle;
   final IconData icon;
   final Color color;
   final VoidCallback onTap;
 
-  const _QuickActionButton({
-    required this.label,
+  const _ManagementCard({
+    required this.title,
+    required this.subtitle,
     required this.icon,
     required this.color,
     required this.onTap,
@@ -476,12 +511,12 @@ class _QuickActionButton extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: color.withOpacity(0.1),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
+            color: color.withOpacity(0.08),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
           ),
         ],
       ),
@@ -489,29 +524,45 @@ class _QuickActionButton extends StatelessWidget {
         color: Colors.transparent,
         child: InkWell(
           onTap: onTap,
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(24),
           child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 24.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
+            padding: const EdgeInsets.all(20.0),
+            child: Row(
               children: [
                 Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
                     color: color.withOpacity(0.1),
-                    shape: BoxShape.circle,
+                    borderRadius: BorderRadius.circular(20),
                   ),
-                  child: Icon(icon, size: 32, color: color),
+                  child: Icon(icon, color: color, size: 32),
                 ),
-                const SizedBox(height: 12),
-                Text(
-                  label,
-                  style: const TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w800,
-                    color: Color(0xFF1E293B),
+                const SizedBox(width: 20),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        title,
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w800,
+                          color: Color(0xFF1E293B),
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        subtitle,
+                        style: const TextStyle(
+                          fontSize: 13,
+                          color: Color(0xFF64748B),
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
+                Icon(Icons.arrow_forward_ios_rounded, color: color.withOpacity(0.3), size: 16),
               ],
             ),
           ),
@@ -521,21 +572,21 @@ class _QuickActionButton extends StatelessWidget {
   }
 }
 
-class _AnimatedChild extends StatelessWidget {
+class _AnimatedFadeSlide extends StatelessWidget {
   final AnimationController animation;
-  final int index;
+  final double delay;
   final Widget child;
 
-  const _AnimatedChild({
+  const _AnimatedFadeSlide({
     required this.animation,
-    required this.index,
+    required this.delay,
     required this.child,
   });
 
   @override
   Widget build(BuildContext context) {
-    final start = (index * 0.1).clamp(0.0, 1.0);
-    final end = (start + 0.5).clamp(0.0, 1.0);
+    final start = delay.clamp(0.0, 1.0);
+    final end = (delay + 0.4).clamp(0.0, 1.0);
     final curve = CurvedAnimation(
       parent: animation,
       curve: Interval(start, end, curve: Curves.easeOutCubic),
@@ -547,7 +598,7 @@ class _AnimatedChild extends StatelessWidget {
         return Opacity(
           opacity: curve.value,
           child: Transform.translate(
-            offset: Offset(0, 30 * (1 - curve.value)),
+            offset: Offset(0, 40 * (1 - curve.value)),
             child: childWidget,
           ),
         );
