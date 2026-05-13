@@ -67,7 +67,7 @@ class ClubDetailsPage extends StatelessWidget {
               children: [
                 Container(
                   width: double.infinity,
-                  height: 340,
+                  height: 280,
                   decoration: const BoxDecoration(
                     gradient: LinearGradient(
                       colors: [Color(0xFFACE0F9), Color(0xFFE0C3FC)], // Ice Blue to Lilac
@@ -75,13 +75,13 @@ class ClubDetailsPage extends StatelessWidget {
                       end: Alignment.bottomRight,
                     ),
                     borderRadius: BorderRadius.only(
-                      bottomLeft: Radius.circular(60),
-                      bottomRight: Radius.circular(60),
+                      bottomLeft: Radius.circular(40),
+                      bottomRight: Radius.circular(40),
                     ),
                   ),
                 ),
                 Positioned(
-                  top: 100,
+                  top: 90,
                   left: 0,
                   right: 0,
                   child: Column(
@@ -97,33 +97,33 @@ class ClubDetailsPage extends StatelessWidget {
                           );
                         },
                         child: Container(
-                          width: 120,
-                          height: 120,
+                          width: 90,
+                          height: 90,
                           decoration: BoxDecoration(
                             color: Colors.white,
                             shape: BoxShape.circle,
                             boxShadow: [
                               BoxShadow(
                                 color: const Color(0xFF8EC5FC).withOpacity(0.4),
-                                blurRadius: 30,
-                                offset: const Offset(0, 10),
+                                blurRadius: 20,
+                                offset: const Offset(0, 5),
                               ),
                             ],
                           ),
                           child: const Center(
-                            child: Icon(Icons.groups_rounded, color: Color(0xFF6C63FF), size: 50),
+                            child: Icon(Icons.groups_rounded, color: Color(0xFF6C63FF), size: 40),
                           ),
                         ),
                       ),
-                      const SizedBox(height: 24),
+                      const SizedBox(height: 16),
                       Text(
                         club.name,
                         textAlign: TextAlign.center,
                         style: const TextStyle(
-                          fontSize: 32,
+                          fontSize: 24,
                           fontWeight: FontWeight.w900,
                           color: Color(0xFF2D3748),
-                          letterSpacing: -1.0,
+                          letterSpacing: -0.5,
                           height: 1.2,
                         ),
                       ),
@@ -232,15 +232,15 @@ class ClubDetailsPage extends StatelessWidget {
       },
       child: Container(
         width: double.infinity,
-        padding: const EdgeInsets.all(24),
+        padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(30),
+          borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
-              color: const Color(0xFF8EC5FC).withOpacity(0.15),
-              blurRadius: 30,
-              offset: const Offset(0, 10),
+              color: const Color(0xFF8EC5FC).withOpacity(0.1),
+              blurRadius: 20,
+              offset: const Offset(0, 8),
             ),
           ],
         ),
@@ -253,18 +253,18 @@ class ClubDetailsPage extends StatelessWidget {
     return Row(
       children: [
         Container(
-          padding: const EdgeInsets.all(10),
+          padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
             color: bgColor,
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(12),
           ),
-          child: Icon(icon, size: 24, color: iconColor),
+          child: Icon(icon, size: 20, color: iconColor),
         ),
-        const SizedBox(width: 16),
+        const SizedBox(width: 12),
         Text(
           title,
           style: const TextStyle(
-            fontSize: 22,
+            fontSize: 18,
             fontWeight: FontWeight.w900,
             color: Color(0xFF2D3748),
             letterSpacing: -0.5,

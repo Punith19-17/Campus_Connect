@@ -71,16 +71,13 @@ class _ClubCardState extends State<ClubCard> with SingleTickerProviderStateMixin
 
   @override
   Widget build(BuildContext context) {
-    // Determine staggered offset based on grid column
-    final isRightColumn = widget.index % 2 != 0;
-
     return TweenAnimationBuilder(
       tween: Tween<double>(begin: 0, end: 1),
       duration: Duration(milliseconds: 400 + (widget.index * 50)),
       curve: Curves.easeOutCubic,
       builder: (context, double value, child) {
         return Transform.translate(
-          offset: Offset(0, 50 * (1 - value) + (isRightColumn ? 30.0 : 0.0)),
+          offset: Offset(0, 50 * (1 - value)),
           child: Opacity(
             opacity: value,
             child: child,
@@ -106,13 +103,8 @@ class _ClubCardState extends State<ClubCard> with SingleTickerProviderStateMixin
             padding: const EdgeInsets.all(20.0),
             decoration: BoxDecoration(
               color: Colors.white,
-              // Unique asymmetrical design
-              borderRadius: BorderRadius.only(
-                topLeft: const Radius.circular(30),
-                bottomRight: const Radius.circular(30),
-                topRight: isRightColumn ? const Radius.circular(10) : const Radius.circular(30),
-                bottomLeft: !isRightColumn ? const Radius.circular(10) : const Radius.circular(30),
-              ),
+              // Symmetrical design for non-staggered layout
+              borderRadius: BorderRadius.circular(20),
               boxShadow: [
                 BoxShadow(
                   color: const Color(0xFF8EC5FC).withOpacity(0.15),
@@ -262,7 +254,7 @@ class _ClubDirectoryPageState extends State<ClubDirectoryPage> {
         automaticallyImplyLeading: false,
         backgroundColor: Colors.transparent,
         elevation: 0,
-        centerTitle: true,
+        centerTitle: false,
         title: const Text(
           'Explore Clubs',
           style: TextStyle(
@@ -418,11 +410,11 @@ class _ClubDirectoryPageState extends State<ClubDirectoryPage> {
       physics: const BouncingScrollPhysics(),
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
-        childAspectRatio: 0.70, // Slightly taller for staggered look
-        crossAxisSpacing: 20.0,
-        mainAxisSpacing: 20.0,
+        childAspectRatio: 0.85,
+        crossAxisSpacing: 16.0,
+        mainAxisSpacing: 16.0,
       ),
-      padding: const EdgeInsets.only(left: 24.0, right: 24.0, bottom: 120.0, top: 16.0), // Padding for Nav
+      padding: const EdgeInsets.only(left: 20.0, right: 20.0, bottom: 120.0, top: 16.0), // Padding for Nav
       itemCount: clubs.length,
       itemBuilder: (context, index) {
         final club = clubs[index];

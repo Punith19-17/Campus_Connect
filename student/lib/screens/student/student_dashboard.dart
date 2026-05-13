@@ -270,58 +270,17 @@ class _StudentDashboardState extends State<StudentDashboard> {
               children: [
                 // Custom App Bar Area
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
+                  padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 20.0),
                   child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      GestureDetector(
-                        onTap: () {
-                          Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const AuthScreen(),
-                            ),
-                          );
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(16),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withOpacity(0.05),
-                                blurRadius: 15,
-                                offset: const Offset(0, 5),
-                              )
-                            ],
-                          ),
-                          child: const Icon(Icons.arrow_back_rounded, color: Color(0xFF4A5568), size: 20),
-                        ),
-                      ),
                       const Text(
-                        'AIMS',
+                        'Campus Connect',
                         style: TextStyle(
                           fontWeight: FontWeight.w900,
                           color: Color(0xFF2D3748),
-                          fontSize: 22,
-                          letterSpacing: 2.0,
+                          fontSize: 24,
+                          letterSpacing: 0.5,
                         ),
-                      ),
-                      Container(
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(16),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.05),
-                              blurRadius: 15,
-                              offset: const Offset(0, 5),
-                            )
-                          ],
-                        ),
-                        child: const Icon(Icons.notifications_active_rounded, color: Color(0xFF4A5568), size: 20),
                       ),
                     ],
                   ),
@@ -442,7 +401,7 @@ class _AimCardState extends State<AimCard> with SingleTickerProviderStateMixin {
               ],
             ),
             child: Padding(
-              padding: const EdgeInsets.all(24.0),
+              padding: const EdgeInsets.all(16.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -450,27 +409,27 @@ class _AimCardState extends State<AimCard> with SingleTickerProviderStateMixin {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Container(
-                        padding: const EdgeInsets.all(12),
+                        padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
                           gradient: const LinearGradient(
                             colors: [Color(0xFFE0C3FC), Color(0xFF8EC5FC)],
                             begin: Alignment.topLeft,
                             end: Alignment.bottomRight,
                           ),
-                          borderRadius: BorderRadius.circular(16),
+                          borderRadius: BorderRadius.circular(12),
                         ),
-                        child: const Icon(Icons.event_note_rounded, color: Colors.white, size: 24),
+                        child: const Icon(Icons.event_note_rounded, color: Colors.white, size: 18),
                       ),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 8.0),
+                        padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 6.0),
                         decoration: BoxDecoration(
                           color: const Color(0xFFF5F8FE),
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: BorderRadius.circular(10),
                         ),
                         child: Text(
                           widget.aim.status?.toUpperCase() ?? '',
                           style: const TextStyle(
-                            fontSize: 11,
+                            fontSize: 10,
                             fontWeight: FontWeight.w900,
                             color: Color(0xFF4A5568),
                             letterSpacing: 1.0,
@@ -479,11 +438,11 @@ class _AimCardState extends State<AimCard> with SingleTickerProviderStateMixin {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 12),
                   Text(
                     widget.aim.title ?? '',
                     style: const TextStyle(
-                      fontSize: 20,
+                      fontSize: 16,
                       fontWeight: FontWeight.w900,
                       color: Color(0xFF2D3748),
                       height: 1.2,
@@ -491,25 +450,25 @@ class _AimCardState extends State<AimCard> with SingleTickerProviderStateMixin {
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 8),
                   Text(
                     widget.aim.description ?? '',
                     style: const TextStyle(
-                      fontSize: 14,
+                      fontSize: 12,
                       color: Color(0xFF718096),
-                      height: 1.5,
+                      height: 1.4,
                     ),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 16),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       const Text(
                         'PROGRESS',
                         style: TextStyle(
-                          fontSize: 12,
+                          fontSize: 10,
                           fontWeight: FontWeight.w900,
                           color: Color(0xFFA0AEC0),
                           letterSpacing: 1.0,
@@ -518,19 +477,19 @@ class _AimCardState extends State<AimCard> with SingleTickerProviderStateMixin {
                       Text(
                         '${widget.aim.progress ?? 0}%',
                         style: const TextStyle(
-                          fontSize: 14,
+                          fontSize: 12,
                           fontWeight: FontWeight.w900,
                           color: Color(0xFF6C63FF),
                         ),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 6),
                   Container(
-                    height: 10,
+                    height: 8,
                     decoration: BoxDecoration(
                       color: const Color(0xFFF5F8FE),
-                      borderRadius: BorderRadius.circular(10),
+                      borderRadius: BorderRadius.circular(8),
                     ),
                     child: Row(
                       children: [
@@ -543,7 +502,7 @@ class _AimCardState extends State<AimCard> with SingleTickerProviderStateMixin {
                                 begin: Alignment.centerLeft,
                                 end: Alignment.centerRight,
                               ),
-                              borderRadius: BorderRadius.circular(10),
+                              borderRadius: BorderRadius.circular(8),
                             ),
                           ),
                         ),
