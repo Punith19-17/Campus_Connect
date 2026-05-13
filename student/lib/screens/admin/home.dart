@@ -77,7 +77,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                           const Text(
                             "Campus Connect",
                             style: TextStyle(
-                              fontSize: 26,
+                              fontSize: 22,
                               fontWeight: FontWeight.w800,
                               color: Colors.white,
                               letterSpacing: 0.5,
@@ -343,7 +343,7 @@ class _AnimatedChild extends StatelessWidget {
   }
 }
 
-class _AppFeatureCard extends StatelessWidget {
+class _AppFeatureCard extends StatefulWidget {
   final IconData icon;
   final String title;
   final Color color;
@@ -357,24 +357,35 @@ class _AppFeatureCard extends StatelessWidget {
   });
 
   @override
+  State<_AppFeatureCard> createState() => _AppFeatureCardState();
+}
+
+class _AppFeatureCardState extends State<_AppFeatureCard> {
+  bool _isPressed = false;
+
+  @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: color.withOpacity(0.08),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
+    return GestureDetector(
+      onTapDown: (_) => setState(() => _isPressed = true),
+      onTapUp: (_) => setState(() => _isPressed = false),
+      onTapCancel: () => setState(() => _isPressed = false),
+      onTap: widget.onTap,
+      child: AnimatedScale(
+        scale: _isPressed ? 0.90 : 1.0,
+        duration: const Duration(milliseconds: 150),
+        curve: Curves.easeOutCubic,
+        child: Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: [
+              BoxShadow(
+                color: widget.color.withOpacity(_isPressed ? 0.04 : 0.08),
+                blurRadius: _isPressed ? 5 : 10,
+                offset: Offset(0, _isPressed ? 2 : 4),
+              ),
+            ],
           ),
-        ],
-      ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: onTap,
-          borderRadius: BorderRadius.circular(20),
           child: Padding(
             padding: const EdgeInsets.symmetric(vertical: 16),
             child: Column(
@@ -383,14 +394,14 @@ class _AppFeatureCard extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: color.withOpacity(0.1),
+                    color: widget.color.withOpacity(0.1),
                     shape: BoxShape.circle,
                   ),
-                  child: Icon(icon, color: color, size: 24),
+                  child: Icon(widget.icon, color: widget.color, size: 24),
                 ),
                 const SizedBox(height: 10),
                 Text(
-                  title,
+                  widget.title,
                   style: const TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w700,
@@ -407,7 +418,7 @@ class _AppFeatureCard extends StatelessWidget {
   }
 }
 
-class _PortalAppCard extends StatelessWidget {
+class _PortalAppCard extends StatefulWidget {
   final String title;
   final String subtitle;
   final IconData icon;
@@ -425,18 +436,40 @@ class _PortalAppCard extends StatelessWidget {
   });
 
   @override
+  State<_PortalAppCard> createState() => _PortalAppCardState();
+}
+
+class _PortalAppCardState extends State<_PortalAppCard> with SingleTickerProviderStateMixin {
+  late AnimationController _floatController;
+
+  @override
+  void initState() {
+    super.initState();
+    _floatController = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 3),
+    )..repeat(reverse: true);
+  }
+
+  @override
+  void dispose() {
+    _floatController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(24),
         gradient: LinearGradient(
-          colors: gradientColors,
+          colors: widget.gradientColors,
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         boxShadow: [
           BoxShadow(
-            color: gradientColors[0].withOpacity(0.3),
+            color: widget.gradientColors[0].withOpacity(0.3),
             blurRadius: 15,
             offset: const Offset(0, 8),
           ),
@@ -445,14 +478,23 @@ class _PortalAppCard extends StatelessWidget {
       child: Stack(
         clipBehavior: Clip.none,
         children: [
-          // Background Icon Watermark
+          // Background Icon Watermark with Floating Animation
           Positioned(
             right: -20,
             bottom: -20,
-            child: Icon(
-              icon,
-              size: 140,
-              color: Colors.white.withOpacity(0.15),
+            child: AnimatedBuilder(
+              animation: _floatController,
+              builder: (context, child) {
+                return Transform.translate(
+                  offset: Offset(0, 10 * _floatController.value - 5),
+                  child: child,
+                );
+              },
+              child: Icon(
+                widget.icon,
+                size: 140,
+                color: Colors.white.withOpacity(0.15),
+              ),
             ),
           ),
           Padding(
@@ -468,7 +510,7 @@ class _PortalAppCard extends StatelessWidget {
                         color: Colors.white.withOpacity(0.2),
                         borderRadius: BorderRadius.circular(16),
                       ),
-                      child: Icon(icon, color: Colors.white, size: 28),
+                      child: Icon(widget.icon, color: Colors.white, size: 28),
                     ),
                     const SizedBox(width: 16),
                     Expanded(
@@ -476,7 +518,7 @@ class _PortalAppCard extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            title,
+                            widget.title,
                             style: const TextStyle(
                               fontSize: 22,
                               fontWeight: FontWeight.w800,
@@ -486,7 +528,7 @@ class _PortalAppCard extends StatelessWidget {
                           ),
                           const SizedBox(height: 2),
                           Text(
-                            subtitle,
+                            widget.subtitle,
                             style: TextStyle(
                               fontSize: 14,
                               color: Colors.white.withOpacity(0.9),
@@ -503,10 +545,10 @@ class _PortalAppCard extends StatelessWidget {
                   children: [
                     Expanded(
                       child: ElevatedButton(
-                        onPressed: onLogin,
+                        onPressed: widget.onLogin,
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.white,
-                          foregroundColor: gradientColors[0],
+                          foregroundColor: widget.gradientColors[0],
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(14),
                           ),
@@ -522,7 +564,7 @@ class _PortalAppCard extends StatelessWidget {
                     const SizedBox(width: 12),
                     Expanded(
                       child: OutlinedButton(
-                        onPressed: onSignup,
+                        onPressed: widget.onSignup,
                         style: OutlinedButton.styleFrom(
                           foregroundColor: Colors.white,
                           side: const BorderSide(color: Colors.white, width: 2),
@@ -548,67 +590,81 @@ class _PortalAppCard extends StatelessWidget {
   }
 }
 
-class _AboutUsCard extends StatelessWidget {
+class _AboutUsCard extends StatefulWidget {
   final VoidCallback onTap;
 
   const _AboutUsCard({required this.onTap});
 
   @override
+  State<_AboutUsCard> createState() => _AboutUsCardState();
+}
+
+class _AboutUsCardState extends State<_AboutUsCard> {
+  bool _isPressed = false;
+
+  @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(20),
-      child: Container(
-        padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(20),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.03),
-              blurRadius: 15,
-              offset: const Offset(0, 5),
-            ),
-          ],
-          border: Border.all(color: const Color(0xFFF1F5F9), width: 1.5),
-        ),
-        child: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: const Color(0xFFF1F5F9),
-                borderRadius: BorderRadius.circular(16),
+    return GestureDetector(
+      onTapDown: (_) => setState(() => _isPressed = true),
+      onTapUp: (_) => setState(() => _isPressed = false),
+      onTapCancel: () => setState(() => _isPressed = false),
+      onTap: widget.onTap,
+      child: AnimatedScale(
+        scale: _isPressed ? 0.95 : 1.0,
+        duration: const Duration(milliseconds: 150),
+        curve: Curves.easeOutCubic,
+        child: Container(
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(_isPressed ? 0.01 : 0.03),
+                blurRadius: _isPressed ? 5 : 15,
+                offset: Offset(0, _isPressed ? 2 : 5),
               ),
-              child: const Icon(Icons.info_outline_rounded, color: Color(0xFF64748B), size: 24),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: const [
-                  Text(
-                    "About Campus Connect",
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w800,
-                      color: Color(0xFF1E293B),
-                    ),
-                  ),
-                  SizedBox(height: 4),
-                  Text(
-                    "Learn about our mission and features.",
-                    style: TextStyle(
-                      fontSize: 13,
-                      color: Color(0xFF64748B),
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ],
+            ],
+            border: Border.all(color: const Color(0xFFF1F5F9), width: 1.5),
+          ),
+          child: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF1F5F9),
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: const Icon(Icons.info_outline_rounded, color: Color(0xFF64748B), size: 24),
               ),
-            ),
-            const Icon(Icons.arrow_forward_ios_rounded, color: Color(0xFFCBD5E1), size: 16),
-          ],
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: const [
+                    Text(
+                      "About Campus Connect",
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w800,
+                        color: Color(0xFF1E293B),
+                      ),
+                    ),
+                    SizedBox(height: 4),
+                    Text(
+                      "Learn about our mission and features.",
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: Color(0xFF64748B),
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const Icon(Icons.arrow_forward_ios_rounded, color: Color(0xFFCBD5E1), size: 16),
+            ],
+          ),
         ),
       ),
     );
