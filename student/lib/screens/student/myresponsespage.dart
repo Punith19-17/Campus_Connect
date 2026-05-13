@@ -66,7 +66,7 @@ class Event {
 }
 
 class MyResponsesPage extends StatefulWidget {
-  final int studentId; // ✅ take studentId dynamically
+  final int studentId;
   const MyResponsesPage({super.key, required this.studentId});
 
   @override
@@ -130,8 +130,8 @@ class _MyResponsesPageState extends State<MyResponsesPage> {
   void _filterEvents({String? filterType}) {
     List<Event> tempEvents = _allEvents
         .where((event) =>
-    event.title.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-        event.club.toLowerCase().contains(_searchQuery.toLowerCase()))
+            event.title.toLowerCase().contains(_searchQuery.toLowerCase()) ||
+            event.club.toLowerCase().contains(_searchQuery.toLowerCase()))
         .toList();
 
     if (filterType == 'by_name') {
@@ -147,244 +147,372 @@ class _MyResponsesPageState extends State<MyResponsesPage> {
 
   @override
   Widget build(BuildContext context) {
-    if (_isLoading) {
-      return const Center(child: CircularProgressIndicator());
-    }
-    if (_errorMessage.isNotEmpty) {
-      return Center(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Text(
-            _errorMessage,
-            textAlign: TextAlign.center,
-            style: const TextStyle(color: Colors.red, fontSize: 16),
-          ),
-        ),
-      );
-    }
-
-    return SingleChildScrollView(
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                const Text(
-                  'Club Events',
-                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-                ),
-                TextButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => InterestedEventsPage(
-                          studentId: widget.studentId,
+    return Scaffold(
+      backgroundColor: Colors.transparent, // Inherits from dashboard background
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator(color: Color(0xFF6C63FF)))
+          : _errorMessage.isNotEmpty
+              ? Center(
+                  child: Container(
+                    margin: const EdgeInsets.all(24),
+                    padding: const EdgeInsets.all(24.0),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(24),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.redAccent.withOpacity(0.1),
+                          blurRadius: 20,
+                        )
+                      ],
+                    ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(Icons.error_outline_rounded, color: Colors.redAccent, size: 48),
+                        const SizedBox(height: 16),
+                        Text(
+                          _errorMessage,
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(color: Colors.redAccent, fontWeight: FontWeight.bold),
                         ),
-                      ),
-                    );
-                  },
-                  child: const Text(
-                    'My Responses',
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.blue,
-                      fontWeight: FontWeight.bold,
+                      ],
                     ),
                   ),
+                )
+              : CustomScrollView(
+                  physics: const BouncingScrollPhysics(),
+                  slivers: [
+                    SliverToBoxAdapter(
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(24, 20, 24, 0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                const Text(
+                                  'Club Events',
+                                  style: TextStyle(
+                                    fontSize: 32,
+                                    fontWeight: FontWeight.w900,
+                                    color: Color(0xFF2D3748),
+                                    letterSpacing: -1.0,
+                                  ),
+                                ),
+                                GestureDetector(
+                                  onTap: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => InterestedEventsPage(
+                                          studentId: widget.studentId,
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                                    decoration: BoxDecoration(
+                                      gradient: const LinearGradient(
+                                        colors: [Color(0xFFACE0F9), Color(0xFFE0C3FC)], // Ice Blue to Lilac
+                                        begin: Alignment.topLeft,
+                                        end: Alignment.bottomRight,
+                                      ),
+                                      borderRadius: BorderRadius.circular(20),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: const Color(0xFF8EC5FC).withOpacity(0.4),
+                                          blurRadius: 10,
+                                          offset: const Offset(0, 4),
+                                        ),
+                                      ],
+                                    ),
+                                    child: const Text(
+                                      'Responses',
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w800,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              '${_filteredEvents.length} events found',
+                              style: const TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                                color: Color(0xFFA0AEC0),
+                              ),
+                            ),
+                            const SizedBox(height: 24),
+                            // Modern Search Bar
+                            Container(
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(20),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.03),
+                                    blurRadius: 15,
+                                    offset: const Offset(0, 5),
+                                  )
+                                ],
+                              ),
+                              child: TextField(
+                                onChanged: _onSearchChanged,
+                                decoration: InputDecoration(
+                                  hintText: 'Search events or clubs...',
+                                  hintStyle: const TextStyle(color: Color(0xFFA0AEC0), fontWeight: FontWeight.w600),
+                                  prefixIcon: const Icon(Icons.search_rounded, color: Color(0xFF6C63FF)),
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(20),
+                                    borderSide: BorderSide.none,
+                                  ),
+                                  filled: true,
+                                  fillColor: Colors.white,
+                                  contentPadding: const EdgeInsets.symmetric(vertical: 16),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 32),
+                          ],
+                        ),
+                      ),
+                    ),
+                    SliverPadding(
+                      padding: const EdgeInsets.fromLTRB(24, 0, 24, 120),
+                      sliver: SliverList(
+                        delegate: SliverChildBuilderDelegate(
+                          (context, index) {
+                            return EventCard(
+                              event: _filteredEvents[index],
+                              studentId: widget.studentId,
+                              index: index,
+                            );
+                          },
+                          childCount: _filteredEvents.length,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
-            Text(
-              '${_filteredEvents.length} events found',
-              style: TextStyle(fontSize: 14, color: Colors.grey[600]),
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              decoration: InputDecoration(
-                hintText: 'Search events...',
-                prefixIcon: const Icon(Icons.search),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10),
-                  borderSide: BorderSide.none,
-                ),
-                filled: true,
-                fillColor: Colors.grey[200],
-                contentPadding: const EdgeInsets.symmetric(vertical: 10),
-              ),
-              onChanged: _onSearchChanged,
-            ),
-            const SizedBox(height: 16),
-            ListView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: _filteredEvents.length,
-              itemBuilder: (context, index) {
-                return EventCard(
-                  event: _filteredEvents[index],
-                  studentId: widget.studentId, // ✅ pass studentId down
-                );
-              },
-            ),
-          ],
-        ),
-      ),
     );
   }
 }
 
-class EventCard extends StatelessWidget {
+class EventCard extends StatefulWidget {
   final Event event;
-  final int studentId; // ✅ added
+  final int studentId;
+  final int index;
 
-  const EventCard({Key? key, required this.event, required this.studentId})
-      : super(key: key);
+  const EventCard({
+    super.key,
+    required this.event,
+    required this.studentId,
+    required this.index,
+  });
+
+  @override
+  State<EventCard> createState() => _EventCardState();
+}
+
+class _EventCardState extends State<EventCard> {
+  bool _isHovered = false;
 
   Color _getStatusColor(String status) {
     switch (status) {
       case 'Today':
-        return Colors.blue[100]!;
+        return const Color(0xFFEBF8FF); // Light Blue
       case 'Tomorrow':
-        return Colors.orange[100]!;
+        return const Color(0xFFFFFFF0); // Light Yellow
       case 'Yesterday':
-        return Colors.pink[100]!;
+        return const Color(0xFFFFF5F5); // Light Red
       default:
-        return Colors.green[100]!;
+        return const Color(0xFFF0FFF4); // Light Green
     }
   }
 
   Color _getStatusTextColor(String status) {
     switch (status) {
       case 'Today':
-        return Colors.blue[800]!;
+        return const Color(0xFF3182CE);
       case 'Tomorrow':
-        return Colors.orange[800]!;
+        return const Color(0xFFD69E2E);
       case 'Yesterday':
-        return Colors.pink[800]!;
+        return const Color(0xFFE53E3E);
       default:
-        return Colors.green[800]!;
+        return const Color(0xFF38A169);
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: () {
-        // ✅ pass the REAL studentId
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) =>
-                EventDetailsPage(eventId: event.id, studentId: studentId),
+    return TweenAnimationBuilder(
+      tween: Tween<double>(begin: 0, end: 1),
+      duration: Duration(milliseconds: 400 + (widget.index * 100)),
+      curve: Curves.easeOutCubic,
+      builder: (context, double value, child) {
+        return Transform.translate(
+          offset: Offset(0, 50 * (1 - value)),
+          child: Opacity(
+            opacity: value,
+            child: child,
           ),
         );
       },
-      child: Card(
-        elevation: 2,
-        color: const Color(0xFFF0F6FC),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(15.0),
-        ),
-        margin: const EdgeInsets.only(bottom: 16.0),
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Image section has been removed
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      event.title,
-                      style: const TextStyle(
-                          fontSize: 20, fontWeight: FontWeight.bold), // Increased font size
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      event.description, // Added description back
-                      style: TextStyle(
-                          fontSize: 14, color: Colors.grey[600]), // Increased font size
-                    ),
-                    const SizedBox(height: 8),
-                    FittedBox(
-                      fit: BoxFit.scaleDown,
-                      child: Row(
-                        children: [
-                          const Icon(Icons.calendar_today,
-                              size: 16, color: Colors.blue), // Changed color to blue
-                          const SizedBox(width: 4),
-                          Text(
-                            event.formattedDate,
-                            style: const TextStyle(
-                                fontSize: 14, color: Colors.grey), // Increased font size
-                          ),
-                          const SizedBox(width: 8),
-                          const Icon(Icons.access_time,
-                              size: 16, color: Colors.orange), // Changed color to orange
-                          const SizedBox(width: 4),
-                          Text(
-                            event.formattedTime,
-                            style: const TextStyle(
-                                fontSize: 14, color: Colors.grey), // Increased font size
-                          ),
-                          const SizedBox(width: 8),
-                          const Icon(Icons.location_on,
-                              size: 16, color: Colors.purple), // Changed color to purple
-                          const SizedBox(width: 4),
-                          Text(
-                            event.location,
-                            style: const TextStyle(
-                                fontSize: 14, color: Colors.grey), // Increased font size
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      event.club,
-                      style: const TextStyle(
-                          fontSize: 14, color: Colors.grey), // Increased font size
-                    ),
-                  ],
-                ),
-              ),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
+      child: GestureDetector(
+        onTapDown: (_) => setState(() => _isHovered = true),
+        onTapUp: (_) => setState(() => _isHovered = false),
+        onTapCancel: () => setState(() => _isHovered = false),
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) =>
+                  EventDetailsPage(eventId: widget.event.id, studentId: widget.studentId),
+            ),
+          );
+        },
+        child: AnimatedScale(
+          scale: _isHovered ? 0.95 : 1.0,
+          duration: const Duration(milliseconds: 150),
+          curve: Curves.easeOut,
+          child: Container(
+            margin: const EdgeInsets.only(bottom: 20.0),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(24),
+              boxShadow: [
+                BoxShadow(
+                  color: const Color(0xFF8EC5FC).withOpacity(0.15),
+                  blurRadius: 20,
+                  offset: const Offset(0, 8),
+                )
+              ],
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Container(
-                    padding:
-                    const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: _getStatusColor(event.dayStatus),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Text(
-                      event.dayStatus,
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
-                        color: _getStatusTextColor(event.dayStatus),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          gradient: const LinearGradient(
+                            colors: [Color(0xFFA1C4FD), Color(0xFFC2E9FB)], // Fresh Sky Blue
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ),
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: const Icon(Icons.celebration_rounded, color: Colors.white, size: 24),
                       ),
-                    ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              widget.event.title,
+                              style: const TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.w900,
+                                color: Color(0xFF2D3748),
+                                height: 1.2,
+                              ),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            const SizedBox(height: 6),
+                            Text(
+                              widget.event.club,
+                              style: const TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w700,
+                                color: Color(0xFF6C63FF),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                        decoration: BoxDecoration(
+                          color: _getStatusColor(widget.event.dayStatus),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Text(
+                          widget.event.dayStatus,
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w900,
+                            color: _getStatusTextColor(widget.event.dayStatus),
+                            letterSpacing: 0.5,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                  const SizedBox(height: 8),
-                  const Icon(
-                    Icons.arrow_forward_ios,
-                    color: Colors.grey,
-                    size: 16,
+                  const SizedBox(height: 16),
+                  Text(
+                    widget.event.description,
+                    style: const TextStyle(
+                      fontSize: 13,
+                      color: Color(0xFF718096),
+                      height: 1.4,
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 20),
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF5F8FE),
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        _buildInfoItem(Icons.calendar_month_rounded, widget.event.formattedDate),
+                        _buildInfoItem(Icons.access_time_rounded, widget.event.formattedTime),
+                        _buildInfoItem(Icons.location_on_rounded, widget.event.location),
+                      ],
+                    ),
                   ),
                 ],
               ),
-            ],
+            ),
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildInfoItem(IconData icon, String text) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(icon, size: 14, color: const Color(0xFFA0AEC0)),
+        const SizedBox(width: 4),
+        Text(
+          text.length > 8 ? '${text.substring(0, 8)}...' : text, // Truncate long locations
+          style: const TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.w700,
+            color: Color(0xFF4A5568),
+          ),
+        ),
+      ],
     );
   }
 }

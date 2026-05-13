@@ -82,8 +82,12 @@ class _InterestedEventsPageState extends State<InterestedEventsPage> {
       itemCount: _interestedEvents.length,
       itemBuilder: (context, index) {
         final event = _interestedEvents[index];
-        // ✅ Pass studentId to EventCard
-        return EventCard(event: event, studentId: widget.studentId);
+        // ✅ Pass studentId and index to EventCard
+        return EventCard(
+          event: event,
+          studentId: widget.studentId,
+          index: index, // <-- Fixed here
+        );
       },
     );
   }

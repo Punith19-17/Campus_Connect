@@ -186,7 +186,7 @@ class _EventDetailsPageState extends State<EventDetailsPage> with SingleTickerPr
           SliverAppBar(
             backgroundColor: Colors.transparent,
             elevation: 0,
-            expandedHeight: 250.0,
+            expandedHeight: 180.0,
             pinned: true,
             leading: Padding(
               padding: const EdgeInsets.all(8.0),
@@ -251,7 +251,7 @@ class _EventDetailsPageState extends State<EventDetailsPage> with SingleTickerPr
                       );
                     },
                     child: Container(
-                      padding: const EdgeInsets.all(20),
+                      padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
                         color: Colors.white.withOpacity(0.4),
                         shape: BoxShape.circle,
@@ -263,7 +263,7 @@ class _EventDetailsPageState extends State<EventDetailsPage> with SingleTickerPr
                           ),
                         ],
                       ),
-                      child: const Icon(Icons.event_rounded, size: 50, color: Color(0xFF2D3748)),
+                      child: const Icon(Icons.event_rounded, size: 40, color: Color(0xFF2D3748)),
                     ),
                   ),
                 ),
@@ -333,15 +333,15 @@ class _EventDetailsPageState extends State<EventDetailsPage> with SingleTickerPr
                     Row(
                       children: [
                         Expanded(child: _buildBentoCard(Icons.calendar_month_rounded, 'Date', event.formattedDate, const Color(0xFF6C63FF), const Color(0xFFF0F5FF))),
-                        const SizedBox(width: 12),
+                        const SizedBox(width: 20),
                         Expanded(child: _buildBentoCard(Icons.access_time_rounded, 'Time', event.time, const Color(0xFFF6AD55), const Color(0xFFFFFaf0))),
                       ],
                     ),
-                    const SizedBox(height: 12),
+                    const SizedBox(height: 20),
                     Row(
                       children: [
                         Expanded(child: _buildBentoCard(Icons.location_on_rounded, 'Location', event.location, const Color(0xFF48BB78), const Color(0xFFF0FFF4))),
-                        const SizedBox(width: 12),
+                        const SizedBox(width: 20),
                         Expanded(child: _buildBentoCard(Icons.apartment_rounded, 'Club', event.club, const Color(0xFFED64A6), const Color(0xFFFFF5F7))),
                       ],
                     ),
@@ -483,37 +483,37 @@ class _EventDetailsPageState extends State<EventDetailsPage> with SingleTickerPr
 
   Widget _buildBentoCard(IconData icon, String title, String subtitle, Color iconColor, Color bgColor) {
     return Container(
-      padding: const EdgeInsets.all(16.0), // Smaller padding
+      padding: const EdgeInsets.all(20.0), // Larger padding for breathing room
       decoration: BoxDecoration(
         color: const Color(0xFFF5F8FE),
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(24),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            padding: const EdgeInsets.all(8),
+            padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
               color: bgColor,
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(14),
             ),
-            child: Icon(icon, color: iconColor, size: 20), // Smaller icon
+            child: Icon(icon, color: iconColor, size: 24), // Larger icon back
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 16),
           Text(
             title,
             style: const TextStyle(
-              fontSize: 11,
+              fontSize: 12,
               fontWeight: FontWeight.w700,
               color: Color(0xFFA0AEC0),
               letterSpacing: 0.5,
             ),
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: 6),
           Text(
             subtitle,
             style: const TextStyle(
-              fontSize: 14, // Smaller text
+              fontSize: 15,
               fontWeight: FontWeight.w900,
               color: Color(0xFF2D3748),
             ),

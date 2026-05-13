@@ -32,60 +32,50 @@ class ClubDetailsPage extends StatelessWidget {
     members.removeWhere((member) => member.isEmpty);
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F8FE), // Light gray/blue
+      backgroundColor: Colors.white,
       extendBodyBehindAppBar: true,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        leading: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Container(
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(16),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
-                  blurRadius: 15,
-                  offset: const Offset(0, 5),
-                )
-              ],
-            ),
-            child: IconButton(
-              icon: const Icon(Icons.arrow_back_rounded, color: Color(0xFF4A5568)),
-              onPressed: () => Navigator.pop(context),
-            ),
-          ),
-        ),
-      ),
-      body: SingleChildScrollView(
+      body: CustomScrollView(
         physics: const BouncingScrollPhysics(),
-        child: Column(
-          children: [
-            // Unique Wavy Gradient Header
-            Stack(
-              children: [
-                Container(
-                  width: double.infinity,
-                  height: 280,
-                  decoration: const BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [Color(0xFFACE0F9), Color(0xFFE0C3FC)], // Ice Blue to Lilac
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ),
-                    borderRadius: BorderRadius.only(
-                      bottomLeft: Radius.circular(40),
-                      bottomRight: Radius.circular(40),
-                    ),
+        slivers: [
+          SliverAppBar(
+            backgroundColor: Colors.transparent,
+            elevation: 0,
+            expandedHeight: 280.0,
+            pinned: true,
+            leading: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.05),
+                      blurRadius: 10,
+                      offset: const Offset(0, 4),
+                    )
+                  ],
+                ),
+                child: IconButton(
+                  icon: const Icon(Icons.arrow_back_rounded, color: Color(0xFF4A5568), size: 20),
+                  onPressed: () => Navigator.pop(context),
+                ),
+              ),
+            ),
+            flexibleSpace: FlexibleSpaceBar(
+              background: Container(
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [Color(0xFFACE0F9), Color(0xFFE0C3FC)], // Ice Blue to Lilac
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
                   ),
                 ),
-                Positioned(
-                  top: 90,
-                  left: 0,
-                  right: 0,
+                child: Center(
                   child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
+                      const SizedBox(height: 40),
                       TweenAnimationBuilder(
                         tween: Tween<double>(begin: 0, end: 1),
                         duration: const Duration(milliseconds: 600),
@@ -97,8 +87,8 @@ class ClubDetailsPage extends StatelessWidget {
                           );
                         },
                         child: Container(
-                          width: 90,
-                          height: 90,
+                          width: 80,
+                          height: 80,
                           decoration: BoxDecoration(
                             color: Colors.white,
                             shape: BoxShape.circle,
@@ -111,20 +101,25 @@ class ClubDetailsPage extends StatelessWidget {
                             ],
                           ),
                           child: const Center(
-                            child: Icon(Icons.groups_rounded, color: Color(0xFF6C63FF), size: 40),
+                            child: Icon(Icons.groups_rounded, color: Color(0xFF6C63FF), size: 36),
                           ),
                         ),
                       ),
                       const SizedBox(height: 16),
-                      Text(
-                        club.name,
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.w900,
-                          color: Color(0xFF2D3748),
-                          letterSpacing: -0.5,
-                          height: 1.2,
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                        child: Text(
+                          club.name,
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.w900,
+                            color: Color(0xFF2D3748),
+                            letterSpacing: -0.5,
+                            height: 1.2,
+                          ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ),
                       const SizedBox(height: 12),
@@ -153,14 +148,21 @@ class ClubDetailsPage extends StatelessWidget {
                     ],
                   ),
                 ),
-              ],
+              ),
             ),
-
-            // Floating Bento Content Boxes
-            Transform.translate(
-              offset: const Offset(0, -20),
+          ),
+          SliverToBoxAdapter(
+            child: Container(
+              decoration: const BoxDecoration(
+                color: Color(0xFFF5F8FE),
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(30),
+                  topRight: Radius.circular(30),
+                ),
+              ),
+              transform: Matrix4.translationValues(0, -20, 0),
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                padding: const EdgeInsets.fromLTRB(20, 30, 20, 60),
                 child: Column(
                   children: [
                     _buildAnimatedCard(
@@ -181,7 +183,7 @@ class ClubDetailsPage extends StatelessWidget {
                         ],
                       ),
                     ),
-                    const SizedBox(height: 24),
+                    const SizedBox(height: 20),
                     _buildAnimatedCard(
                       index: 1,
                       child: Column(
@@ -193,7 +195,7 @@ class ClubDetailsPage extends StatelessWidget {
                         ],
                       ),
                     ),
-                    const SizedBox(height: 24),
+                    const SizedBox(height: 20),
                     _buildAnimatedCard(
                       index: 2,
                       child: Column(
@@ -205,13 +207,12 @@ class ClubDetailsPage extends StatelessWidget {
                         ],
                       ),
                     ),
-                    const SizedBox(height: 60),
                   ],
                 ),
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -223,7 +224,7 @@ class ClubDetailsPage extends StatelessWidget {
       curve: Curves.easeOutCubic,
       builder: (context, double val, childWidget) {
         return Transform.translate(
-          offset: Offset(0, 50 * (1 - val)),
+          offset: Offset(0, 30 * (1 - val)),
           child: Opacity(
             opacity: val,
             child: childWidget,
@@ -232,15 +233,15 @@ class ClubDetailsPage extends StatelessWidget {
       },
       child: Container(
         width: double.infinity,
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(24),
           boxShadow: [
             BoxShadow(
-              color: const Color(0xFF8EC5FC).withOpacity(0.1),
-              blurRadius: 20,
-              offset: const Offset(0, 8),
+              color: const Color(0xFF8EC5FC).withOpacity(0.08),
+              blurRadius: 15,
+              offset: const Offset(0, 6),
             ),
           ],
         ),
@@ -281,20 +282,21 @@ class ClubDetailsPage extends StatelessWidget {
     return ListView.separated(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
+      padding: EdgeInsets.zero,
       itemCount: leadership.length,
-      separatorBuilder: (context, index) => const Divider(height: 30, color: Color(0xFFEDF2F7)),
+      separatorBuilder: (context, index) => const Divider(height: 24, color: Color(0xFFEDF2F7)),
       itemBuilder: (context, index) {
         String role = leadership.keys.elementAt(index);
         String name = leadership.values.elementAt(index);
         return Row(
           children: [
             Container(
-              padding: const EdgeInsets.all(12),
+              padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
                 color: const Color(0xFFF5F8FE),
-                borderRadius: BorderRadius.circular(16),
+                borderRadius: BorderRadius.circular(12),
               ),
-              child: const Icon(Icons.person_outline_rounded, size: 20, color: Color(0xFF718096)),
+              child: const Icon(Icons.person_outline_rounded, size: 18, color: Color(0xFF718096)),
             ),
             const SizedBox(width: 16),
             Expanded(
@@ -304,17 +306,17 @@ class ClubDetailsPage extends StatelessWidget {
                   Text(
                     role,
                     style: const TextStyle(
-                      fontSize: 13,
+                      fontSize: 12,
                       fontWeight: FontWeight.w700,
                       color: Color(0xFFA0AEC0),
                       letterSpacing: 0.5,
                     ),
                   ),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: 2),
                   Text(
                     name,
                     style: const TextStyle(
-                      fontSize: 18,
+                      fontSize: 16,
                       fontWeight: FontWeight.w900,
                       color: Color(0xFF2D3748),
                     ),
@@ -333,19 +335,19 @@ class ClubDetailsPage extends StatelessWidget {
       return const Text('No members found.', style: TextStyle(color: Color(0xFFA0AEC0)));
     }
     return Wrap(
-      spacing: 12.0,
-      runSpacing: 12.0,
+      spacing: 10.0,
+      runSpacing: 10.0,
       children: members.map((member) {
         return Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
           decoration: BoxDecoration(
             color: const Color(0xFFF5F8FE),
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: BorderRadius.circular(16),
           ),
           child: Text(
             member,
             style: const TextStyle(
-              fontSize: 15,
+              fontSize: 14,
               fontWeight: FontWeight.w800,
               color: Color(0xFF4A5568),
             ),
