@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'dart:ui';
 import 'myresponsespage.dart'; // for Event model
 import 'participate.dart'; // Import the ParticipatePage
 
@@ -137,38 +136,39 @@ class _EventDetailsPageState extends State<EventDetailsPage> with SingleTickerPr
   Widget build(BuildContext context) {
     if (_isLoading) {
       return const Scaffold(
-        backgroundColor: Color(0xFF1E0E62),
-        body: Center(child: CircularProgressIndicator(color: Color(0xFF00FFD1))),
+        backgroundColor: Color(0xFFF5F8FE),
+        body: Center(child: CircularProgressIndicator(color: Color(0xFF6C63FF))),
       );
     }
 
     if (_errorMessage != null) {
       return Scaffold(
-        backgroundColor: const Color(0xFF1E0E62),
+        backgroundColor: const Color(0xFFF5F8FE),
         body: Center(
-          child: Padding(
+          child: Container(
+            margin: const EdgeInsets.all(24),
             padding: const EdgeInsets.all(24.0),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(20),
-              child: BackdropFilter(
-                filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-                child: Container(
-                  padding: const EdgeInsets.all(24.0),
-                  color: Colors.redAccent.withOpacity(0.2),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Icon(Icons.error_outline_rounded, color: Colors.white, size: 48),
-                      const SizedBox(height: 16),
-                      Text(
-                        _errorMessage!,
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-                      ),
-                    ],
-                  ),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(24),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.redAccent.withOpacity(0.1),
+                  blurRadius: 20,
+                )
+              ],
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(Icons.error_outline_rounded, color: Colors.redAccent, size: 48),
+                const SizedBox(height: 16),
+                Text(
+                  _errorMessage!,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(color: Colors.redAccent, fontWeight: FontWeight.bold),
                 ),
-              ),
+              ],
             ),
           ),
         ),
@@ -179,309 +179,275 @@ class _EventDetailsPageState extends State<EventDetailsPage> with SingleTickerPr
 
     return Scaffold(
       extendBodyBehindAppBar: true,
-      backgroundColor: Colors.transparent,
+      backgroundColor: const Color(0xFFF5F8FE),
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        leading: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.05),
+                  blurRadius: 15,
+                  offset: const Offset(0, 5),
+                )
+              ],
+            ),
+            child: IconButton(
+              icon: const Icon(Icons.arrow_back_rounded, color: Color(0xFF4A5568)),
+              onPressed: () => Navigator.pop(context),
+            ),
+          ),
+        ),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.05),
+                    blurRadius: 15,
+                    offset: const Offset(0, 5),
+                  )
+                ],
+              ),
+              child: IconButton(
+                icon: const Icon(Icons.share_rounded, color: Color(0xFF4A5568)),
+                onPressed: () {},
+              ),
+            ),
+          ),
+        ],
+      ),
       body: Stack(
         children: [
-          // Background Gradient Mesh
+          // Background Top Gradient Area
           Container(
+            width: double.infinity,
+            height: MediaQuery.of(context).size.height * 0.45,
             decoration: const BoxDecoration(
               gradient: LinearGradient(
+                colors: [Color(0xFFFFF1EB), Color(0xFFACE0F9)], // Peach to Ice Blue
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
-                colors: [
-                  Color(0xFF2A0845), // Deep dark purple
-                  Color(0xFF6441A5), // Vibrant purple
-                ],
               ),
             ),
-          ),
-
-          // Animated Glowing Orbs
-          Positioned(
-            top: -100,
-            right: -100,
-            child: Container(
-              width: 300,
-              height: 300,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: const Color(0xFFFF9E7B).withOpacity(0.3),
-              ),
-              child: BackdropFilter(
-                filter: ImageFilter.blur(sigmaX: 80, sigmaY: 80),
-                child: Container(color: Colors.transparent),
-              ),
-            ),
-          ),
-          Positioned(
-            bottom: -50,
-            left: -50,
-            child: Container(
-              width: 350,
-              height: 350,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: const Color(0xFF00FFD1).withOpacity(0.3),
-              ),
-              child: BackdropFilter(
-                filter: ImageFilter.blur(sigmaX: 80, sigmaY: 80),
-                child: Container(color: Colors.transparent),
-              ),
-            ),
-          ),
-
-          // Main Content
-          CustomScrollView(
-            physics: const BouncingScrollPhysics(),
-            slivers: [
-              SliverAppBar(
-                backgroundColor: Colors.transparent,
-                elevation: 0,
-                expandedHeight: 280.0,
-                pinned: true,
-                leading: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(20),
-                    child: BackdropFilter(
-                      filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.2),
-                          shape: BoxShape.circle,
-                          border: Border.all(color: Colors.white.withOpacity(0.3)),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const SizedBox(height: 40),
+                TweenAnimationBuilder(
+                  tween: Tween<double>(begin: 0, end: 1),
+                  duration: const Duration(milliseconds: 600),
+                  curve: Curves.easeOutBack,
+                  builder: (context, double val, child) {
+                    return Transform.scale(
+                      scale: val,
+                      child: child,
+                    );
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.all(24),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.4),
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(
+                          color: const Color(0xFFACE0F9).withOpacity(0.5),
+                          blurRadius: 30,
+                          offset: const Offset(0, 10),
                         ),
-                        child: IconButton(
-                          icon: const Icon(Icons.arrow_back_rounded, color: Colors.white),
-                          onPressed: () => Navigator.pop(context),
-                        ),
-                      ),
+                      ],
                     ),
+                    child: const Icon(Icons.event_rounded, size: 64, color: Color(0xFF2D3748)),
                   ),
                 ),
-                actions: [
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(20),
-                      child: BackdropFilter(
-                        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.2),
-                            shape: BoxShape.circle,
-                            border: Border.all(color: Colors.white.withOpacity(0.3)),
-                          ),
-                          child: IconButton(
-                            icon: const Icon(Icons.share_rounded, color: Colors.white),
-                            onPressed: () {},
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-                flexibleSpace: FlexibleSpaceBar(
-                  background: Column(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 24.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                              decoration: BoxDecoration(
-                                color: Colors.white.withOpacity(0.2),
-                                borderRadius: BorderRadius.circular(20),
-                                border: Border.all(color: Colors.white.withOpacity(0.4)),
-                              ),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  const Icon(Icons.event_available_rounded, size: 16, color: Colors.white),
-                                  const SizedBox(width: 8),
-                                  Text(
-                                    event.formattedDate.toUpperCase(),
-                                    style: const TextStyle(
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w900,
-                                      color: Colors.white,
-                                      letterSpacing: 1.5,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            const SizedBox(height: 16),
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: Text(
-                                    event.title,
-                                    style: const TextStyle(
-                                      fontSize: 32,
-                                      fontWeight: FontWeight.w900,
-                                      color: Colors.white,
-                                      height: 1.2,
-                                      letterSpacing: -0.5,
-                                    ),
-                                  ),
-                                ),
-                                GestureDetector(
-                                  onTap: _toggleLike,
-                                  child: ClipRRect(
-                                    borderRadius: BorderRadius.circular(20),
-                                    child: BackdropFilter(
-                                      filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-                                      child: Container(
-                                        padding: const EdgeInsets.all(12),
-                                        decoration: BoxDecoration(
-                                          color: _isInterested ? const Color(0xFFFF007A).withOpacity(0.2) : Colors.white.withOpacity(0.15),
-                                          shape: BoxShape.circle,
-                                          border: Border.all(color: _isInterested ? const Color(0xFFFF007A).withOpacity(0.5) : Colors.white.withOpacity(0.3)),
-                                        ),
-                                        child: ScaleTransition(
-                                          scale: _heartAnimationController,
-                                          child: Icon(
-                                            _isInterested ? Icons.favorite_rounded : Icons.favorite_border_rounded,
-                                            color: _isInterested ? const Color(0xFFFF007A) : Colors.white,
-                                            size: 24,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
+              ],
+            ),
+          ),
 
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: const EdgeInsets.all(24.0),
+          // Overlapping White Bottom Sheet Style Content
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: TweenAnimationBuilder(
+              tween: Tween<double>(begin: 0, end: 1),
+              duration: const Duration(milliseconds: 500),
+              curve: Curves.easeOutCubic,
+              builder: (context, double val, child) {
+                return Transform.translate(
+                  offset: Offset(0, 100 * (1 - val)),
+                  child: Opacity(
+                    opacity: val,
+                    child: child,
+                  ),
+                );
+              },
+              child: Container(
+                height: MediaQuery.of(context).size.height * 0.65,
+                decoration: const BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(50),
+                    topRight: Radius.circular(50),
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black12,
+                      blurRadius: 30,
+                      offset: Offset(0, -10),
+                    )
+                  ],
+                ),
+                child: SingleChildScrollView(
+                  physics: const BouncingScrollPhysics(),
+                  padding: const EdgeInsets.fromLTRB(24, 40, 24, 120),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Bento Grid Info Cards (Glassmorphism)
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(
+                            child: Text(
+                              event.title,
+                              style: const TextStyle(
+                                fontSize: 32,
+                                fontWeight: FontWeight.w900,
+                                color: Color(0xFF2D3748),
+                                height: 1.2,
+                                letterSpacing: -1.0,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 16),
+                          GestureDetector(
+                            onTap: _toggleLike,
+                            child: AnimatedContainer(
+                              duration: const Duration(milliseconds: 200),
+                              padding: const EdgeInsets.all(16),
+                              decoration: BoxDecoration(
+                                color: _isInterested ? const Color(0xFFFFF5F5) : const Color(0xFFF5F8FE),
+                                borderRadius: BorderRadius.circular(20),
+                                border: Border.all(
+                                  color: _isInterested ? const Color(0xFFFEB2B2) : Colors.transparent,
+                                ),
+                              ),
+                              child: ScaleTransition(
+                                scale: _heartAnimationController,
+                                child: Icon(
+                                  _isInterested ? Icons.favorite_rounded : Icons.favorite_border_rounded,
+                                  color: _isInterested ? const Color(0xFFF56565) : const Color(0xFFA0AEC0),
+                                  size: 28,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+
+                      const SizedBox(height: 32),
+
+                      // Bento Mini Cards
                       Row(
                         children: [
-                          Expanded(child: _buildGlassBentoCard(Icons.calendar_month_rounded, 'Date', event.formattedDate, const Color(0xFF00FFD1))),
+                          Expanded(child: _buildBentoCard(Icons.calendar_month_rounded, 'Date', event.formattedDate, const Color(0xFF6C63FF), const Color(0xFFF0F5FF))),
                           const SizedBox(width: 16),
-                          Expanded(child: _buildGlassBentoCard(Icons.access_time_rounded, 'Time', event.time, const Color(0xFFFF9E7B))),
+                          Expanded(child: _buildBentoCard(Icons.access_time_rounded, 'Time', event.time, const Color(0xFFF6AD55), const Color(0xFFFFFaf0))),
                         ],
                       ),
                       const SizedBox(height: 16),
                       Row(
                         children: [
-                          Expanded(child: _buildGlassBentoCard(Icons.location_on_rounded, 'Location', event.location, const Color(0xFFFF007A))),
+                          Expanded(child: _buildBentoCard(Icons.location_on_rounded, 'Location', event.location, const Color(0xFF48BB78), const Color(0xFFF0FFF4))),
                           const SizedBox(width: 16),
-                          Expanded(child: _buildGlassBentoCard(Icons.apartment_rounded, 'Club', event.club, const Color(0xFF00C9FF))),
+                          Expanded(child: _buildBentoCard(Icons.apartment_rounded, 'Club', event.club, const Color(0xFFED64A6), const Color(0xFFFFF5F7))),
                         ],
                       ),
 
                       const SizedBox(height: 40),
 
-                      // About Section
                       const Text(
                         'About This Event',
                         style: TextStyle(
                           fontSize: 22,
                           fontWeight: FontWeight.w900,
-                          color: Colors.white,
-                          letterSpacing: 0.5,
+                          color: Color(0xFF2D3748),
+                          letterSpacing: -0.5,
                         ),
                       ),
                       const SizedBox(height: 16),
                       Text(
                         event.description,
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontSize: 16,
                           height: 1.6,
-                          color: Colors.white.withOpacity(0.8),
+                          color: Color(0xFF718096),
                         ),
                       ),
 
                       const SizedBox(height: 40),
 
-                      // Awards Section
                       if (event.award != null && event.award!.isNotEmpty) ...[
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(24),
-                          child: BackdropFilter(
-                            filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
-                            child: Container(
-                              width: double.infinity,
-                              padding: const EdgeInsets.all(24),
-                              decoration: BoxDecoration(
-                                color: const Color(0xFFFFD700).withOpacity(0.15),
-                                borderRadius: BorderRadius.circular(24),
-                                border: Border.all(color: const Color(0xFFFFD700).withOpacity(0.4)),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.black.withOpacity(0.1),
-                                    blurRadius: 10,
-                                    offset: const Offset(0, 5),
-                                  ),
-                                ],
+                        Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.all(24),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFFFFFF0),
+                            borderRadius: BorderRadius.circular(24),
+                            border: Border.all(color: const Color(0xFFFEFCBF)),
+                          ),
+                          child: Row(
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.all(12),
+                                decoration: const BoxDecoration(
+                                  color: Color(0xFFFEFCBF),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: const Icon(Icons.emoji_events_rounded, color: Color(0xFFD69E2E), size: 32),
                               ),
-                              child: Row(
-                                children: [
-                                  Container(
-                                    padding: const EdgeInsets.all(12),
-                                    decoration: BoxDecoration(
-                                      color: const Color(0xFFFFD700).withOpacity(0.2),
-                                      shape: BoxShape.circle,
-                                      border: Border.all(color: const Color(0xFFFFD700).withOpacity(0.5)),
+                              const SizedBox(width: 16),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const Text(
+                                      'Prizes & Awards',
+                                      style: TextStyle(
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.w700,
+                                        color: Color(0xFFD69E2E),
+                                        letterSpacing: 1.0,
+                                      ),
                                     ),
-                                    child: const Icon(Icons.emoji_events_rounded, color: Color(0xFFFFD700), size: 28),
-                                  ),
-                                  const SizedBox(width: 16),
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          'Prizes & Awards',
-                                          style: TextStyle(
-                                            fontSize: 13,
-                                            fontWeight: FontWeight.w700,
-                                            color: Colors.white.withOpacity(0.7),
-                                            letterSpacing: 1.0,
-                                          ),
-                                        ),
-                                        const SizedBox(height: 4),
-                                        Text(
-                                          event.award!,
-                                          style: const TextStyle(
-                                            fontSize: 18,
-                                            fontWeight: FontWeight.w900,
-                                            color: Colors.white,
-                                          ),
-                                        ),
-                                      ],
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      event.award!,
+                                      style: const TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.w900,
+                                        color: Color(0xFF975A16),
+                                      ),
                                     ),
-                                  ),
-                                ],
+                                  ],
+                                ),
                               ),
-                            ),
+                            ],
                           ),
                         ),
                       ],
-                      const SizedBox(height: 120), // Space for floating button
                     ],
                   ),
                 ),
               ),
-            ],
+            ),
           ),
         ],
       ),
@@ -489,12 +455,12 @@ class _EventDetailsPageState extends State<EventDetailsPage> with SingleTickerPr
       floatingActionButton: Container(
         margin: const EdgeInsets.symmetric(horizontal: 24),
         width: double.infinity,
-        height: 60,
+        height: 64,
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(30),
+          borderRadius: BorderRadius.circular(32),
           boxShadow: [
             BoxShadow(
-              color: const Color(0xFF00FFD1).withOpacity(0.4),
+              color: const Color(0xFF8EC5FC).withOpacity(0.5),
               blurRadius: 30,
               offset: const Offset(0, 10),
             )
@@ -512,23 +478,23 @@ class _EventDetailsPageState extends State<EventDetailsPage> with SingleTickerPr
           style: ElevatedButton.styleFrom(
             backgroundColor: Colors.transparent,
             shadowColor: Colors.transparent,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(32)),
             padding: EdgeInsets.zero,
           ),
           child: Ink(
             decoration: BoxDecoration(
               gradient: const LinearGradient(
-                colors: [Color(0xFF00C9FF), Color(0xFF92FE9D)],
+                colors: [Color(0xFF8EC5FC), Color(0xFFE0C3FC)], // Ice Blue to Lilac
                 begin: Alignment.centerLeft,
                 end: Alignment.centerRight,
               ),
-              borderRadius: BorderRadius.circular(30),
+              borderRadius: BorderRadius.circular(32),
             ),
             child: const Center(
               child: Text(
                 'JOIN EVENT',
                 style: TextStyle(
-                  color: Color(0xFF1E0E62),
+                  color: Colors.white,
                   fontSize: 16,
                   fontWeight: FontWeight.w900,
                   letterSpacing: 2.0,
@@ -541,61 +507,46 @@ class _EventDetailsPageState extends State<EventDetailsPage> with SingleTickerPr
     );
   }
 
-  Widget _buildGlassBentoCard(IconData icon, String title, String subtitle, Color iconColor) {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(24),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
-        child: Container(
-          padding: const EdgeInsets.all(20.0),
-          decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.1),
-            borderRadius: BorderRadius.circular(24),
-            border: Border.all(color: Colors.white.withOpacity(0.2)),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.1),
-                blurRadius: 10,
-                offset: const Offset(0, 5),
-              ),
-            ],
+  Widget _buildBentoCard(IconData icon, String title, String subtitle, Color iconColor, Color bgColor) {
+    return Container(
+      padding: const EdgeInsets.all(20.0),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF5F8FE),
+        borderRadius: BorderRadius.circular(24),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: bgColor,
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Icon(icon, color: iconColor, size: 24),
           ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  color: iconColor.withOpacity(0.2),
-                  shape: BoxShape.circle,
-                  border: Border.all(color: iconColor.withOpacity(0.5)),
-                ),
-                child: Icon(icon, color: iconColor, size: 20),
-              ),
-              const SizedBox(height: 16),
-              Text(
-                title,
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w700,
-                  color: Colors.white.withOpacity(0.6),
-                  letterSpacing: 1.0,
-                ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                subtitle,
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w900,
-                  color: Colors.white,
-                ),
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ],
+          const SizedBox(height: 16),
+          Text(
+            title,
+            style: const TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w700,
+              color: Color(0xFFA0AEC0),
+              letterSpacing: 1.0,
+            ),
           ),
-        ),
+          const SizedBox(height: 4),
+          Text(
+            subtitle,
+            style: const TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.w900,
+              color: Color(0xFF2D3748),
+            ),
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ],
       ),
     );
   }

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'dart:convert';
-import 'dart:ui';
 
 import 'clg_events_details.dart';
 import 'Student_login.dart';
@@ -231,125 +230,107 @@ class _StudentDashboardState extends State<StudentDashboard> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xFFF5F8FE), // Clean light icy background
       extendBodyBehindAppBar: true,
       extendBody: true,
       body: Stack(
         children: [
-          // 1. Full Screen Vibrant Mesh Background
-          Container(
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  Color(0xFF1E0E62), // Deep Purple
-                  Color(0xFFE02C73), // Vibrant Pink
-                  Color(0xFFFF9E7B), // Warm Peach
+          // The beautiful curved light gradient header
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            child: Container(
+              height: 280,
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [Color(0xFFFFF1EB), Color(0xFFACE0F9)], // Soft Peach to Light Blue
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: BorderRadius.only(
+                  bottomLeft: Radius.circular(50),
+                  bottomRight: Radius.circular(50),
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: Color(0xFFACE0F9),
+                    blurRadius: 30,
+                    offset: Offset(0, 10),
+                    spreadRadius: -10,
+                  )
                 ],
               ),
             ),
           ),
 
-          // 2. Animated Floating Blobs for Mesh Effect
-          Positioned(
-            top: -100,
-            left: -100,
-            child: Container(
-              width: 300,
-              height: 300,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: const Color(0xFF00FFD1).withOpacity(0.3), // Cyan glow
-              ),
-              child: BackdropFilter(
-                filter: ImageFilter.blur(sigmaX: 50, sigmaY: 50),
-                child: Container(color: Colors.transparent),
-              ),
-            ),
-          ),
-          Positioned(
-            bottom: -50,
-            right: -50,
-            child: Container(
-              width: 250,
-              height: 250,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: const Color(0xFF8B5CF6).withOpacity(0.4), // Purple glow
-              ),
-              child: BackdropFilter(
-                filter: ImageFilter.blur(sigmaX: 50, sigmaY: 50),
-                child: Container(color: Colors.transparent),
-              ),
-            ),
-          ),
-
-          // Main Content Area
           SafeArea(
             bottom: false,
             child: Column(
               children: [
-                // Custom Glass App Bar
+                // Custom App Bar Area
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(20),
-                    child: BackdropFilter(
-                      filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(20),
-                          border: Border.all(color: Colors.white.withOpacity(0.2)),
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            GestureDetector(
-                              onTap: () {
-                                Navigator.pushReplacement(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => const AuthScreen(),
-                                  ),
-                                );
-                              },
-                              child: Container(
-                                padding: const EdgeInsets.all(8),
-                                decoration: BoxDecoration(
-                                  color: Colors.white.withOpacity(0.2),
-                                  shape: BoxShape.circle,
-                                ),
-                                child: const Icon(Icons.arrow_back_rounded, color: Colors.white, size: 20),
-                              ),
+                  padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const AuthScreen(),
                             ),
-                            const Text(
-                              'AIMS',
-                              style: TextStyle(
-                                fontWeight: FontWeight.w900,
-                                color: Colors.white,
-                                fontSize: 20,
-                                letterSpacing: 1.5,
-                              ),
-                            ),
-                            Container(
-                              padding: const EdgeInsets.all(8),
-                              decoration: BoxDecoration(
-                                color: Colors.white.withOpacity(0.2),
-                                shape: BoxShape.circle,
-                              ),
-                              child: const Icon(Icons.settings_rounded, color: Colors.white, size: 20),
-                            ),
-                          ],
+                          );
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(16),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.05),
+                                blurRadius: 15,
+                                offset: const Offset(0, 5),
+                              )
+                            ],
+                          ),
+                          child: const Icon(Icons.arrow_back_rounded, color: Color(0xFF4A5568), size: 20),
                         ),
                       ),
-                    ),
+                      const Text(
+                        'AIMS',
+                        style: TextStyle(
+                          fontWeight: FontWeight.w900,
+                          color: Color(0xFF2D3748),
+                          fontSize: 22,
+                          letterSpacing: 2.0,
+                        ),
+                      ),
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(16),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.05),
+                              blurRadius: 15,
+                              offset: const Offset(0, 5),
+                            )
+                          ],
+                        ),
+                        child: const Icon(Icons.notifications_active_rounded, color: Color(0xFF4A5568), size: 20),
+                      ),
+                    ],
                   ),
                 ),
 
-                // Active Page
-                Expanded(child: _pages[_selectedIndex]),
+                // Active Page (Expands)
+                Expanded(
+                  child: _pages[_selectedIndex],
+                ),
               ],
             ),
           ),
@@ -358,35 +339,37 @@ class _StudentDashboardState extends State<StudentDashboard> {
       bottomNavigationBar: SafeArea(
         child: Container(
           margin: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(30),
+            boxShadow: [
+              BoxShadow(
+                color: const Color(0xFF8EC5FC).withOpacity(0.3),
+                blurRadius: 30,
+                offset: const Offset(0, 15),
+                spreadRadius: -10,
+              ),
+            ],
+          ),
           child: ClipRRect(
             borderRadius: BorderRadius.circular(30),
-            child: BackdropFilter(
-              filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.15),
-                  borderRadius: BorderRadius.circular(30),
-                  border: Border.all(color: Colors.white.withOpacity(0.3)),
-                ),
-                child: BottomNavigationBar(
-                  items: const <BottomNavigationBarItem>[
-                    BottomNavigationBarItem(icon: Icon(Icons.home_rounded), label: 'Home'),
-                    BottomNavigationBarItem(icon: Icon(Icons.groups_rounded), label: 'Clubs'),
-                    BottomNavigationBarItem(icon: Icon(Icons.edit_note_rounded), label: 'Responses'),
-                    BottomNavigationBarItem(icon: Icon(Icons.person_rounded), label: 'Profile'),
-                  ],
-                  currentIndex: _selectedIndex,
-                  selectedItemColor: Colors.white,
-                  unselectedItemColor: Colors.white.withOpacity(0.5),
-                  showSelectedLabels: true,
-                  showUnselectedLabels: false,
-                  onTap: _onItemTapped,
-                  type: BottomNavigationBarType.fixed,
-                  backgroundColor: Colors.transparent,
-                  elevation: 0,
-                  selectedLabelStyle: const TextStyle(fontWeight: FontWeight.w900, fontSize: 12),
-                ),
-              ),
+            child: BottomNavigationBar(
+              items: const <BottomNavigationBarItem>[
+                BottomNavigationBarItem(icon: Icon(Icons.home_rounded), label: 'Home'),
+                BottomNavigationBarItem(icon: Icon(Icons.groups_rounded), label: 'Clubs'),
+                BottomNavigationBarItem(icon: Icon(Icons.edit_note_rounded), label: 'Responses'),
+                BottomNavigationBarItem(icon: Icon(Icons.person_rounded), label: 'Profile'),
+              ],
+              currentIndex: _selectedIndex,
+              selectedItemColor: const Color(0xFF6C63FF), // Vibrant indigo accent
+              unselectedItemColor: const Color(0xFFA0AEC0),
+              showSelectedLabels: true,
+              showUnselectedLabels: false,
+              onTap: _onItemTapped,
+              type: BottomNavigationBarType.fixed,
+              backgroundColor: Colors.white,
+              elevation: 0,
+              selectedLabelStyle: const TextStyle(fontWeight: FontWeight.w900, fontSize: 12),
             ),
           ),
         ),
@@ -398,7 +381,8 @@ class _StudentDashboardState extends State<StudentDashboard> {
 // ----------------- EVENT CARD -----------------
 class AimCard extends StatefulWidget {
   final Aim aim;
-  const AimCard({super.key, required this.aim});
+  final int index;
+  const AimCard({super.key, required this.aim, required this.index});
 
   @override
   State<AimCard> createState() => _AimCardState();
@@ -409,120 +393,125 @@ class _AimCardState extends State<AimCard> with SingleTickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTapDown: (_) => setState(() => _isHovered = true),
-      onTapUp: (_) => setState(() => _isHovered = false),
-      onTapCancel: () => setState(() => _isHovered = false),
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => clgeventsDetailsPage(event: widget.aim),
+    // Entrance Animation setup
+    return TweenAnimationBuilder(
+      tween: Tween<double>(begin: 0, end: 1),
+      duration: Duration(milliseconds: 400 + (widget.index * 100)),
+      curve: Curves.easeOutCubic,
+      builder: (context, double value, child) {
+        return Transform.translate(
+          offset: Offset(0, 50 * (1 - value)),
+          child: Opacity(
+            opacity: value,
+            child: child,
           ),
         );
       },
-      child: AnimatedScale(
-        scale: _isHovered ? 0.95 : 1.0,
-        duration: const Duration(milliseconds: 150),
-        curve: Curves.easeOut,
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(24),
-          child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
-            child: Container(
-              padding: const EdgeInsets.all(20.0),
-              decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(24),
-                border: Border.all(color: Colors.white.withOpacity(0.3)),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
-                    blurRadius: 10,
-                    offset: const Offset(0, 5),
-                  )
-                ],
+      child: GestureDetector(
+        onTapDown: (_) => setState(() => _isHovered = true),
+        onTapUp: (_) => setState(() => _isHovered = false),
+        onTapCancel: () => setState(() => _isHovered = false),
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => clgeventsDetailsPage(event: widget.aim),
+            ),
+          );
+        },
+        child: AnimatedScale(
+          scale: _isHovered ? 0.95 : 1.0,
+          duration: const Duration(milliseconds: 150),
+          curve: Curves.easeOut,
+          child: Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              // Asymmetrical unique layout
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(30),
+                bottomRight: Radius.circular(30),
+                topRight: Radius.circular(10),
+                bottomLeft: Radius.circular(10),
               ),
+              boxShadow: [
+                BoxShadow(
+                  color: const Color(0xFFACE0F9).withOpacity(0.2),
+                  blurRadius: 20,
+                  offset: const Offset(0, 8),
+                )
+              ],
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(24.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Expanded(
-                        child: Row(
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.all(10),
-                              decoration: BoxDecoration(
-                                gradient: const LinearGradient(
-                                  colors: [Color(0xFF00C9FF), Color(0xFF92FE9D)],
-                                ),
-                                shape: BoxShape.circle,
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: const Color(0xFF00C9FF).withOpacity(0.5),
-                                    blurRadius: 10,
-                                  )
-                                ],
-                              ),
-                              child: const Icon(Icons.local_activity_rounded, color: Colors.black87, size: 20),
-                            ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: Text(
-                                widget.aim.title ?? '',
-                                style: const TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.w900,
-                                  color: Colors.white,
-                                ),
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ),
-                          ],
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          gradient: const LinearGradient(
+                            colors: [Color(0xFFE0C3FC), Color(0xFF8EC5FC)],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ),
+                          borderRadius: BorderRadius.circular(16),
                         ),
+                        child: const Icon(Icons.event_note_rounded, color: Colors.white, size: 24),
                       ),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 6.0),
+                        padding: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 8.0),
                         decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.2),
-                          borderRadius: BorderRadius.circular(20),
-                          border: Border.all(color: Colors.white.withOpacity(0.4)),
+                          color: const Color(0xFFF5F8FE),
+                          borderRadius: BorderRadius.circular(12),
                         ),
                         child: Text(
                           widget.aim.status?.toUpperCase() ?? '',
                           style: const TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.w900,
-                            color: Colors.white,
+                            color: Color(0xFF4A5568),
                             letterSpacing: 1.0,
                           ),
                         ),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 20),
                   Text(
-                    widget.aim.description ?? '',
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.white.withOpacity(0.8),
-                      height: 1.4,
+                    widget.aim.title ?? '',
+                    style: const TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w900,
+                      color: Color(0xFF2D3748),
+                      height: 1.2,
                     ),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 12),
+                  Text(
+                    widget.aim.description ?? '',
+                    style: const TextStyle(
+                      fontSize: 14,
+                      color: Color(0xFF718096),
+                      height: 1.5,
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 24),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(
+                      const Text(
                         'PROGRESS',
                         style: TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w900,
-                          color: Colors.white.withOpacity(0.7),
+                          color: Color(0xFFA0AEC0),
                           letterSpacing: 1.0,
                         ),
                       ),
@@ -531,19 +520,38 @@ class _AimCardState extends State<AimCard> with SingleTickerProviderStateMixin {
                         style: const TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w900,
-                          color: Colors.white,
+                          color: Color(0xFF6C63FF),
                         ),
                       ),
                     ],
                   ),
                   const SizedBox(height: 8),
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(10),
-                    child: LinearProgressIndicator(
-                      value: (widget.aim.progress ?? 0) / 100,
-                      backgroundColor: Colors.white.withOpacity(0.1),
-                      valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF00C9FF)),
-                      minHeight: 8,
+                  Container(
+                    height: 10,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF5F8FE),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          flex: widget.aim.progress ?? 0,
+                          child: Container(
+                            decoration: BoxDecoration(
+                              gradient: const LinearGradient(
+                                colors: [Color(0xFFACE0F9), Color(0xFF6C63FF)],
+                                begin: Alignment.centerLeft,
+                                end: Alignment.centerRight,
+                              ),
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                          ),
+                        ),
+                        Expanded(
+                          flex: 100 - (widget.aim.progress ?? 0),
+                          child: const SizedBox(),
+                        ),
+                      ],
                     ),
                   ),
                 ],
@@ -571,81 +579,97 @@ class _HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (isLoading) {
-      return const Center(child: CircularProgressIndicator(color: Colors.white));
+      return const Center(child: CircularProgressIndicator(color: Color(0xFF6C63FF)));
     }
 
     if (errorMessage.isNotEmpty) {
       return Center(
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(20),
-          child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-            child: Container(
-              padding: const EdgeInsets.all(24.0),
-              color: Colors.redAccent.withOpacity(0.2),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Icon(Icons.error_outline_rounded, color: Colors.white, size: 48),
-                  const SizedBox(height: 16),
-                  Text(
-                    errorMessage,
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-                  ),
-                ],
+        child: Container(
+          margin: const EdgeInsets.all(24),
+          padding: const EdgeInsets.all(24.0),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(24),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.redAccent.withOpacity(0.1),
+                blurRadius: 20,
+              )
+            ],
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(Icons.error_outline_rounded, color: Colors.redAccent, size: 48),
+              const SizedBox(height: 16),
+              Text(
+                errorMessage,
+                textAlign: TextAlign.center,
+                style: const TextStyle(color: Colors.redAccent, fontWeight: FontWeight.bold),
               ),
-            ),
+            ],
           ),
         ),
       );
     }
 
     if (aims.isEmpty) {
-      return Center(
+      return const Center(
         child: Text(
           'No college functions are scheduled at this time.',
-          style: TextStyle(fontSize: 16, color: Colors.white.withOpacity(0.8), fontWeight: FontWeight.w600),
+          style: TextStyle(fontSize: 16, color: Color(0xFF718096), fontWeight: FontWeight.w600),
         ),
       );
     }
 
     return ListView.builder(
       physics: const BouncingScrollPhysics(),
-      padding: const EdgeInsets.fromLTRB(16.0, 10.0, 16.0, 120.0), // Padding for Nav
-      itemCount: aims.length + 1, // +1 for the header
+      padding: const EdgeInsets.fromLTRB(24.0, 10.0, 24.0, 120.0), // Padding for Nav
+      itemCount: aims.length + 1, // +1 for the header text
       itemBuilder: (context, index) {
         if (index == 0) {
           return Padding(
-            padding: const EdgeInsets.only(bottom: 24.0, left: 8.0, top: 16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  'Upcoming Events',
-                  style: TextStyle(
-                    fontSize: 28,
-                    fontWeight: FontWeight.w900,
-                    color: Colors.white,
-                    letterSpacing: -0.5,
+            padding: const EdgeInsets.only(bottom: 32.0, top: 16.0),
+            child: TweenAnimationBuilder(
+              tween: Tween<double>(begin: 0, end: 1),
+              duration: const Duration(milliseconds: 600),
+              curve: Curves.easeOut,
+              builder: (context, double value, child) {
+                return Opacity(
+                  opacity: value,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Upcoming Events',
+                        style: TextStyle(
+                          fontSize: 34,
+                          fontWeight: FontWeight.w900,
+                          color: Color(0xFF2D3748),
+                          letterSpacing: -1.0,
+                          height: 1.1,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        'Explore what\'s happening on campus',
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: const Color(0xFF4A5568).withOpacity(0.8),
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
                   ),
-                ),
-                Text(
-                  'Join the latest college functions',
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.white.withOpacity(0.7),
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ],
+                );
+              },
             ),
           );
         }
         final aim = aims[index - 1];
         return Padding(
-          padding: const EdgeInsets.only(bottom: 16.0),
-          child: AimCard(aim: aim),
+          padding: const EdgeInsets.only(bottom: 24.0),
+          child: AimCard(aim: aim, index: index),
         );
       },
     );

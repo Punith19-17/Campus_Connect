@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'dart:ui';
 import 'club_details.dart';
 
 // 1. Updated Club model to match the API response
@@ -55,10 +54,12 @@ class Club {
 // The reusable widget for the club card.
 class ClubCard extends StatefulWidget {
   final Club club;
+  final int index;
 
   const ClubCard({
     Key? key,
     required this.club,
+    required this.index,
   }) : super(key: key);
 
   @override
@@ -70,111 +71,112 @@ class _ClubCardState extends State<ClubCard> with SingleTickerProviderStateMixin
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTapDown: (_) => setState(() => _isHovered = true),
-      onTapUp: (_) => setState(() => _isHovered = false),
-      onTapCancel: () => setState(() => _isHovered = false),
-      onTap: () {
-        Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (context) => ClubDetailsPage(club: widget.club),
+    // Determine staggered offset based on grid column
+    final isRightColumn = widget.index % 2 != 0;
+
+    return TweenAnimationBuilder(
+      tween: Tween<double>(begin: 0, end: 1),
+      duration: Duration(milliseconds: 400 + (widget.index * 50)),
+      curve: Curves.easeOutCubic,
+      builder: (context, double value, child) {
+        return Transform.translate(
+          offset: Offset(0, 50 * (1 - value) + (isRightColumn ? 30.0 : 0.0)),
+          child: Opacity(
+            opacity: value,
+            child: child,
           ),
         );
       },
-      child: AnimatedScale(
-        scale: _isHovered ? 0.95 : 1.0,
-        duration: const Duration(milliseconds: 150),
-        curve: Curves.easeOut,
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(24.0),
-          child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
-            child: Container(
-              padding: const EdgeInsets.all(16.0),
-              decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(24.0),
-                border: Border.all(color: Colors.white.withOpacity(0.3)),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
-                    blurRadius: 10,
-                    offset: const Offset(0, 5),
-                  ),
-                ],
+      child: GestureDetector(
+        onTapDown: (_) => setState(() => _isHovered = true),
+        onTapUp: (_) => setState(() => _isHovered = false),
+        onTapCancel: () => setState(() => _isHovered = false),
+        onTap: () {
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (context) => ClubDetailsPage(club: widget.club),
+            ),
+          );
+        },
+        child: AnimatedScale(
+          scale: _isHovered ? 0.95 : 1.0,
+          duration: const Duration(milliseconds: 150),
+          curve: Curves.easeOut,
+          child: Container(
+            padding: const EdgeInsets.all(20.0),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              // Unique asymmetrical design
+              borderRadius: BorderRadius.only(
+                topLeft: const Radius.circular(30),
+                bottomRight: const Radius.circular(30),
+                topRight: isRightColumn ? const Radius.circular(10) : const Radius.circular(30),
+                bottomLeft: !isRightColumn ? const Radius.circular(10) : const Radius.circular(30),
               ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(
-                    width: 56,
-                    height: 56,
-                    decoration: BoxDecoration(
-                      gradient: const LinearGradient(
-                        colors: [Color(0xFF00FFD1), Color(0xFF00C9FF)],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ),
-                      borderRadius: BorderRadius.circular(20),
-                      boxShadow: [
-                        BoxShadow(
-                          color: const Color(0xFF00C9FF).withOpacity(0.5),
-                          blurRadius: 15,
-                        )
-                      ],
+              boxShadow: [
+                BoxShadow(
+                  color: const Color(0xFF8EC5FC).withOpacity(0.15),
+                  blurRadius: 20,
+                  offset: const Offset(0, 10),
+                ),
+              ],
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  width: 50,
+                  height: 50,
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                      colors: [Color(0xFFE0C3FC), Color(0xFF8EC5FC)],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
                     ),
-                    child: const Center(
-                      child: Icon(Icons.groups_rounded, color: Colors.black87, size: 28),
-                    ),
+                    borderRadius: BorderRadius.circular(16),
                   ),
-                  const SizedBox(height: 16),
-                  Text(
-                    widget.club.name,
+                  child: const Center(
+                    child: Icon(Icons.groups_rounded, color: Colors.white, size: 24),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  widget.club.name,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w900,
+                    color: Color(0xFF2D3748),
+                    height: 1.2,
+                  ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 8),
+                Expanded(
+                  child: Text(
+                    widget.club.description,
                     style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w900,
-                      color: Colors.white,
-                      height: 1.2,
+                      fontSize: 13,
+                      color: Color(0xFF718096),
+                      height: 1.4,
                     ),
-                    maxLines: 2,
+                    maxLines: 3,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  const SizedBox(height: 6),
-                  Expanded(
-                    child: Text(
-                      widget.club.description,
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.white.withOpacity(0.8),
-                        height: 1.4,
-                      ),
-                      maxLines: 3,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.symmetric(vertical: 8),
+                ),
+                const SizedBox(height: 12),
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: Container(
+                    padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.2),
-                      borderRadius: BorderRadius.circular(12.0),
-                      border: Border.all(color: Colors.white.withOpacity(0.4)),
+                      color: const Color(0xFFF5F8FE),
+                      shape: BoxShape.circle,
                     ),
-                    child: const Center(
-                      child: Text(
-                        'Explore',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 12,
-                          fontWeight: FontWeight.w900,
-                          letterSpacing: 1.0,
-                        ),
-                      ),
-                    ),
+                    child: const Icon(Icons.arrow_forward_rounded, size: 16, color: Color(0xFF6C63FF)),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         ),
@@ -254,167 +256,161 @@ class _ClubDirectoryPageState extends State<ClubDirectoryPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        // Background handled by parent Scaffold in Dashboard, but if this is standalone:
-        // We ensure it's transparent to let parent background show.
-        Container(color: Colors.transparent),
-
-        Scaffold(
-          backgroundColor: Colors.transparent,
-          appBar: AppBar(
-            automaticallyImplyLeading: false,
-            backgroundColor: Colors.transparent,
-            elevation: 0,
-            centerTitle: true,
-            title: const Text(
-              'Clubs',
-              style: TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.w900,
-                letterSpacing: 1.5,
-              ),
-            ),
+    return Scaffold(
+      backgroundColor: Colors.transparent, // Uses parent background in dashboard
+      appBar: AppBar(
+        automaticallyImplyLeading: false,
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        centerTitle: true,
+        title: const Text(
+          'Explore Clubs',
+          style: TextStyle(
+            color: Color(0xFF2D3748),
+            fontWeight: FontWeight.w900,
+            fontSize: 22,
           ),
-          body: _isLoading
-              ? const Center(child: CircularProgressIndicator(color: Colors.white))
-              : _errorMessage.isNotEmpty
-                  ? Center(
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(20),
-                        child: BackdropFilter(
-                          filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-                          child: Container(
-                            padding: const EdgeInsets.all(24.0),
-                            color: Colors.redAccent.withOpacity(0.2),
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                const Icon(Icons.error_outline_rounded, color: Colors.white, size: 48),
-                                const SizedBox(height: 16),
-                                Text(
-                                  _errorMessage,
-                                  textAlign: TextAlign.center,
-                                  style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                    )
-                  : Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+        ),
+      ),
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator(color: Color(0xFF6C63FF)))
+          : _errorMessage.isNotEmpty
+              ? Center(
+                  child: Container(
+                    margin: const EdgeInsets.all(24),
+                    padding: const EdgeInsets.all(24.0),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(24),
+                    ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
                       children: [
-                        // Frosted Glass Animated Pill Tab Selector
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(25),
-                            child: BackdropFilter(
-                              filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
-                              child: Container(
-                                height: 50,
-                                decoration: BoxDecoration(
-                                  color: Colors.white.withOpacity(0.1),
-                                  borderRadius: BorderRadius.circular(25),
-                                  border: Border.all(color: Colors.white.withOpacity(0.2)),
-                                ),
-                                child: Stack(
-                                  children: [
-                                    AnimatedAlign(
-                                      alignment: _isDepartmentClubSelected
-                                          ? Alignment.centerLeft
-                                          : Alignment.centerRight,
-                                      duration: const Duration(milliseconds: 250),
-                                      curve: Curves.easeInOutCubic,
-                                      child: FractionallySizedBox(
-                                        widthFactor: 0.5,
-                                        child: Container(
-                                          margin: const EdgeInsets.all(4),
-                                          decoration: BoxDecoration(
-                                            color: Colors.white.withOpacity(0.3),
-                                            borderRadius: BorderRadius.circular(25),
-                                            border: Border.all(color: Colors.white.withOpacity(0.5)),
-                                            boxShadow: [
-                                              BoxShadow(
-                                                color: Colors.white.withOpacity(0.2),
-                                                blurRadius: 10,
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    Row(
-                                      children: [
-                                        Expanded(
-                                          child: GestureDetector(
-                                            behavior: HitTestBehavior.opaque,
-                                            onTap: () {
-                                              setState(() {
-                                                _isDepartmentClubSelected = true;
-                                              });
-                                            },
-                                            child: Center(
-                                              child: Text(
-                                                'Department',
-                                                style: TextStyle(
-                                                  fontWeight: FontWeight.w900,
-                                                  fontSize: 14,
-                                                  color: Colors.white.withOpacity(_isDepartmentClubSelected ? 1.0 : 0.6),
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                        Expanded(
-                                          child: GestureDetector(
-                                            behavior: HitTestBehavior.opaque,
-                                            onTap: () {
-                                              setState(() {
-                                                _isDepartmentClubSelected = false;
-                                              });
-                                            },
-                                            child: Center(
-                                              child: Text(
-                                                'College',
-                                                style: TextStyle(
-                                                  fontWeight: FontWeight.w900,
-                                                  fontSize: 14,
-                                                  color: Colors.white.withOpacity(!_isDepartmentClubSelected ? 1.0 : 0.6),
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 10),
-                        Expanded(
-                          child: _buildClubGrid(
-                            _isDepartmentClubSelected ? _departmentClubs : _collageClubs,
-                          ),
+                        const Icon(Icons.error_outline_rounded, color: Colors.redAccent, size: 48),
+                        const SizedBox(height: 16),
+                        Text(
+                          _errorMessage,
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(color: Colors.redAccent, fontWeight: FontWeight.bold),
                         ),
                       ],
                     ),
-        ),
-      ],
+                  ),
+                )
+              : Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Unique Tab Selector
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 10.0),
+                      child: Container(
+                        height: 60,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(30),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.03),
+                              blurRadius: 10,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
+                        ),
+                        child: Stack(
+                          children: [
+                            AnimatedAlign(
+                              alignment: _isDepartmentClubSelected
+                                  ? Alignment.centerLeft
+                                  : Alignment.centerRight,
+                              duration: const Duration(milliseconds: 300),
+                              curve: Curves.easeOutBack,
+                              child: FractionallySizedBox(
+                                widthFactor: 0.5,
+                                child: Container(
+                                  margin: const EdgeInsets.all(6),
+                                  decoration: BoxDecoration(
+                                    gradient: const LinearGradient(
+                                      colors: [Color(0xFFACE0F9), Color(0xFFE0C3FC)], // Light Cyan to Lilac
+                                      begin: Alignment.topLeft,
+                                      end: Alignment.bottomRight,
+                                    ),
+                                    borderRadius: BorderRadius.circular(24),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: const Color(0xFF8EC5FC).withOpacity(0.4),
+                                        blurRadius: 10,
+                                        offset: const Offset(0, 4),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: GestureDetector(
+                                    behavior: HitTestBehavior.opaque,
+                                    onTap: () {
+                                      setState(() {
+                                        _isDepartmentClubSelected = true;
+                                      });
+                                    },
+                                    child: Center(
+                                      child: Text(
+                                        'Department',
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.w900,
+                                          fontSize: 14,
+                                          color: _isDepartmentClubSelected ? Colors.white : const Color(0xFFA0AEC0),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                Expanded(
+                                  child: GestureDetector(
+                                    behavior: HitTestBehavior.opaque,
+                                    onTap: () {
+                                      setState(() {
+                                        _isDepartmentClubSelected = false;
+                                      });
+                                    },
+                                    child: Center(
+                                      child: Text(
+                                        'College',
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.w900,
+                                          fontSize: 14,
+                                          color: !_isDepartmentClubSelected ? Colors.white : const Color(0xFFA0AEC0),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    Expanded(
+                      child: _buildClubGrid(
+                        _isDepartmentClubSelected ? _departmentClubs : _collageClubs,
+                      ),
+                    ),
+                  ],
+                ),
     );
   }
 
   Widget _buildClubGrid(List<Club> clubs) {
     if (clubs.isEmpty) {
-      return Center(
+      return const Center(
         child: Text(
           'No clubs found in this category.',
-          style: TextStyle(fontSize: 16, color: Colors.white.withOpacity(0.8), fontWeight: FontWeight.w600),
+          style: TextStyle(fontSize: 16, color: Color(0xFF718096), fontWeight: FontWeight.w600),
         ),
       );
     }
@@ -422,16 +418,17 @@ class _ClubDirectoryPageState extends State<ClubDirectoryPage> {
       physics: const BouncingScrollPhysics(),
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
-        childAspectRatio: 0.72,
-        crossAxisSpacing: 16.0,
-        mainAxisSpacing: 16.0,
+        childAspectRatio: 0.70, // Slightly taller for staggered look
+        crossAxisSpacing: 20.0,
+        mainAxisSpacing: 20.0,
       ),
-      padding: const EdgeInsets.only(left: 20.0, right: 20.0, bottom: 120.0, top: 10.0), // Padding for Nav
+      padding: const EdgeInsets.only(left: 24.0, right: 24.0, bottom: 120.0, top: 16.0), // Padding for Nav
       itemCount: clubs.length,
       itemBuilder: (context, index) {
         final club = clubs[index];
         return ClubCard(
           club: club,
+          index: index,
         );
       },
     );
