@@ -58,7 +58,6 @@ class Aim {
       } else if (difference < 7) {
         return DateFormat('EEEE').format(date);
       } else {
-        // Events that have passed are marked as 'Completed' and will be filtered out.
         return 'Completed';
       }
     }
@@ -80,7 +79,7 @@ class Aim {
 
   factory Aim.fromJson(Map<String, dynamic> json) {
     DateTime eventDate =
-    (DateTime.tryParse(json['date'] ?? '') ?? DateTime.now()).toLocal();
+        (DateTime.tryParse(json['date'] ?? '') ?? DateTime.now()).toLocal();
 
     int progressValue;
     final now = DateTime.now();
@@ -152,10 +151,11 @@ class _StudentDashboardState extends State<StudentDashboard> {
   }
 
   Future<void> _fetchAims() async {
-    const String url = 'https://campus-connect-p1ow.onrender.com/api/addevents/collegefunctions';
+    const String url =
+        'https://campus-connect-p1ow.onrender.com/api/addevents/collegefunctions';
     try {
       final response =
-      await http.get(Uri.parse(url)).timeout(const Duration(seconds: 10));
+          await http.get(Uri.parse(url)).timeout(const Duration(seconds: 10));
 
       if (!mounted) return;
 
@@ -167,15 +167,15 @@ class _StudentDashboardState extends State<StudentDashboard> {
               .map((data) => Aim.fromJson(data as Map<String, dynamic>))
               .toList();
 
-          // FIX: Filter out events where progress is 100% (completed/past)
-          loadedAims = loadedAims.where((aim) => (aim.progress ?? 0) < 100).toList();
+          loadedAims =
+              loadedAims.where((aim) => (aim.progress ?? 0) < 100).toList();
 
           loadedAims.sort((a, b) {
             int getPriority(Aim aim) {
-              if (aim.status == 'Today') return 1; // Highest priority
+              if (aim.status == 'Today') return 1;
               if (aim.status == 'Tomorrow') return 2;
-              if (aim.progress != 100) return 3; // All other upcoming
-              return 4; // Fallback (shouldn't be hit now due to filter)
+              if (aim.progress != 100) return 3;
+              return 4;
             }
 
             int priorityA = getPriority(a);
@@ -185,7 +185,6 @@ class _StudentDashboardState extends State<StudentDashboard> {
               return priorityA.compareTo(priorityB);
             }
 
-            // Secondary sort by date (ascending)
             return a.eventDate.compareTo(b.eventDate);
           });
 
@@ -200,14 +199,14 @@ class _StudentDashboardState extends State<StudentDashboard> {
       } else {
         setState(() {
           _errorMessage =
-          'Failed to load events. Status: ${response.statusCode}';
+              'Failed to load events. Status: ${response.statusCode}';
         });
       }
     } catch (e) {
       if (mounted) {
         setState(() {
           _errorMessage =
-          'Failed to connect to the server.\nPlease check your connection.';
+              'Failed to connect to the server.\nPlease check your connection.';
         });
       }
     } finally {
@@ -232,182 +231,305 @@ class _StudentDashboardState extends State<StudentDashboard> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: const Color(0xFFFAFBFF), // Soft background
+      extendBodyBehindAppBar: true,
+      extendBody: true,
       appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(
-                builder: (context) => const AuthScreen(),
-              ),
-            );
-          },
+        leading: Container(
+          margin: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            shape: BoxShape.circle,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.05),
+                blurRadius: 10,
+              )
+            ],
+          ),
+          child: IconButton(
+            icon: const Icon(Icons.arrow_back_rounded, color: Color(0xFF1E293B)),
+            onPressed: () {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const AuthScreen(),
+                ),
+              );
+            },
+          ),
         ),
-        title: const Text('AIMS',
-            style: TextStyle(fontWeight: FontWeight.bold)),
+        title: const Text('Campus Connect',
+            style: TextStyle(
+                fontWeight: FontWeight.w800,
+                color: Color(0xFF1E293B),
+                letterSpacing: 0.5)),
         centerTitle: true,
-        backgroundColor: Colors.white,
+        backgroundColor: Colors.transparent,
         elevation: 0,
         actions: [
-          IconButton(
-            icon: const Icon(Icons.settings),
-            onPressed: () {},
+          Container(
+            margin: const EdgeInsets.only(right: 16, top: 8, bottom: 8),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              shape: BoxShape.circle,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.05),
+                  blurRadius: 10,
+                )
+              ],
+            ),
+            child: IconButton(
+              icon: const Icon(Icons.notifications_none_rounded, color: Color(0xFF1E293B)),
+              onPressed: () {},
+            ),
           ),
         ],
       ),
       body: _pages[_selectedIndex],
-      bottomNavigationBar: BottomNavigationBar(
-        items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Home',
+      bottomNavigationBar: SafeArea(
+        child: Container(
+          margin: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+          decoration: BoxDecoration(
+            color: Colors.white.withOpacity(0.9),
+            borderRadius: BorderRadius.circular(30),
+            boxShadow: [
+              BoxShadow(
+                color: const Color(0xFF4A90E2).withOpacity(0.15),
+                blurRadius: 30,
+                offset: const Offset(0, 10),
+              ),
+            ],
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.people),
-            label: 'Clubs',
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(30),
+            child: BottomNavigationBar(
+              items: const <BottomNavigationBarItem>[
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.home_rounded),
+                  activeIcon: Icon(Icons.home_rounded, size: 28),
+                  label: 'Home',
+                ),
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.groups_rounded),
+                  activeIcon: Icon(Icons.groups_rounded, size: 28),
+                  label: 'Clubs',
+                ),
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.edit_note_rounded),
+                  activeIcon: Icon(Icons.edit_note_rounded, size: 28),
+                  label: 'Responses',
+                ),
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.person_rounded),
+                  activeIcon: Icon(Icons.person_rounded, size: 28),
+                  label: 'Profile',
+                ),
+              ],
+              currentIndex: _selectedIndex,
+              selectedItemColor: const Color(0xFF6C63FF),
+              unselectedItemColor: const Color(0xFF94A3B8),
+              showSelectedLabels: true,
+              showUnselectedLabels: false,
+              onTap: _onItemTapped,
+              type: BottomNavigationBarType.fixed,
+              backgroundColor: Colors.transparent,
+              elevation: 0,
+              selectedLabelStyle: const TextStyle(
+                  fontWeight: FontWeight.bold, fontSize: 12),
+            ),
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.edit_note),
-            label: 'My Responses',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: 'Profile',
-          ),
-        ],
-        currentIndex: _selectedIndex,
-        selectedItemColor: Colors.blueAccent,
-        unselectedItemColor: Colors.grey,
-        onTap: _onItemTapped,
-        type: BottomNavigationBarType.fixed,
-        backgroundColor: Colors.white,
+        ),
       ),
     );
   }
 }
 
 // ----------------- EVENT CARD -----------------
-class AimCard extends StatelessWidget {
+class AimCard extends StatefulWidget {
   final Aim aim;
   const AimCard({super.key, required this.aim});
+
+  @override
+  State<AimCard> createState() => _AimCardState();
+}
+
+class _AimCardState extends State<AimCard> with SingleTickerProviderStateMixin {
+  bool _isPressed = false;
 
   Color _getStatusColor(String? status) {
     switch (status) {
       case 'Today':
-        return Colors.blue[200]!;
+        return const Color(0xFFE0F2FE);
       case 'Tomorrow':
-        return Colors.orange[200]!;
+        return const Color(0xFFFEF3C7);
       case 'Yesterday':
-        return Colors.pink[200]!;
+        return const Color(0xFFFCE7F3);
       case 'Completed':
-        return Colors.green[200]!;
+        return const Color(0xFFDCFCE7);
       default:
-        return Colors.green[200]!;
+        return const Color(0xFFF3E8FF);
     }
   }
 
-  Color _getIconColor(int? progress) {
-    return (progress ?? 0) >= 100 ? Colors.green : Colors.black;
+  Color _getStatusTextColor(String? status) {
+    switch (status) {
+      case 'Today':
+        return const Color(0xFF0284C7);
+      case 'Tomorrow':
+        return const Color(0xFFD97706);
+      case 'Yesterday':
+        return const Color(0xFFDB2777);
+      case 'Completed':
+        return const Color(0xFF16A34A);
+      default:
+        return const Color(0xFF9333EA);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
+      onTapDown: (_) => setState(() => _isPressed = true),
+      onTapUp: (_) => setState(() => _isPressed = false),
+      onTapCancel: () => setState(() => _isPressed = false),
       onTap: () {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => clgeventsDetailsPage(event: aim),
+            builder: (context) => clgeventsDetailsPage(event: widget.aim),
           ),
         );
       },
-      child: Card(
-        elevation: 4,
-        color: const Color(0xFFF0F6FC),
-        shape:
-        RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Expanded(
-                    child: Row(
-                      children: [
-                        Icon(
-                          (aim.progress ?? 0) >= 100
-                              ? Icons.check_circle_outline
-                              : Icons.circle_outlined,
-                          color: _getIconColor(aim.progress),
-                          size: 20,
-                        ),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: Text(
-                            aim.title ?? '',
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                            ),
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 8.0, vertical: 4.0),
-                    decoration: BoxDecoration(
-                      color: _getStatusColor(aim.status),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Text(
-                      aim.status ?? '',
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.grey[800],
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 8),
-              Text(
-                aim.description ?? '',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: Colors.grey[600],
-                ),
-              ),
-              const SizedBox(height: 12),
-              const Text(
-                'Progress',
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-              const SizedBox(height: 4),
-              LinearProgressIndicator(
-                value: (aim.progress ?? 0) / 100,
-                backgroundColor: Colors.grey[300],
-                color: Colors.black,
-                borderRadius: BorderRadius.circular(10),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                '${aim.progress ?? 0}%',
-                style: const TextStyle(
-                    fontSize: 12, fontWeight: FontWeight.bold),
+      child: AnimatedScale(
+        scale: _isPressed ? 0.96 : 1.0,
+        duration: const Duration(milliseconds: 150),
+        curve: Curves.easeOut,
+        child: Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(24),
+            boxShadow: [
+              BoxShadow(
+                color: const Color(0xFF6C63FF).withOpacity(0.08),
+                blurRadius: 24,
+                offset: const Offset(0, 8),
               ),
             ],
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                Colors.white,
+                const Color(0xFFF8FAFC),
+              ],
+            ),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(10),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFF1F5F9),
+                              shape: BoxShape.circle,
+                            ),
+                            child: Icon(
+                              Icons.event_available_rounded,
+                              color: const Color(0xFF6C63FF),
+                              size: 20,
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Text(
+                              widget.aim.title ?? '',
+                              style: const TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.w800,
+                                color: Color(0xFF1E293B),
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 2,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 12.0, vertical: 6.0),
+                      decoration: BoxDecoration(
+                        color: _getStatusColor(widget.aim.status),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Text(
+                        widget.aim.status?.toUpperCase() ?? '',
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w800,
+                          color: _getStatusTextColor(widget.aim.status),
+                          letterSpacing: 0.5,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  widget.aim.description ?? '',
+                  style: const TextStyle(
+                    fontSize: 14,
+                    color: Color(0xFF64748B),
+                    height: 1.4,
+                  ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 20),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      'Timeline Progress',
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w700,
+                        color: Color(0xFF94A3B8),
+                      ),
+                    ),
+                    Text(
+                      '${widget.aim.progress ?? 0}%',
+                      style: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w800,
+                        color: Color(0xFF6C63FF),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(10),
+                  child: LinearProgressIndicator(
+                    value: (widget.aim.progress ?? 0) / 100,
+                    backgroundColor: const Color(0xFFF1F5F9),
+                    color: const Color(0xFF6C63FF),
+                    minHeight: 8,
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -430,17 +552,27 @@ class _HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (isLoading) {
-      return const Center(child: CircularProgressIndicator());
+      return const Center(
+          child: CircularProgressIndicator(color: Color(0xFF6C63FF)));
     }
 
     if (errorMessage.isNotEmpty) {
       return Center(
         child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Text(
-            errorMessage,
-            textAlign: TextAlign.center,
-            style: const TextStyle(color: Colors.red, fontSize: 16),
+          padding: const EdgeInsets.all(24.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(Icons.error_outline_rounded,
+                  color: Colors.redAccent, size: 48),
+              const SizedBox(height: 16),
+              Text(
+                errorMessage,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                    color: Colors.redAccent, fontWeight: FontWeight.bold),
+              ),
+            ],
           ),
         ),
       );
@@ -450,43 +582,64 @@ class _HomePage extends StatelessWidget {
       return const Center(
         child: Text(
           'No college functions are scheduled at this time.',
-          style: TextStyle(fontSize: 16),
+          style: TextStyle(
+              fontSize: 16,
+              color: Color(0xFF64748B),
+              fontWeight: FontWeight.w600),
         ),
       );
     }
 
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Row(
-            children: [
-              Icon(Icons.school, size: 24, color: Colors.black87),
-              SizedBox(width: 8),
-              Text(
-                'College Functions',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                ),
+      physics: const BouncingScrollPhysics(),
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(20.0, 110.0, 20.0, 100.0), // Top padding for AppBar, Bottom for Nav
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.02),
+                    blurRadius: 10,
+                  )
+                ],
               ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          ListView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemCount: aims.length,
-            itemBuilder: (context, index) {
-              final aim = aims[index];
-              return Padding(
-                padding: const EdgeInsets.only(bottom: 16.0),
-                child: AimCard(aim: aim),
-              );
-            },
-          ),
-        ],
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: const [
+                  Icon(Icons.school_rounded, size: 24, color: Color(0xFF6C63FF)),
+                  SizedBox(width: 10),
+                  Text(
+                    'College Functions',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w800,
+                      color: Color(0xFF1E293B),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 24),
+            ListView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: aims.length,
+              itemBuilder: (context, index) {
+                final aim = aims[index];
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 20.0),
+                  child: AimCard(aim: aim),
+                );
+              },
+            ),
+          ],
+        ),
       ),
     );
   }
