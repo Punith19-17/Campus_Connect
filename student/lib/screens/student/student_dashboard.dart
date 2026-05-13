@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'dart:convert';
+import 'dart:ui';
 
 import 'clg_events_details.dart';
 import 'Student_login.dart';
@@ -184,7 +185,6 @@ class _StudentDashboardState extends State<StudentDashboard> {
             if (priorityA != priorityB) {
               return priorityA.compareTo(priorityB);
             }
-
             return a.eventDate.compareTo(b.eventDate);
           });
 
@@ -231,113 +231,162 @@ class _StudentDashboardState extends State<StudentDashboard> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFFAFBFF), // Soft background
       extendBodyBehindAppBar: true,
       extendBody: true,
-      appBar: AppBar(
-        leading: Container(
-          margin: const EdgeInsets.all(8),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            shape: BoxShape.circle,
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.05),
-                blurRadius: 10,
-              )
-            ],
-          ),
-          child: IconButton(
-            icon: const Icon(Icons.arrow_back_rounded, color: Color(0xFF1E293B)),
-            onPressed: () {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const AuthScreen(),
-                ),
-              );
-            },
-          ),
-        ),
-        title: const Text('Campus Connect',
-            style: TextStyle(
-                fontWeight: FontWeight.w800,
-                color: Color(0xFF1E293B),
-                letterSpacing: 0.5)),
-        centerTitle: true,
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        actions: [
+      body: Stack(
+        children: [
+          // 1. Full Screen Vibrant Mesh Background
           Container(
-            margin: const EdgeInsets.only(right: 16, top: 8, bottom: 8),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              shape: BoxShape.circle,
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
-                  blurRadius: 10,
-                )
-              ],
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  Color(0xFF1E0E62), // Deep Purple
+                  Color(0xFFE02C73), // Vibrant Pink
+                  Color(0xFFFF9E7B), // Warm Peach
+                ],
+              ),
             ),
-            child: IconButton(
-              icon: const Icon(Icons.notifications_none_rounded, color: Color(0xFF1E293B)),
-              onPressed: () {},
+          ),
+
+          // 2. Animated Floating Blobs for Mesh Effect
+          Positioned(
+            top: -100,
+            left: -100,
+            child: Container(
+              width: 300,
+              height: 300,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: const Color(0xFF00FFD1).withOpacity(0.3), // Cyan glow
+              ),
+              child: BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: 50, sigmaY: 50),
+                child: Container(color: Colors.transparent),
+              ),
+            ),
+          ),
+          Positioned(
+            bottom: -50,
+            right: -50,
+            child: Container(
+              width: 250,
+              height: 250,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: const Color(0xFF8B5CF6).withOpacity(0.4), // Purple glow
+              ),
+              child: BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: 50, sigmaY: 50),
+                child: Container(color: Colors.transparent),
+              ),
+            ),
+          ),
+
+          // Main Content Area
+          SafeArea(
+            bottom: false,
+            child: Column(
+              children: [
+                // Custom Glass App Bar
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(20),
+                    child: BackdropFilter(
+                      filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(color: Colors.white.withOpacity(0.2)),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            GestureDetector(
+                              onTap: () {
+                                Navigator.pushReplacement(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => const AuthScreen(),
+                                  ),
+                                );
+                              },
+                              child: Container(
+                                padding: const EdgeInsets.all(8),
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withOpacity(0.2),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: const Icon(Icons.arrow_back_rounded, color: Colors.white, size: 20),
+                              ),
+                            ),
+                            const Text(
+                              'AIMS',
+                              style: TextStyle(
+                                fontWeight: FontWeight.w900,
+                                color: Colors.white,
+                                fontSize: 20,
+                                letterSpacing: 1.5,
+                              ),
+                            ),
+                            Container(
+                              padding: const EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                color: Colors.white.withOpacity(0.2),
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Icon(Icons.settings_rounded, color: Colors.white, size: 20),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+
+                // Active Page
+                Expanded(child: _pages[_selectedIndex]),
+              ],
             ),
           ),
         ],
       ),
-      body: _pages[_selectedIndex],
       bottomNavigationBar: SafeArea(
         child: Container(
-          margin: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-          decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.9),
-            borderRadius: BorderRadius.circular(30),
-            boxShadow: [
-              BoxShadow(
-                color: const Color(0xFF4A90E2).withOpacity(0.15),
-                blurRadius: 30,
-                offset: const Offset(0, 10),
-              ),
-            ],
-          ),
+          margin: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
           child: ClipRRect(
             borderRadius: BorderRadius.circular(30),
-            child: BottomNavigationBar(
-              items: const <BottomNavigationBarItem>[
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.home_rounded),
-                  activeIcon: Icon(Icons.home_rounded, size: 28),
-                  label: 'Home',
+            child: BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.15),
+                  borderRadius: BorderRadius.circular(30),
+                  border: Border.all(color: Colors.white.withOpacity(0.3)),
                 ),
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.groups_rounded),
-                  activeIcon: Icon(Icons.groups_rounded, size: 28),
-                  label: 'Clubs',
+                child: BottomNavigationBar(
+                  items: const <BottomNavigationBarItem>[
+                    BottomNavigationBarItem(icon: Icon(Icons.home_rounded), label: 'Home'),
+                    BottomNavigationBarItem(icon: Icon(Icons.groups_rounded), label: 'Clubs'),
+                    BottomNavigationBarItem(icon: Icon(Icons.edit_note_rounded), label: 'Responses'),
+                    BottomNavigationBarItem(icon: Icon(Icons.person_rounded), label: 'Profile'),
+                  ],
+                  currentIndex: _selectedIndex,
+                  selectedItemColor: Colors.white,
+                  unselectedItemColor: Colors.white.withOpacity(0.5),
+                  showSelectedLabels: true,
+                  showUnselectedLabels: false,
+                  onTap: _onItemTapped,
+                  type: BottomNavigationBarType.fixed,
+                  backgroundColor: Colors.transparent,
+                  elevation: 0,
+                  selectedLabelStyle: const TextStyle(fontWeight: FontWeight.w900, fontSize: 12),
                 ),
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.edit_note_rounded),
-                  activeIcon: Icon(Icons.edit_note_rounded, size: 28),
-                  label: 'Responses',
-                ),
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.person_rounded),
-                  activeIcon: Icon(Icons.person_rounded, size: 28),
-                  label: 'Profile',
-                ),
-              ],
-              currentIndex: _selectedIndex,
-              selectedItemColor: const Color(0xFF6C63FF),
-              unselectedItemColor: const Color(0xFF94A3B8),
-              showSelectedLabels: true,
-              showUnselectedLabels: false,
-              onTap: _onItemTapped,
-              type: BottomNavigationBarType.fixed,
-              backgroundColor: Colors.transparent,
-              elevation: 0,
-              selectedLabelStyle: const TextStyle(
-                  fontWeight: FontWeight.bold, fontSize: 12),
+              ),
             ),
           ),
         ),
@@ -356,44 +405,14 @@ class AimCard extends StatefulWidget {
 }
 
 class _AimCardState extends State<AimCard> with SingleTickerProviderStateMixin {
-  bool _isPressed = false;
-
-  Color _getStatusColor(String? status) {
-    switch (status) {
-      case 'Today':
-        return const Color(0xFFE0F2FE);
-      case 'Tomorrow':
-        return const Color(0xFFFEF3C7);
-      case 'Yesterday':
-        return const Color(0xFFFCE7F3);
-      case 'Completed':
-        return const Color(0xFFDCFCE7);
-      default:
-        return const Color(0xFFF3E8FF);
-    }
-  }
-
-  Color _getStatusTextColor(String? status) {
-    switch (status) {
-      case 'Today':
-        return const Color(0xFF0284C7);
-      case 'Tomorrow':
-        return const Color(0xFFD97706);
-      case 'Yesterday':
-        return const Color(0xFFDB2777);
-      case 'Completed':
-        return const Color(0xFF16A34A);
-      default:
-        return const Color(0xFF9333EA);
-    }
-  }
+  bool _isHovered = false;
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTapDown: (_) => setState(() => _isPressed = true),
-      onTapUp: (_) => setState(() => _isPressed = false),
-      onTapCancel: () => setState(() => _isPressed = false),
+      onTapDown: (_) => setState(() => _isHovered = true),
+      onTapUp: (_) => setState(() => _isHovered = false),
+      onTapCancel: () => setState(() => _isHovered = false),
       onTap: () {
         Navigator.push(
           context,
@@ -403,132 +422,132 @@ class _AimCardState extends State<AimCard> with SingleTickerProviderStateMixin {
         );
       },
       child: AnimatedScale(
-        scale: _isPressed ? 0.96 : 1.0,
+        scale: _isHovered ? 0.95 : 1.0,
         duration: const Duration(milliseconds: 150),
         curve: Curves.easeOut,
-        child: Container(
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(24),
-            boxShadow: [
-              BoxShadow(
-                color: const Color(0xFF6C63FF).withOpacity(0.08),
-                blurRadius: 24,
-                offset: const Offset(0, 8),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(24),
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
+            child: Container(
+              padding: const EdgeInsets.all(20.0),
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(24),
+                border: Border.all(color: Colors.white.withOpacity(0.3)),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.1),
+                    blurRadius: 10,
+                    offset: const Offset(0, 5),
+                  )
+                ],
               ),
-            ],
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                Colors.white,
-                const Color(0xFFF8FAFC),
-              ],
-            ),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(20.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(
-                      child: Row(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(10),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFFF1F5F9),
-                              shape: BoxShape.circle,
-                            ),
-                            child: Icon(
-                              Icons.event_available_rounded,
-                              color: const Color(0xFF6C63FF),
-                              size: 20,
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Text(
-                              widget.aim.title ?? '',
-                              style: const TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.w800,
-                                color: Color(0xFF1E293B),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(10),
+                              decoration: BoxDecoration(
+                                gradient: const LinearGradient(
+                                  colors: [Color(0xFF00C9FF), Color(0xFF92FE9D)],
+                                ),
+                                shape: BoxShape.circle,
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: const Color(0xFF00C9FF).withOpacity(0.5),
+                                    blurRadius: 10,
+                                  )
+                                ],
                               ),
-                              overflow: TextOverflow.ellipsis,
-                              maxLines: 2,
+                              child: const Icon(Icons.local_activity_rounded, color: Colors.black87, size: 20),
                             ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 12.0, vertical: 6.0),
-                      decoration: BoxDecoration(
-                        color: _getStatusColor(widget.aim.status),
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: Text(
-                        widget.aim.status?.toUpperCase() ?? '',
-                        style: TextStyle(
-                          fontSize: 11,
-                          fontWeight: FontWeight.w800,
-                          color: _getStatusTextColor(widget.aim.status),
-                          letterSpacing: 0.5,
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Text(
+                                widget.aim.title ?? '',
+                                style: const TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w900,
+                                  color: Colors.white,
+                                ),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  widget.aim.description ?? '',
-                  style: const TextStyle(
-                    fontSize: 14,
-                    color: Color(0xFF64748B),
-                    height: 1.4,
-                  ),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                const SizedBox(height: 20),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text(
-                      'Timeline Progress',
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w700,
-                        color: Color(0xFF94A3B8),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 6.0),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.2),
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(color: Colors.white.withOpacity(0.4)),
+                        ),
+                        child: Text(
+                          widget.aim.status?.toUpperCase() ?? '',
+                          style: const TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w900,
+                            color: Colors.white,
+                            letterSpacing: 1.0,
+                          ),
+                        ),
                       ),
-                    ),
-                    Text(
-                      '${widget.aim.progress ?? 0}%',
-                      style: const TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w800,
-                        color: Color(0xFF6C63FF),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(10),
-                  child: LinearProgressIndicator(
-                    value: (widget.aim.progress ?? 0) / 100,
-                    backgroundColor: const Color(0xFFF1F5F9),
-                    color: const Color(0xFF6C63FF),
-                    minHeight: 8,
+                    ],
                   ),
-                ),
-              ],
+                  const SizedBox(height: 16),
+                  Text(
+                    widget.aim.description ?? '',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Colors.white.withOpacity(0.8),
+                      height: 1.4,
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 20),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'PROGRESS',
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w900,
+                          color: Colors.white.withOpacity(0.7),
+                          letterSpacing: 1.0,
+                        ),
+                      ),
+                      Text(
+                        '${widget.aim.progress ?? 0}%',
+                        style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w900,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(10),
+                    child: LinearProgressIndicator(
+                      value: (widget.aim.progress ?? 0) / 100,
+                      backgroundColor: Colors.white.withOpacity(0.1),
+                      valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF00C9FF)),
+                      minHeight: 8,
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
@@ -552,95 +571,83 @@ class _HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (isLoading) {
-      return const Center(
-          child: CircularProgressIndicator(color: Color(0xFF6C63FF)));
+      return const Center(child: CircularProgressIndicator(color: Colors.white));
     }
 
     if (errorMessage.isNotEmpty) {
       return Center(
-        child: Padding(
-          padding: const EdgeInsets.all(24.0),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Icon(Icons.error_outline_rounded,
-                  color: Colors.redAccent, size: 48),
-              const SizedBox(height: 16),
-              Text(
-                errorMessage,
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                    color: Colors.redAccent, fontWeight: FontWeight.bold),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(20),
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+            child: Container(
+              padding: const EdgeInsets.all(24.0),
+              color: Colors.redAccent.withOpacity(0.2),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(Icons.error_outline_rounded, color: Colors.white, size: 48),
+                  const SizedBox(height: 16),
+                  Text(
+                    errorMessage,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
         ),
       );
     }
 
     if (aims.isEmpty) {
-      return const Center(
+      return Center(
         child: Text(
           'No college functions are scheduled at this time.',
-          style: TextStyle(
-              fontSize: 16,
-              color: Color(0xFF64748B),
-              fontWeight: FontWeight.w600),
+          style: TextStyle(fontSize: 16, color: Colors.white.withOpacity(0.8), fontWeight: FontWeight.w600),
         ),
       );
     }
 
-    return SingleChildScrollView(
+    return ListView.builder(
       physics: const BouncingScrollPhysics(),
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(20.0, 110.0, 20.0, 100.0), // Top padding for AppBar, Bottom for Nav
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(20),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.02),
-                    blurRadius: 10,
-                  )
-                ],
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: const [
-                  Icon(Icons.school_rounded, size: 24, color: Color(0xFF6C63FF)),
-                  SizedBox(width: 10),
-                  Text(
-                    'College Functions',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w800,
-                      color: Color(0xFF1E293B),
-                    ),
+      padding: const EdgeInsets.fromLTRB(16.0, 10.0, 16.0, 120.0), // Padding for Nav
+      itemCount: aims.length + 1, // +1 for the header
+      itemBuilder: (context, index) {
+        if (index == 0) {
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 24.0, left: 8.0, top: 16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Upcoming Events',
+                  style: TextStyle(
+                    fontSize: 28,
+                    fontWeight: FontWeight.w900,
+                    color: Colors.white,
+                    letterSpacing: -0.5,
                   ),
-                ],
-              ),
+                ),
+                Text(
+                  'Join the latest college functions',
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Colors.white.withOpacity(0.7),
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
             ),
-            const SizedBox(height: 24),
-            ListView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: aims.length,
-              itemBuilder: (context, index) {
-                final aim = aims[index];
-                return Padding(
-                  padding: const EdgeInsets.only(bottom: 20.0),
-                  child: AimCard(aim: aim),
-                );
-              },
-            ),
-          ],
-        ),
-      ),
+          );
+        }
+        final aim = aims[index - 1];
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 16.0),
+          child: AimCard(aim: aim),
+        );
+      },
     );
   }
 }
