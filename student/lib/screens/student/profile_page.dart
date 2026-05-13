@@ -198,7 +198,7 @@ class _StudentProfilePageState extends State<StudentProfilePage> {
                       return Transform.scale(scale: val, child: child);
                     },
                     child: Container(
-                      padding: const EdgeInsets.all(32),
+                      padding: const EdgeInsets.all(24),
                       decoration: BoxDecoration(
                         gradient: const LinearGradient(
                           colors: [Color(0xFFFFF1EB), Color(0xFFACE0F9)], // Peach to Ice Blue
@@ -223,16 +223,16 @@ class _StudentProfilePageState extends State<StudentProfilePage> {
                               shape: BoxShape.circle,
                             ),
                             child: const CircleAvatar(
-                              radius: 50,
+                              radius: 40,
                               backgroundColor: Colors.white,
-                              child: Icon(Icons.person_rounded, size: 50, color: Color(0xFF6C63FF)),
+                              child: Icon(Icons.person_rounded, size: 40, color: Color(0xFF6C63FF)),
                             ),
                           ),
-                          const SizedBox(height: 16),
+                          const SizedBox(height: 12),
                           Text(
                             _userProfile!['name'] ?? 'N/A',
                             style: const TextStyle(
-                              fontSize: 24,
+                              fontSize: 20,
                               fontWeight: FontWeight.w900,
                               color: Color(0xFF2D3748),
                               letterSpacing: -0.5,

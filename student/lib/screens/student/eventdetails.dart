@@ -230,16 +230,18 @@ class _EventDetailsPageState extends State<EventDetailsPage> with SingleTickerPr
                 ),
               ),
             ],
-            flexibleSpace: FlexibleSpaceBar(
-              background: Container(
-                decoration: const BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [Color(0xFFFFF1EB), Color(0xFFACE0F9)], // Peach to Ice Blue
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
+            flexibleSpace: ClipRRect(
+              borderRadius: const BorderRadius.vertical(bottom: Radius.circular(40)),
+              child: FlexibleSpaceBar(
+                background: Container(
+                  decoration: const BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [Color(0xFFFFF1EB), Color(0xFFACE0F9)], // Peach to Ice Blue
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
                   ),
-                ),
-                child: Center(
+                  child: Center(
                   child: TweenAnimationBuilder(
                     tween: Tween<double>(begin: 0, end: 1),
                     duration: const Duration(milliseconds: 600),
@@ -270,6 +272,7 @@ class _EventDetailsPageState extends State<EventDetailsPage> with SingleTickerPr
               ),
             ),
           ),
+        ),
 
           SliverToBoxAdapter(
             child: Container(
